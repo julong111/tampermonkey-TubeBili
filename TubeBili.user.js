@@ -1,26 +1,32 @@
 // ==UserScript==
-// @name             Youtube Bilibili Video Player Enhancer Tools
-// @name:zh          油管哔哩哔哩视频播放器增强工具
-// @description      Adds more speed buttons and more settings to YouTube and Bilibili video players.  
-// @description:zh   油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
-// @version          1.0.0
-// @namespace        https://github.com/julong111/script-youtube-more-speeds
-// @author           julong@111.com
-// @homepage         https://github.com/julong111/script-youtube-more-speeds
-// @supportURL       https://github.com/julong111/script-youtube-more-speeds/issues
+// @name              Youtube Bilibili Video Player Enhancer Tools
+// @name:zh           油管哔哩哔哩视频播放器增强工具
+// @name:zh-CN        油管哔哩哔哩视频播放器增强工具
+// @name:en           Youtube Bilibili Video Player Enhancer Tools
+// @name:en-US        Youtube Bilibili Video Player Enhancer Tools
+// @description       Adds more speed buttons and more settings to YouTube and Bilibili video players. 
+// @description:en    Adds more speed buttons and more settings to YouTube and Bilibili video players.  
+// @description:en-US Adds more speed buttons and more settings to YouTube and Bilibili video players.  
+// @description:zh    油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
+// @description:zh-CN 油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
+// @version           1.0.1
+// @namespace         https://github.com/julong111/script-youtube-more-speeds
+// @author            julong@111.com
+// @homepage          https://github.com/julong111/script-youtube-more-speeds
+// @supportURL        https://github.com/julong111/script-youtube-more-speeds/issues
 
-// @match            *://*.youtube.com/watch*
-// @match            *://*.bilibili.com/video/*
-// @include          *://*.youtube.com/watch*
-// @include          *://*.bilibili.com/video/*
+// @match             *://*.youtube.com/watch*
+// @match             *://*.bilibili.com/video/*
+// @include           *://*.youtube.com/watch*
+// @include           *://*.bilibili.com/video/*
 
-// @grant            GM_addStyle
-// @grant            GM_setValue
-// @grant            GM_getValue
-// @grant            GM_registerMenuCommand
-// @icon             https://www.youtube.com/s/desktop/3748dff5/img/favicon_48.png
-// @charset		     UTF-8
-// @license          MIT
+// @grant             GM_addStyle
+// @grant             GM_setValue
+// @grant             GM_getValue
+// @grant             GM_registerMenuCommand
+// @icon              https://www.youtube.com/s/desktop/3748dff5/img/favicon_48.png
+// @charset		      UTF-8
+// @license           MIT
 // ==/UserScript==
 
 (function () {

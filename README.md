@@ -46,7 +46,7 @@
 
 ## 🚀 快速开始
 
-在此处安装脚本: [https://greasyfork.org/zh-CN/scripts/544981-youtube-more-speeds-modfied](https://greasyfork.org/zh-CN/scripts/544981-youtube-more-speeds-modfied)
+在此处安装脚本: [here](https://greasyfork.org/zh-CN/scripts/546313-youtube-bilibili-video-player-enhancer-tools)
 
 你可以使用用户脚本管理器如[Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) or [Greasemonkey](https://addons.mozilla.org/nl/firefox/addon/greasemonkey/)
 

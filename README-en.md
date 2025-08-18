@@ -49,7 +49,7 @@ V1.0.0
 
 ## 🚀 Quick Start
 
-Install as a userscript here: [https://greasyfork.org/zh-CN/scripts/544981-youtube-more-speeds-modfied](https://greasyfork.org/zh-CN/scripts/544981-youtube-more-speeds-modfied)
+Install as a userscript here: [here](https://greasyfork.org/zh-CN/scripts/546313-youtube-bilibili-video-player-enhancer-tools)
 
 You will need a userscript manager like [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) or [Greasemonkey](https://addons.mozilla.org/nl/firefox/addon/greasemonkey/)
 
