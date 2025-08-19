@@ -31,20 +31,17 @@
 
 (function () {
     'use strict';
-    const speeds = [0.5, 1.0, 1.5, 2.0];
-    const colors = ['#072525', '#287F54', '#C22544'];
-
     const i18nConfig = {
         // 中文配置
         zh: {
             menu_settings: "设置面板",
             menu_save: "保存",
             menu_close: "关闭",
-            ///////
+
             Youtube_AutoTheaterMode: "Youtube - 自动视频网页全屏",
             Youtube_AutoRate2x: "Youtube - 自动2倍速播放",
             Youtube_AutoRemoveMiniplayer: "Youtube - 自动移除MiniPlayer按钮",
-            //////
+
             Bilibili_AutoWebFullscreen: "Bilibili - 自动视频网页全屏",
             Bilibili_AutoRate2x: "Bilibili - 自动2倍速播放",
             Bilibili_AutoRemovePip: "Bilibili - 自动移除画中画按钮",
@@ -52,18 +49,17 @@
             Bilibili_AutoRemoveSpeed: "Bilibili - 自动移除原始倍速按钮",
             Bilibili_AutoRemoveComments: "Bilibili - 自动移除评论输入区",
             Bilibili_AutoRemoveSettings: "Bilibili - 自动移除设置按钮",
-
         },
         // 英文配置
         en: {
             menu_settings: "Settings Panel",
             menu_save: "Save",
             menu_close: "Close",
-            ///////
+
             Youtube_AutoTheaterMode: "Youtube - Auto Theater Mode",
             Youtube_AutoRate2x: "Youtube - Auto 2x Playback",
             Youtube_AutoRemoveMiniplayer: "Youtube - Auto Remove MiniPlayer Button",
-            //////
+
             Bilibili_AutoWebFullscreen: "Bilibili - Auto Web Fullscreen",
             Bilibili_AutoRate2x: "Bilibili - Auto 2x Playback",
             Bilibili_AutoRemovePip: "Bilibili - Auto Remove Picture-in-Picture Button",
@@ -113,40 +109,17 @@
             border-radius: 3px;
         }`;
 
-    // YouTube selectors listeners
-    const youtubeSelector = {
-        youtubeVideoPanelSelector: '#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-right-controls',
-        youtubeLiveStreamSelector: '#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-left-controls > div.ytp-time-display.notranslate.ytp-live > button', // Youtube Live Stream check
-        youtubeMiniPlayerSelector: '#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-right-controls > button.ytp-miniplayer-button.ytp-button',
-        youtubeListenerFinish: 'yt-navigate-finish',
-        youtubeLiveClass: 'ytp-live-badge-is-livehead',
-    }
+    let isYoutubeListenerRegistered = false;
+    let youtubeLiveStreamCheck = null;
 
-    /// Bilibili selectors
-    const bilibiliSelectors = {
-        bilibiliPlayerContainerSelector: '#bilibili-player',
-        bilibiliWebFullClass: 'mode-webscreen',
-        bilibiliBtnSelector: '.bpx-player-control-bottom-left',
-        bilibiliVideoPanelSelector: '.bilibili-player, .bpx-player-container, #bilibiliPlayer',
-        bilibiliCommentsSelector: '#bilibili-player > div > div > div.bpx-player-primary-area > div.bpx-player-video-area > div.bpx-player-control-wrap > div.bpx-player-control-entity > div.bpx-player-control-bottom > div.bpx-player-control-bottom-center',
-        webFullBtnSelector: '#bilibili-player > div > div > div.bpx-player-primary-area > div.bpx-player-video-area > div.bpx-player-control-wrap > div.bpx-player-control-entity > div.bpx-player-control-bottom > div.bpx-player-control-bottom-right > div.bpx-player-ctrl-btn.bpx-player-ctrl-web',
-        removePipSelector: '#bilibili-player > div > div > div.bpx-player-primary-area > div.bpx-player-video-area > div.bpx-player-control-wrap > div.bpx-player-control-entity > div.bpx-player-control-bottom > div.bpx-player-control-bottom-right > div.bpx-player-ctrl-btn.bpx-player-ctrl-pip',
-        removeWideSelector: '#bilibili-player > div > div > div.bpx-player-primary-area > div.bpx-player-video-area > div.bpx-player-control-wrap > div.bpx-player-control-entity > div.bpx-player-control-bottom > div.bpx-player-control-bottom-right > div.bpx-player-ctrl-btn.bpx-player-ctrl-wide',
-        speedListSelector: '#bilibili-player > div > div > div.bpx-player-primary-area > div.bpx-player-video-area > div.bpx-player-control-wrap > div.bpx-player-control-entity > div.bpx-player-control-bottom > div.bpx-player-control-bottom-right > div.bpx-player-ctrl-btn.bpx-player-ctrl-playbackrate',
-        removeSettingsSelector: '#bilibili-player > div > div > div.bpx-player-primary-area > div.bpx-player-video-area > div.bpx-player-control-wrap > div.bpx-player-control-entity > div.bpx-player-control-bottom > div.bpx-player-control-bottom-right > div.bpx-player-ctrl-btn.bpx-player-ctrl-setting',
-
-    }
-
-    let currentLang = 'en';
-
-    let settingPanelElement = null;
-    let settingPanelInitialized = false;
-    let settingPanelItems = [];
-    let initSpeedBtnFlag = false;
-    let currentUrl = window.location.href;
-
-    // 通用工具函数 (common)
     const Common = {
+        speeds: [0.5, 1.0, 1.5, 2.0],
+        colors: ['#072525', '#287F54', '#C22544'],
+        currentLang: 'en',
+        settingPanelItems: [],
+        initSpeedBtnFlag: false,
+        settingPanelInitialized: false,
+        settingPanelElement: null,
         detectLanguage: function () {
             let userLang = navigator.language.toLowerCase();
             if (userLang.startsWith('zh')) {
@@ -158,76 +131,66 @@
             return 'en';
         },
         geti18nText: function (key) {
-            return i18nConfig[currentLang][key];
+            return i18nConfig[Common.currentLang][key];
         },
         initializePanel: function () {
-            if (settingPanelInitialized) { return; }
-
-            if (document.querySelector("#minimalSettingsPanel")) { return; }
-            const panel = document.createElement("div");
+            let panel = document.createElement("div");
             panel.id = "minimalSettingsPanel";
-
-            // 将面板添加到文档中
-            const title = document.createElement("h2");
+            let title = document.createElement("h2");
             title.textContent = Common.geti18nText("menu_settings");
             panel.appendChild(title);
-
-            for (const [key, item] of Object.entries(settingPanelItems)) {
-                const functionDiv = document.createElement("div");
+            for (const [key, item] of Object.entries(Common.settingPanelItems)) {
+                let functionDiv = document.createElement("div");
                 functionDiv.className = "setting-item";
                 panel.appendChild(functionDiv);
-
-                const functionValue = GM_getValue(item.dataKey, false);
-
-                const input1 = document.createElement("input");
+                let functionValue = GM_getValue(item.dataKey, false);
+                let input1 = document.createElement("input");
                 input1.type = "checkbox";
                 input1.checked = functionValue;
                 input1.id = item.classId;
                 functionDiv.appendChild(input1);
-
-                const label1 = document.createElement("label");
+                let label1 = document.createElement("label");
                 label1.setAttribute("for", item.classId);
                 label1.textContent = item.text;
                 functionDiv.appendChild(label1);
             }
-
-            // 添加按钮
-            const buttons = document.createElement("div");
+            let buttons = document.createElement("div");
             buttons.className = "buttons";
-            const saveBtn = document.createElement("button");
+            let saveBtn = document.createElement("button");
             saveBtn.id = "saveBtn";
             saveBtn.textContent = Common.geti18nText("menu_save");
-            saveBtn.addEventListener("click", Common.saveSettings);
-            const closeBtn = document.createElement("button");
+            saveBtn.addEventListener("click", () => {
+                Common.saveSettings();
+            });
+            let closeBtn = document.createElement("button");
             closeBtn.id = "closeBtn";
             closeBtn.textContent = Common.geti18nText("menu_close");
-            closeBtn.addEventListener("click", Common.togglePanel);
+            closeBtn.addEventListener("click", () => {
+                Common.togglePanel();
+            });
             buttons.appendChild(saveBtn);
             buttons.appendChild(closeBtn);
             panel.appendChild(buttons);
-
             document.body.appendChild(panel);
-
-            settingPanelElement = panel;
-
-            settingPanelInitialized = true;
+            Common.settingPanelElement = panel;
+            Common.settingPanelInitialized = true;
         },
         saveSettings: function () {
-            for (const [key, item] of Object.entries(settingPanelItems)) {
+            for (const [key, item] of Object.entries(Common.settingPanelItems)) {
                 const isChecked = document.getElementById(item.classId).checked;
                 GM_setValue(item.dataKey, isChecked);
             }
-            settingPanelElement.classList.toggle('show');
+            Common.settingPanelElement.classList.toggle('show');
         },
         togglePanel: function () {
-            if (!settingPanelInitialized) {
+            if (!Common.settingPanelInitialized) {
                 Common.initializePanel();
             }
-            settingPanelElement.classList.toggle('show');
+            Common.settingPanelElement.classList.toggle('show');
         },
-        initSettingItems: function () {
+        initSettingItems: function (currentUrl) {
             if (currentUrl.includes("youtube.com")) {
-                settingPanelItems = {
+                Common.settingPanelItems = {
                     // Youtube_AutoTheaterMode: {
                     //     classId: "Youtube-AutoTheaterMode",
                     //     text: geti18nText("Youtube_AutoTheaterMode"),
@@ -245,7 +208,7 @@
                     },
                 };
             } else if (currentUrl.includes("bilibili.com")) {
-                settingPanelItems = {
+                Common.settingPanelItems = {
                     Bilibili_AutoWebFullscreen: {
                         classId: "Bilibili-AutoWebFullscreen",
                         text: Common.geti18nText("Bilibili_AutoWebFullscreen"),
@@ -261,7 +224,6 @@
                         text: Common.geti18nText("Bilibili_AutoRemovePip"),
                         dataKey: "Bilibili-AutoRemovePip",
                     },
-
                     Bilibili_AutoRemoveWide: {
                         classId: "Bilibili-AutoRemoveWide",
                         text: Common.geti18nText("Bilibili_AutoRemoveWide"),
@@ -286,24 +248,22 @@
             };
         },
         createSpeedButtons: function (selector, callback) {
-            if (initSpeedBtnFlag) {
+            if (Common.initSpeedBtnFlag) {
                 return;
             }
-
-            let bgColor = colors[0];
+            let bgColor = Common.colors[0];
             let speedListDiv = document.createElement('div');
             speedListDiv.id = 'speedButtons';
-            // 核心代码: 设置父容器为 Flexbox 布局
             speedListDiv.style.display = 'flex';
-            // speedListDiv.style.flexWrap = 'wrap'; // 允许换行，以防按钮太多
-            speedListDiv.style.alignItems = 'center'; // 垂直居中对齐
-            speedListDiv.style.justifyContent = 'center'; // 水平居中对齐
-            speedListDiv.style.height = '100%'; // 设置高度以适应按钮
-            for (let i = 0; i < speeds.length; i++) {
-
-                if (speeds[i] >= 1) { bgColor = colors[1]; }
-                if (speeds[i] >= 1.5) { bgColor = colors[2]; }
-
+            speedListDiv.style.alignItems = 'center';
+            speedListDiv.style.justifyContent = 'center';
+            speedListDiv.style.height = '100%';
+            const handleButtonClick = (speed) => {
+                document.getElementsByTagName('video')[0].playbackRate = speed;
+            };
+            for (let i = 0; i < Common.speeds.length; i++) {
+                if (Common.speeds[i] >= 1) { bgColor = Common.colors[1]; }
+                if (Common.speeds[i] >= 1.5) { bgColor = Common.colors[2]; }
                 let btn = document.createElement('button');
                 btn.style.backgroundColor = bgColor;
                 btn.style.marginRight = '1px';
@@ -312,244 +272,225 @@
                 btn.style.color = '#ffffff';
                 btn.style.cursor = 'pointer';
                 btn.style.fontFamily = 'Arial, "Helvetica Neue", Helvetica, sans-serif';
-
-                // 核心代码: 使用 Flexbox 布局
                 btn.style.display = 'flex';
-                btn.style.justifyContent = 'center'; // 水平居中
-                btn.style.alignItems = 'center';     // 垂直居中
-
+                btn.style.justifyContent = 'center';
+                btn.style.alignItems = 'center';
                 btn.style.width = '38px';
                 btn.style.height = '24px';
                 btn.style.fontSize = '14px';
-
-                btn.textContent = speeds[i].toString() + '×';
-
+                btn.textContent = Common.speeds[i].toString() + '×';
                 btn.addEventListener('click', () => {
-                    document.getElementsByTagName('video')[0].playbackRate = speeds[i]
+                    handleButtonClick(Common.speeds[i]);
                 });
                 speedListDiv.appendChild(btn);
             }
-
             callback(speedListDiv);
-
-            initSpeedBtnFlag = true;
+            Common.initSpeedBtnFlag = true;
         },
         waitForElement: function (selector, callback, interval = 200) {
+            if (typeof selector !== 'string') {
+                throw new TypeError('selector must be a string.');
+            }
+            if (typeof callback !== 'function') {
+                throw new TypeError('callback must be a function.');
+            }
             let attempts = 0;
-
             const options = {
                 interval: interval,
                 maxAttempts: -1
             };
-
-            if (typeof callback !== 'function') {
-                throw new TypeError('callback must be a function.');
-            }
-
             const checkProcess = () => {
                 let element = null;
-
                 if (typeof selector === 'string') {
                     element = document.querySelector(selector);
                 } else {
                     throw new TypeError('selector must be a string.');
                 }
-
-                // 如果元素存在
                 if (element) {
                     callback(element);
                     return;
                 }
-
                 attempts++;
                 if (options.maxAttempts !== -1 && attempts >= options.maxAttempts) {
                     console.error(`Common.waitForElement: Reached max attempts (${options.maxAttempts}), element not found.`);
                     return;
                 }
-                // 元素不存在或不包含指定类名，等待一段时间后再次检测
                 setTimeout(checkProcess, options.interval);
             };
-
-            // 第一次立即检测
             checkProcess();
         },
-
         removeSelector: function (selector) {
             let ele = document.querySelector(selector);
             if (ele) {
                 ele.remove();
             }
         },
-
         setPlaybackRate: function (rate) {
             document.getElementsByTagName('video')[0].playbackRate = rate;
         }
     };
     const WebSite = {
+        selectors: {
+            youtube: {
+                // YouTube selectors listeners
+                videoPanel: '#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-right-controls',
+                liveStreamIcon: '#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-left-controls > div.ytp-time-display.notranslate.ytp-live > button', // Youtube Live Stream check
+                miniPlayerBtn: '#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-right-controls > button.ytp-miniplayer-button.ytp-button',
+                finishListener: 'yt-navigate-finish',
+                liveStreamClass: 'ytp-live-badge-is-livehead',
+            },
+            bilibili: {
+                /// Bilibili selectors 
+                playerContainer: '#bilibili-player',
+                webFullClass: 'mode-webscreen',
+                speedBtn: '.bpx-player-control-bottom-left',
+                videoPanel: '.bilibili-player, .bpx-player-container, #bilibiliPlayer',
+                commentsPanel: '#bilibili-player > div > div > div.bpx-player-primary-area > div.bpx-player-video-area > div.bpx-player-control-wrap > div.bpx-player-control-entity > div.bpx-player-control-bottom > div.bpx-player-control-bottom-center',
+                webFullBtn: '#bilibili-player > div > div > div.bpx-player-primary-area > div.bpx-player-video-area > div.bpx-player-control-wrap > div.bpx-player-control-entity > div.bpx-player-control-bottom > div.bpx-player-control-bottom-right > div.bpx-player-ctrl-btn.bpx-player-ctrl-web',
+                pipBtn: '#bilibili-player > div > div > div.bpx-player-primary-area > div.bpx-player-video-area > div.bpx-player-control-wrap > div.bpx-player-control-entity > div.bpx-player-control-bottom > div.bpx-player-control-bottom-right > div.bpx-player-ctrl-btn.bpx-player-ctrl-pip',
+                wideBtn: '#bilibili-player > div > div > div.bpx-player-primary-area > div.bpx-player-video-area > div.bpx-player-control-wrap > div.bpx-player-control-entity > div.bpx-player-control-bottom > div.bpx-player-control-bottom-right > div.bpx-player-ctrl-btn.bpx-player-ctrl-wide',
+                speedsListBtn: '#bilibili-player > div > div > div.bpx-player-primary-area > div.bpx-player-video-area > div.bpx-player-control-wrap > div.bpx-player-control-entity > div.bpx-player-control-bottom > div.bpx-player-control-bottom-right > div.bpx-player-ctrl-btn.bpx-player-ctrl-playbackrate',
+                settingsBtn: '#bilibili-player > div > div > div.bpx-player-primary-area > div.bpx-player-video-area > div.bpx-player-control-wrap > div.bpx-player-control-entity > div.bpx-player-control-bottom > div.bpx-player-control-bottom-right > div.bpx-player-ctrl-btn.bpx-player-ctrl-setting',
+            }
+        },
         youtube: function () {
-            if (document.body && !initSpeedBtnFlag) {
-                // 监听 YouTube 页面导航完成事件
-                window.addEventListener(youtubeSelector.youtubeListenerFinish, function () {
-                    // 直播状态检测
-                    setInterval(() => {
-                        let element = document.querySelector(youtubeSelector.youtubeLiveStreamSelector);
-                        if (element) {
-                            if (element.classList.contains(youtubeSelector.youtubeLiveClass)) {
-                                document.getElementsByTagName('video')[0].playbackRate = 1.0;
-                                console.log('已检测到直播，重置播放速度为1.0');
-                            }
-                        }
-                    }, 1000);
-
+            const handleYoutubePage = () => {
+                if (!Common.initSpeedBtnFlag) {
                     // 创建速度按钮
                     Common.waitForElement(
-                        youtubeSelector.youtubeVideoPanelSelector,
+                        WebSite.selectors.youtube.videoPanel,
                         (item) => {
-                            Common.createSpeedButtons(youtubeSelector.youtubeVideoPanelSelector, (moreSpeedsDiv) => {
+                            Common.createSpeedButtons(WebSite.selectors.youtube.videoPanel, (moreSpeedsDiv) => {
                                 item.before(moreSpeedsDiv);
                             });
                         }
                     );
 
-                    // 自动2倍速播放
-                    let autoRate2x = GM_getValue(settingPanelItems.Youtube_AutoRate2x.dataKey, false);
+                    let autoRate2x = GM_getValue(Common.settingPanelItems.Youtube_AutoRate2x.dataKey, false);
                     if (autoRate2x) {
                         Common.waitForElement(
-                            youtubeSelector.youtubeVideoPanelSelector,
+                            WebSite.selectors.youtube.videoPanel,
                             (item) => {
                                 Common.setPlaybackRate(2.0);
                             }
                         );
                     }
 
-                    // 自动移除 MiniPlayer 按钮
-                    let removeMiniplayer = GM_getValue(settingPanelItems.Youtube_AutoRemoveMiniplayer.dataKey, false);
+                    let removeMiniplayer = GM_getValue(Common.settingPanelItems.Youtube_AutoRemoveMiniplayer.dataKey, false);
                     if (removeMiniplayer) {
-                        // 删除 MiniPlayer 按钮
                         Common.waitForElement(
-                            youtubeSelector.youtubeMiniPlayerSelector,
+                            WebSite.selectors.youtube.miniPlayerBtn,
                             (item) => {
                                 item.remove();
                             }
                         );
                     }
 
-                    // 无法监听事件，待开发
-                    // let autoTheaterMode = GM_getValue(SettingsItems.Youtube_AutoTheaterMode.dataKey, false);
-                    // if (autoTheaterMode) {
-                    //     let theaterButton = document.querySelector(youtubeTheaterModeSelector);
-                    //     if (theaterButton) {
-                    //         //
-                    //         Common.waitForElement(
-                    //             '#movie_player > div.html5-video-container',
-                    //             (theaterButton) => { // ✅ 正确：使用 Common.waitForElement 传递的最新元素
-                    //                 if (theaterButton.getAttribute("data-title-no-tooltip") == youtubeTheaterModeDataTitleNoTooltipDefault) {
-                    //                     // 如果是，则模拟按下 'T' 键来切换到网页全屏
-                    //                     dispatchKeyboardEvent(document.body, 't');
-                    //                 }
-                    //             },
-                    //             null,
-                    //             theaterButton
-                    //         );
-                    //     }
-                    // }
-                });
+                    // TheaterMode无法监听事件，待开发 
+                }
+            };
+
+            if (!isYoutubeListenerRegistered) {
+                window.addEventListener(WebSite.selectors.youtube.finishListener, handleYoutubePage);
+                isYoutubeListenerRegistered = true;
             }
+            // 启动直播状态检测
+            youtubeLiveStreamCheck = setInterval(() => {
+                let element = document.querySelector(WebSite.selectors.youtube.liveStreamIcon);
+                if (element) {
+                    if (element.classList.contains(WebSite.selectors.youtube.liveStreamClass)) {
+                        document.getElementsByTagName('video')[0].playbackRate = 1.0;
+                        console.log('已检测到直播，重置播放速度为1.0');
+                    }
+                }
+            }, 1000);
+            handleYoutubePage();
         },
         bilibili: function () {
-            // 创建速度按钮
-            Common.waitForElement(
-                bilibiliSelectors.bilibiliVideoPanelSelector,
-                (item) => {
-                    Common.createSpeedButtons(bilibiliSelectors.bilibiliVideoPanelSelector, (moreSpeedsDiv) => {
-                        let ele = document.querySelector(bilibiliSelectors.bilibiliBtnSelector);
-                        if (ele) {
-                            ele.after(moreSpeedsDiv);
-                        }
-                    });
-                }, 1000
-            );
+            const handleBilibiliPage = () => {
+                // 清理旧的按钮，防止重复创建
+                Common.removeSelector('#speedButtons');
+                Common.initSpeedBtnFlag = false;
 
-            // 删除评论框
-            let autoRemoveComments = GM_getValue(settingPanelItems.Bilibili_AutoRemoveComments.dataKey, false);
-            if (autoRemoveComments) {
-                Common.removeSelector(bilibiliSelectors.bilibiliCommentsSelector);
-            }
+                // 创建速度按钮
+                Common.waitForElement(
+                    WebSite.selectors.bilibili.videoPanel,
+                    (item) => {
+                        Common.createSpeedButtons(WebSite.selectors.bilibili.videoPanel, (moreSpeedsDiv) => {
+                            let ele = document.querySelector(WebSite.selectors.bilibili.speedBtn);
+                            if (ele) {
+                                ele.after(moreSpeedsDiv);
+                            }
+                        });
+                    }, 1000
+                );
 
-            // 全屏
-            let autoWebFullscreen = GM_getValue(settingPanelItems.Bilibili_AutoWebFullscreen.dataKey, false);
-            if (autoWebFullscreen) {
-                let playerContainerMode = document.querySelector(bilibiliSelectors.bilibiliPlayerContainerSelector);
-                if (playerContainerMode.classList.contains(bilibiliSelectors.bilibiliWebFullClass)) {
-                    return;
+
+                // 自动移除的元素
+                const removalConfigs = {
+                    Bilibili_AutoRemoveComments: WebSite.selectors.bilibili.commentsPanel,
+                    Bilibili_AutoRemovePip: WebSite.selectors.bilibili.pipBtn,
+                    Bilibili_AutoRemoveWide: WebSite.selectors.bilibili.wideBtn,
+                    Bilibili_AutoRemoveSpeed: WebSite.selectors.bilibili.speedsListBtn,
+                    Bilibili_AutoRemoveSettings: WebSite.selectors.bilibili.settingsBtn,
+                };
+                for (const key in removalConfigs) {
+                    if (GM_getValue(Common.settingPanelItems[key].dataKey, false)) {
+                        Common.waitForElement(
+                            removalConfigs[key],
+                            (item) => {
+                                item.remove();
+                            }, 1000
+                        );
+                    }
                 }
-                Common.waitForElement(
-                    bilibiliSelectors.webFullBtnSelector,
-                    (item) => {
-                        item.click();
-                    }, 1000
-                );
-            }
 
-            // 删除画中画
-            let autoRemovePip = GM_getValue(settingPanelItems.Bilibili_AutoRemovePip.dataKey, false);
-            if (autoRemovePip) {
-                Common.waitForElement(
-                    bilibiliSelectors.removePipSelector,
-                    (item) => {
-                        item.remove();
-                    }, 1000
-                );
-            }
+                let autoRate2x = GM_getValue(Common.settingPanelItems.Bilibili_AutoRate2x.dataKey, false);
+                if (autoRate2x) {
+                    Common.setPlaybackRate(2.0);
+                }
 
-            // 删除宽屏
-            let autoRemoveWide = GM_getValue(settingPanelItems.Bilibili_AutoRemoveWide.dataKey, false);
-            if (autoRemoveWide) {
-                Common.waitForElement(
-                    bilibiliSelectors.removeWideSelector,
-                    (item) => {
-                        item.remove();
-                    }, 1000
-                );
-            }
+                let autoWebFullscreen = GM_getValue(Common.settingPanelItems.Bilibili_AutoWebFullscreen.dataKey, false);
+                if (autoWebFullscreen) {
+                    let playerContainerMode = document.querySelector(WebSite.selectors.bilibili.playerContainer);
+                    if (playerContainerMode && playerContainerMode.classList.contains(WebSite.selectors.bilibili.webFullClass)) {
+                        return;
+                    }
+                    Common.waitForElement(
+                        WebSite.selectors.bilibili.webFullBtn,
+                        (item) => {
+                            item.click();
+                        }, 1000
+                    );
+                }
+            };
 
-            // 删除原始倍速
-            let autoRemoveSpeed = GM_getValue(settingPanelItems.Bilibili_AutoRemoveSpeed.dataKey, false);
-            if (autoRemoveSpeed) {
-                Common.waitForElement(
-                    bilibiliSelectors.speedListSelector,
-                    (item) => {
-                        item.remove();
-                    }, 1000
-                );
-            }
-
-            // 删除设置按钮
-            let autoRemoveSettings = GM_getValue(settingPanelItems.Bilibili_AutoRemoveSettings.dataKey, false);
-            if (autoRemoveSettings) {
-                Common.waitForElement(
-                    bilibiliSelectors.removeSettingsSelector,
-                    (item) => {
-                        item.remove();
-                    }, 1000
-                );
-            }
-
-            let autoRate2x = GM_getValue(settingPanelItems.Bilibili_AutoRate2x.dataKey, false);
-            if (autoRate2x) {
-                Common.setPlaybackRate(2.0);
-            }
+            const observerConfig = { childList: true, subtree: true };
+            const observer = new MutationObserver((mutationsList, observer) => {
+                for (const mutation of mutationsList) {
+                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                        const videoPlayer = document.querySelector(WebSite.selectors.bilibili.videoPanel);
+                        if (videoPlayer) {
+                            handleBilibiliPage();
+                            observer.disconnect();
+                        }
+                    }
+                }
+            });
+            observer.observe(document.body, observerConfig);
+            handleBilibiliPage();
         }
     }
 
     function main() {
-        // Initialize common functions
-        currentLang = Common.detectLanguage();
-        // Initialize setting panel items
-        Common.initSettingItems();
-        // Initialize the settings panel
-        Common.initializePanel();
-
+        // 每次页面加载时，都先清理所有可能存在的定时器
+        if (youtubeLiveStreamCheck !== null) {
+            clearInterval(youtubeLiveStreamCheck);
+            youtubeLiveStreamCheck = null;
+        }
+        const currentUrl = window.location.href;
+        Common.currentLang = Common.detectLanguage();
+        Common.initSettingItems(currentUrl);
         GM_addStyle(settingPanelStyles);
         GM_registerMenuCommand(Common.geti18nText("menu_settings"), Common.togglePanel);
 
