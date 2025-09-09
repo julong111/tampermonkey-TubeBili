@@ -10,7 +10,7 @@
 // @description:zh    油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
 // @description:zh-CN 油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
 // @namespace         com.julong.tampermonkey.TubeBiliVideoPlayerEnhancerTools
-// @version           1.0.3
+// @version           1.0.6
 // @author            julong@111.com
 // @homepage          https://github.com/julong111/tampermonkey-TubeBili
 // @supportURL        https://github.com/julong111/tampermonkey-TubeBili/issues
@@ -26,8 +26,18 @@
 // @grant             GM_registerMenuCommand
 // @icon              https://www.youtube.com/s/desktop/3748dff5/img/favicon_48.png
 // @charset		      UTF-8
+
+// @require https://scriptcat.org/lib/513/2.1.0/ElementGetter.js#sha256=aQF7JFfhQ7Hi+weLrBlOsY24Z2ORjaxgZNoni7pAz5U=
+
 // @license           MIT
 // ==/UserScript==
+
+// 广告跳过，自动网页全屏(待实现)
+//<div class="ytp-skip-ad" id="skip-ad:r" style="">
+//<button class="ytp-skip-ad-button ytp-ad-component--clickable" id="skip-button:s" style="opacity: 0.5;">
+//<div class="ytp-skip-ad-button__text">Skip</div>
+//<span class="ytp-skip-ad-button__icon">
+//<svg height="100%" viewBox="-6 -6 36 36" width="100%"><path d="M5,18l10-6L5,6V18L5,18z M19,6h-2v12h2V6z" fill="#fff"></path></svg></span></button></div>
 
 (function () {
     'use strict';
@@ -109,15 +119,15 @@
             border-radius: 3px;
         }`;
 
-    let isYoutubeListenerRegistered = false;
+    // let isYoutubeListenerRegistered = false;
     let youtubeLiveStreamCheck = null;
+    let currentVideoTitle = document.querySelector('title').text;
 
     const Common = {
-        speeds: [0.5, 1.0, 1.5, 2.0],
+        speeds: [0.5, 1.0, 1.5, 2.0, 3.0],
         colors: ['#072525', '#287F54', '#C22544'],
         currentLang: 'en',
         settingPanelItems: [],
-        initSpeedBtnFlag: false,
         settingPanelInitialized: false,
         settingPanelElement: null,
         detectLanguage: function () {
@@ -247,10 +257,7 @@
                 };
             };
         },
-        createSpeedButtons: function (selector, callback) {
-            if (Common.initSpeedBtnFlag) {
-                return;
-            }
+        createSpeedButtons: function (selector, panelCallback, btnClickCallback) {
             let bgColor = Common.colors[0];
             let speedListDiv = document.createElement('div');
             speedListDiv.id = 'speedButtons';
@@ -280,44 +287,11 @@
                 btn.style.fontSize = '14px';
                 btn.textContent = Common.speeds[i].toString() + '×';
                 btn.addEventListener('click', () => {
-                    handleButtonClick(Common.speeds[i]);
+                    btnClickCallback ? btnClickCallback(Common.speeds[i]) : handleButtonClick(Common.speeds[i]);
                 });
                 speedListDiv.appendChild(btn);
             }
-            callback(speedListDiv);
-            Common.initSpeedBtnFlag = true;
-        },
-        waitForElement: function (selector, callback, interval = 200) {
-            if (typeof selector !== 'string') {
-                throw new TypeError('selector must be a string.');
-            }
-            if (typeof callback !== 'function') {
-                throw new TypeError('callback must be a function.');
-            }
-            let attempts = 0;
-            const options = {
-                interval: interval,
-                maxAttempts: -1
-            };
-            const checkProcess = () => {
-                let element = null;
-                if (typeof selector === 'string') {
-                    element = document.querySelector(selector);
-                } else {
-                    throw new TypeError('selector must be a string.');
-                }
-                if (element) {
-                    callback(element);
-                    return;
-                }
-                attempts++;
-                if (options.maxAttempts !== -1 && attempts >= options.maxAttempts) {
-                    console.error(`Common.waitForElement: Reached max attempts (${options.maxAttempts}), element not found.`);
-                    return;
-                }
-                setTimeout(checkProcess, options.interval);
-            };
-            checkProcess();
+            panelCallback(speedListDiv);
         },
         removeSelector: function (selector) {
             let ele = document.querySelector(selector);
@@ -327,9 +301,33 @@
         },
         setPlaybackRate: function (rate) {
             document.getElementsByTagName('video')[0].playbackRate = rate;
-        }
+        },
+        // 定义一个通用的方法来设置 MutationObserver
+        setupPlayerObserver: function(urlCheck, playerSelector, controlSelector, callback) {
+            if (urlCheck(window.location.href)) {
+                const playerContainer = document.querySelector(playerSelector);
+                if (playerContainer) {
+                    const observerConfig = { childList: true, subtree: true };
+                    const playerObserver = new MutationObserver((mutations) => {
+                        const hasControls = mutations.some(mutation =>
+                            Array.from(mutation.addedNodes).some(node =>
+                                node.matches && (node.matches(controlSelector) || node.querySelector(controlSelector))
+                            )
+                        );
+                        if (hasControls) {
+                            console.log(`MutationObserver 检测到 ${playerSelector} DOM变化，重新执行脚本`);
+                            callback();
+                        }
+                    });
+                    playerObserver.observe(playerContainer, observerConfig);
+                }
+            }
+        },
     };
     const WebSite = {
+        data: {
+            youtubeLiveStreamStatus: false,
+        },
         selectors: {
             youtube: {
                 // YouTube selectors listeners
@@ -354,131 +352,123 @@
             }
         },
         youtube: function () {
-            const handleYoutubePage = () => {
-                if (!Common.initSpeedBtnFlag) {
-                    // 创建速度按钮
-                    Common.waitForElement(
-                        WebSite.selectors.youtube.videoPanel,
-                        (item) => {
+            if (window.location.href.includes("youtube.com/watch")) {
+                const handleYoutubePage = async () => {
+                    console.log('执行Youtube页面脚本handler');
+                    currentVideoTitle = document.querySelector('title').text;
+                    if (!document.querySelector('#speedButtons')) {
+                        try {
+                            let videopanel = await elmGetter.get(WebSite.selectors.youtube.videoPanel);
+                            console.log('添加更多倍速按钮');
                             Common.createSpeedButtons(WebSite.selectors.youtube.videoPanel, (moreSpeedsDiv) => {
-                                item.before(moreSpeedsDiv);
+                                videopanel.before(moreSpeedsDiv);
+                            }, (speed) => {
+                                document.getElementsByTagName('video')[0].playbackRate = speed;
+                                WebSite.data.youtubeLiveStreamStatus = false;
                             });
+                        } catch (error) {
+                            console.error('Failed create speed button elements:', error);
                         }
-                    );
-
-                    let autoRate2x = GM_getValue(Common.settingPanelItems.Youtube_AutoRate2x.dataKey, false);
-                    if (autoRate2x) {
-                        Common.waitForElement(
-                            WebSite.selectors.youtube.videoPanel,
-                            (item) => {
-                                Common.setPlaybackRate(2.0);
-                            }
-                        );
                     }
 
-                    let removeMiniplayer = GM_getValue(Common.settingPanelItems.Youtube_AutoRemoveMiniplayer.dataKey, false);
-                    if (removeMiniplayer) {
-                        Common.waitForElement(
-                            WebSite.selectors.youtube.miniPlayerBtn,
-                            (item) => {
-                                item.remove();
+                    try {
+                        const removalConfigs = {
+                            Youtube_AutoRemoveMiniplayer: WebSite.selectors.youtube.miniPlayerBtn,
+                        };
+                        for (const key in removalConfigs) {
+                            if (GM_getValue(Common.settingPanelItems[key].dataKey, false)) {
+                                elmGetter.get(removalConfigs[key]).then(item => {
+                                    console.log('移除按钮:', removalConfigs[key]);
+                                    item.remove();
+                                });
                             }
-                        );
+                        }
+                    } catch (error) {
+                        console.error('Failed autoremove buttons:', error);
                     }
 
-                    // TheaterMode无法监听事件，待开发 
-                }
-            };
+                    if (GM_getValue(Common.settingPanelItems.Youtube_AutoRate2x.dataKey, false)) {
+                        console.log('设置2倍速播放');
+                        Common.setPlaybackRate(2.0);
+                        WebSite.data.youtubeLiveStreamStatus = false;
+                    }
+                }; 
 
-            if (!isYoutubeListenerRegistered) {
-                window.addEventListener(WebSite.selectors.youtube.finishListener, handleYoutubePage);
-                isYoutubeListenerRegistered = true;
+                // 启动直播状态检测
+                youtubeLiveStreamCheck = setInterval(() => {
+                    let element = document.querySelector(WebSite.selectors.youtube.liveStreamIcon);
+                    if (element) {
+                        if (element.classList.contains(WebSite.selectors.youtube.liveStreamClass) && !WebSite.data.youtubeLiveStreamStatus && window.location.href.includes("youtube.com/watch")) {
+                            document.getElementsByTagName('video')[0].playbackRate = 1.0;
+                            console.log('已检测到直播，重置播放速度为1.0');
+                            WebSite.data.youtubeLiveStreamStatus = true;
+                        }
+                    }
+                }, 1000);
+
+                handleYoutubePage();
             }
-            // 启动直播状态检测
-            youtubeLiveStreamCheck = setInterval(() => {
-                let element = document.querySelector(WebSite.selectors.youtube.liveStreamIcon);
-                if (element) {
-                    if (element.classList.contains(WebSite.selectors.youtube.liveStreamClass)) {
-                        document.getElementsByTagName('video')[0].playbackRate = 1.0;
-                        console.log('已检测到直播，重置播放速度为1.0');
-                    }
-                }
-            }, 1000);
-            handleYoutubePage();
         },
         bilibili: function () {
-            const handleBilibiliPage = () => {
-                // 清理旧的按钮，防止重复创建
-                Common.removeSelector('#speedButtons');
-                Common.initSpeedBtnFlag = false;
-
-                // 创建速度按钮
-                Common.waitForElement(
-                    WebSite.selectors.bilibili.videoPanel,
-                    (item) => {
+            const handleBilibiliPage = async () => {
+                if (!document.querySelector('#speedButtons')) {
+                    try {
+                        await elmGetter.get(WebSite.selectors.bilibili.videoPanel);
                         Common.createSpeedButtons(WebSite.selectors.bilibili.videoPanel, (moreSpeedsDiv) => {
                             let ele = document.querySelector(WebSite.selectors.bilibili.speedBtn);
                             if (ele) {
                                 ele.after(moreSpeedsDiv);
                             }
                         });
-                    }, 1000
-                );
-
-
-                // 自动移除的元素
-                const removalConfigs = {
-                    Bilibili_AutoRemoveComments: WebSite.selectors.bilibili.commentsPanel,
-                    Bilibili_AutoRemovePip: WebSite.selectors.bilibili.pipBtn,
-                    Bilibili_AutoRemoveWide: WebSite.selectors.bilibili.wideBtn,
-                    Bilibili_AutoRemoveSpeed: WebSite.selectors.bilibili.speedsListBtn,
-                    Bilibili_AutoRemoveSettings: WebSite.selectors.bilibili.settingsBtn,
-                };
-                for (const key in removalConfigs) {
-                    if (GM_getValue(Common.settingPanelItems[key].dataKey, false)) {
-                        Common.waitForElement(
-                            removalConfigs[key],
-                            (item) => {
-                                item.remove();
-                            }, 1000
-                        );
+                    } catch (error) {
+                        console.error('Failed create speed button elements:', error);
                     }
                 }
 
-                let autoRate2x = GM_getValue(Common.settingPanelItems.Bilibili_AutoRate2x.dataKey, false);
-                if (autoRate2x) {
+                try {
+                    const removalConfigs = {
+                        Bilibili_AutoRemoveComments: WebSite.selectors.bilibili.commentsPanel,
+                        Bilibili_AutoRemovePip: WebSite.selectors.bilibili.pipBtn,
+                        Bilibili_AutoRemoveWide: WebSite.selectors.bilibili.wideBtn,
+                        Bilibili_AutoRemoveSpeed: WebSite.selectors.bilibili.speedsListBtn,
+                        Bilibili_AutoRemoveSettings: WebSite.selectors.bilibili.settingsBtn,
+                    };
+                    for (const key in removalConfigs) {
+                        if (GM_getValue(Common.settingPanelItems[key].dataKey, false)) {
+                            elmGetter.get(removalConfigs[key]).then(item => {
+                                item.remove();
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed autoremove buttons:', error);
+                }
+
+                try {
+                    if (GM_getValue(Common.settingPanelItems.Bilibili_AutoWebFullscreen.dataKey, false)) {
+                        elmGetter.get(WebSite.selectors.bilibili.playerContainer).then(playItem => {
+                            if (playItem.classList.contains(WebSite.selectors.bilibili.webFullClass)) {
+                                return;
+                            }
+                            elmGetter.get(WebSite.selectors.bilibili.webFullBtn).then(item => {
+                                item.click();
+                            });
+                        });
+                    }
+                } catch (error) {
+                    console.error('Failed webfull or auto rate:', error);
+                }
+
+                if (GM_getValue(Common.settingPanelItems.Bilibili_AutoRate2x.dataKey, false)) {
                     Common.setPlaybackRate(2.0);
                 }
 
-                let autoWebFullscreen = GM_getValue(Common.settingPanelItems.Bilibili_AutoWebFullscreen.dataKey, false);
-                if (autoWebFullscreen) {
-                    let playerContainerMode = document.querySelector(WebSite.selectors.bilibili.playerContainer);
-                    if (playerContainerMode && playerContainerMode.classList.contains(WebSite.selectors.bilibili.webFullClass)) {
-                        return;
-                    }
-                    Common.waitForElement(
-                        WebSite.selectors.bilibili.webFullBtn,
-                        (item) => {
-                            item.click();
-                        }, 1000
-                    );
-                }
+                currentVideoTitle = document.querySelector('title').text;
             };
 
-            const observerConfig = { childList: true, subtree: true };
-            const observer = new MutationObserver((mutationsList, observer) => {
-                for (const mutation of mutationsList) {
-                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                        const videoPlayer = document.querySelector(WebSite.selectors.bilibili.videoPanel);
-                        if (videoPlayer) {
-                            handleBilibiliPage();
-                            observer.disconnect();
-                        }
-                    }
-                }
-            });
-            observer.observe(document.body, observerConfig);
-            handleBilibiliPage();
+            if (window.location.href.includes("bilibili.com/video")) {
+                handleBilibiliPage();
+            }
         }
     }
 
@@ -488,17 +478,32 @@
             clearInterval(youtubeLiveStreamCheck);
             youtubeLiveStreamCheck = null;
         }
-        const currentUrl = window.location.href;
         Common.currentLang = Common.detectLanguage();
-        Common.initSettingItems(currentUrl);
+        Common.initSettingItems(window.location.href);
         GM_addStyle(settingPanelStyles);
         GM_registerMenuCommand(Common.geti18nText("menu_settings"), Common.togglePanel);
 
-        if (currentUrl.includes("youtube.com")) {
+        // 首次加载时执行
+        if (window.location.href.includes("youtube.com/watch")) {
+            console.log('首次执行Youtube脚本');
             WebSite.youtube();
-        } else if (currentUrl.includes("bilibili.com")) {
+        } else if (window.location.href.includes("bilibili.com/video")) {
+            console.log('首次执行Bilibili脚本');
             WebSite.bilibili();
         }
+
+        if (window.location.href.includes("youtube.com")) {
+            console.log('注册Youtube监听器');
+            window.addEventListener(WebSite.selectors.youtube.finishListener, WebSite.youtube);
+        }
+
+        // 为 Bilibili 播放器设置观察者
+        Common.setupPlayerObserver(
+            (url) => url.includes("bilibili.com"),
+            '#bilibili-player',
+            WebSite.selectors.bilibili.speedBtn,
+            WebSite.bilibili
+        );
     }
     main();
 })();
