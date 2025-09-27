@@ -10,7 +10,7 @@
 // @description:zh    油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
 // @description:zh-CN 油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
 // @namespace         com.julong.tampermonkey.TubeBiliVideoPlayerEnhancerTools
-// @version           1.0.6
+// @version           1.0.7
 // @author            julong@111.com
 // @homepage          https://github.com/julong111/tampermonkey-TubeBili
 // @supportURL        https://github.com/julong111/tampermonkey-TubeBili/issues
@@ -49,11 +49,11 @@
             menu_close: "关闭",
 
             Youtube_AutoTheaterMode: "Youtube - 自动视频网页全屏",
-            Youtube_AutoRate2x: "Youtube - 自动2倍速播放",
+            Youtube_AutoRate: "Youtube - 自动倍速播放",
             Youtube_AutoRemoveMiniplayer: "Youtube - 自动移除MiniPlayer按钮",
 
             Bilibili_AutoWebFullscreen: "Bilibili - 自动视频网页全屏",
-            Bilibili_AutoRate2x: "Bilibili - 自动2倍速播放",
+            Bilibili_AutoRate: "Bilibili - 自动倍速播放",
             Bilibili_AutoRemovePip: "Bilibili - 自动移除画中画按钮",
             Bilibili_AutoRemoveWide: "Bilibili - 自动移除宽屏按钮",
             Bilibili_AutoRemoveSpeed: "Bilibili - 自动移除原始倍速按钮",
@@ -67,11 +67,11 @@
             menu_close: "Close",
 
             Youtube_AutoTheaterMode: "Youtube - Auto Theater Mode",
-            Youtube_AutoRate2x: "Youtube - Auto 2x Playback",
+            Youtube_AutoRate: "Youtube - Auto Playback",
             Youtube_AutoRemoveMiniplayer: "Youtube - Auto Remove MiniPlayer Button",
 
             Bilibili_AutoWebFullscreen: "Bilibili - Auto Web Fullscreen",
-            Bilibili_AutoRate2x: "Bilibili - Auto 2x Playback",
+            Bilibili_AutoRate: "Bilibili - Auto Playback",
             Bilibili_AutoRemovePip: "Bilibili - Auto Remove Picture-in-Picture Button",
             Bilibili_AutoRemoveWide: "Bilibili - Auto Remove Wide Button",
             Bilibili_AutoRemoveSpeed: "Bilibili - Auto Remove Original Speed Button",
@@ -107,6 +107,12 @@
         #minimalSettingsPanel .setting-item {
             margin-bottom: 10px;
         }
+        #minimalSettingsPanel .setting-item input[type="text"] {
+            width: 40px;
+            margin-left: 8px;
+            padding: 2px 4px;
+            border: 1px solid #ccc;
+        }
         #minimalSettingsPanel .buttons {
             margin-top: 15px;
             text-align: right;
@@ -117,14 +123,17 @@
             border: 1px solid #ccc;
             background-color: #eee;
             border-radius: 3px;
+        }
+        .speed-control-button.active {
+            border: 2px solid #007bff !important;
         }`;
 
-    // let isYoutubeListenerRegistered = false;
     let youtubeLiveStreamCheck = null;
     let currentVideoTitle = document.querySelector('title').text;
 
     const Common = {
-        speeds: [0.5, 1.0, 1.5, 2.0, 3.0],
+        speeds: ['0.5', '1.0', '1.5', '2.0', '3.0'],
+        defaultSpeed: '2.0',
         colors: ['#072525', '#287F54', '#C22544'],
         currentLang: 'en',
         settingPanelItems: [],
@@ -163,6 +172,19 @@
                 label1.setAttribute("for", item.classId);
                 label1.textContent = item.text;
                 functionDiv.appendChild(label1);
+                if (item.valueKey) {
+                    let select = document.createElement("select");
+                    select.id = item.classId + "-value";
+                    select.style.marginLeft = "8px";
+                    Common.speeds.forEach(speed => {
+                        let option = document.createElement("option");
+                        option.value = speed;
+                        option.textContent = speed + 'x';
+                        select.appendChild(option);
+                    });
+                    select.value = GM_getValue(item.valueKey, Common.defaultSpeed);
+                    functionDiv.appendChild(select);
+                }
             }
             let buttons = document.createElement("div");
             buttons.className = "buttons";
@@ -189,6 +211,10 @@
             for (const [key, item] of Object.entries(Common.settingPanelItems)) {
                 const isChecked = document.getElementById(item.classId).checked;
                 GM_setValue(item.dataKey, isChecked);
+                if (item.valueKey) {
+                    const value = document.getElementById(item.classId + "-value").value;
+                    GM_setValue(item.valueKey, value);
+                }
             }
             Common.settingPanelElement.classList.toggle('show');
         },
@@ -206,10 +232,11 @@
                     //     text: geti18nText("Youtube_AutoTheaterMode"),
                     //     dataKey: "Youtube-AutoTheaterMode",
                     // },
-                    Youtube_AutoRate2x: {
-                        classId: "Youtube-AutoRate2x",
-                        text: Common.geti18nText("Youtube_AutoRate2x"),
-                        dataKey: "Youtube-AutoRate2x",
+                    Youtube_AutoRate: {
+                        classId: "Youtube-AutoRate",
+                        text: Common.geti18nText("Youtube_AutoRate"),
+                        dataKey: "Youtube-AutoRate-Enabled",
+                        valueKey: "Youtube-AutoRate-Value",
                     },
                     Youtube_AutoRemoveMiniplayer: {
                         classId: "Youtube-AutoRemoveMiniplayer",
@@ -224,10 +251,11 @@
                         text: Common.geti18nText("Bilibili_AutoWebFullscreen"),
                         dataKey: "Bilibili-AutoWebFullscreen",
                     },
-                    Bilibili_AutoRate2x: {
-                        classId: "Bilibili-AutoRate2x",
-                        text: Common.geti18nText("Bilibili_AutoRate2x"),
-                        dataKey: "Bilibili-AutoRate2x",
+                    Bilibili_AutoRate: {
+                        classId: "Bilibili-AutoRate",
+                        text: Common.geti18nText("Bilibili_AutoRate"),
+                        dataKey: "Bilibili-AutoRate-Enabled",
+                        valueKey: "Bilibili-AutoRate-Value",
                     },
                     Bilibili_AutoRemovePip: {
                         classId: "Bilibili-AutoRemovePip",
@@ -266,11 +294,12 @@
             speedListDiv.style.justifyContent = 'center';
             speedListDiv.style.height = '100%';
             const handleButtonClick = (speed) => {
-                document.getElementsByTagName('video')[0].playbackRate = speed;
+                Common.setPlaybackRate(speed);
             };
             for (let i = 0; i < Common.speeds.length; i++) {
-                if (Common.speeds[i] >= 1) { bgColor = Common.colors[1]; }
-                if (Common.speeds[i] >= 1.5) { bgColor = Common.colors[2]; }
+                const speedValue = parseFloat(Common.speeds[i]);
+                if (speedValue >= 1) { bgColor = Common.colors[1]; }
+                if (speedValue >= 1.5) { bgColor = Common.colors[2]; }
                 let btn = document.createElement('button');
                 btn.style.backgroundColor = bgColor;
                 btn.style.marginRight = '1px';
@@ -285,7 +314,9 @@
                 btn.style.width = '38px';
                 btn.style.height = '24px';
                 btn.style.fontSize = '14px';
-                btn.textContent = Common.speeds[i].toString() + '×';
+                btn.textContent = Common.speeds[i] + '×';
+                btn.className = 'speed-control-button';
+                btn.dataset.speed = Common.speeds[i];
                 btn.addEventListener('click', () => {
                     btnClickCallback ? btnClickCallback(Common.speeds[i]) : handleButtonClick(Common.speeds[i]);
                 });
@@ -300,7 +331,17 @@
             }
         },
         setPlaybackRate: function (rate) {
-            document.getElementsByTagName('video')[0].playbackRate = rate;
+            const video = document.getElementsByTagName('video')[0];
+            if (video) {
+                video.playbackRate = parseFloat(rate);
+                Common.updateSpeedButtonHighlight(rate);
+            }
+        },
+        updateSpeedButtonHighlight: function (rate) {
+            const buttons = document.querySelectorAll('.speed-control-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            const activeButton = document.querySelector(`.speed-control-button[data-speed="${rate}"]`);
+            if (activeButton) activeButton.classList.add('active');
         },
         // 定义一个通用的方法来设置 MutationObserver
         setupPlayerObserver: function(urlCheck, playerSelector, controlSelector, callback) {
@@ -363,7 +404,7 @@
                             Common.createSpeedButtons(WebSite.selectors.youtube.videoPanel, (moreSpeedsDiv) => {
                                 videopanel.before(moreSpeedsDiv);
                             }, (speed) => {
-                                document.getElementsByTagName('video')[0].playbackRate = speed;
+                                Common.setPlaybackRate(speed);
                                 WebSite.data.youtubeLiveStreamStatus = false;
                             });
                         } catch (error) {
@@ -387,9 +428,10 @@
                         console.error('Failed autoremove buttons:', error);
                     }
 
-                    if (GM_getValue(Common.settingPanelItems.Youtube_AutoRate2x.dataKey, false)) {
-                        console.log('设置2倍速播放');
-                        Common.setPlaybackRate(2.0);
+                    if (GM_getValue(Common.settingPanelItems.Youtube_AutoRate.dataKey, false)) {
+                        const rate = parseFloat(GM_getValue(Common.settingPanelItems.Youtube_AutoRate.valueKey, Common.defaultSpeed));
+                        console.log(`设置 ${rate} 倍速播放`);
+                        Common.setPlaybackRate(rate);
                         WebSite.data.youtubeLiveStreamStatus = false;
                     }
                 }; 
@@ -399,7 +441,7 @@
                     let element = document.querySelector(WebSite.selectors.youtube.liveStreamIcon);
                     if (element) {
                         if (element.classList.contains(WebSite.selectors.youtube.liveStreamClass) && !WebSite.data.youtubeLiveStreamStatus && window.location.href.includes("youtube.com/watch")) {
-                            document.getElementsByTagName('video')[0].playbackRate = 1.0;
+                            Common.setPlaybackRate(1.0);
                             console.log('已检测到直播，重置播放速度为1.0');
                             WebSite.data.youtubeLiveStreamStatus = true;
                         }
@@ -459,8 +501,9 @@
                     console.error('Failed webfull or auto rate:', error);
                 }
 
-                if (GM_getValue(Common.settingPanelItems.Bilibili_AutoRate2x.dataKey, false)) {
-                    Common.setPlaybackRate(2.0);
+                if (GM_getValue(Common.settingPanelItems.Bilibili_AutoRate.dataKey, false)) {
+                    const rate = parseFloat(GM_getValue(Common.settingPanelItems.Bilibili_AutoRate.valueKey, Common.defaultSpeed));
+                    Common.setPlaybackRate(rate);
                 }
 
                 currentVideoTitle = document.querySelector('title').text;
