@@ -10,7 +10,7 @@
 // @description:zh    油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
 // @description:zh-CN 油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
 // @namespace         com.julong.tampermonkey.TubeBiliVideoPlayerEnhancerTools
-// @version           1.0.7
+// @version           1.0.8
 // @author            julong@111.com
 // @homepage          https://github.com/julong111/tampermonkey-TubeBili
 // @supportURL        https://github.com/julong111/tampermonkey-TubeBili/issues
@@ -129,10 +129,9 @@
         }`;
 
     let youtubeLiveStreamCheck = null;
-    let currentVideoTitle = document.querySelector('title').text;
 
     const Common = {
-        speeds: ['0.5', '1.0', '1.5', '2.0', '3.0'],
+        speeds: ['0.5', '1.0', '1.5', '2.0', '2.5', '3.0'],
         defaultSpeed: '2.0',
         colors: ['#072525', '#287F54', '#C22544'],
         currentLang: 'en',
@@ -285,7 +284,10 @@
                 };
             };
         },
-        createSpeedButtons: function (selector, panelCallback, btnClickCallback) {
+        createSpeedButtons: function (panelCallback, btnClickCallback) {
+            if (document.querySelector('#speedButtons')) {
+                return;
+            }
             let bgColor = Common.colors[0];
             let speedListDiv = document.createElement('div');
             speedListDiv.id = 'speedButtons';
@@ -396,20 +398,17 @@
             if (window.location.href.includes("youtube.com/watch")) {
                 const handleYoutubePage = async () => {
                     console.log('执行Youtube页面脚本handler');
-                    currentVideoTitle = document.querySelector('title').text;
-                    if (!document.querySelector('#speedButtons')) {
-                        try {
-                            let videopanel = await elmGetter.get(WebSite.selectors.youtube.videoPanel);
-                            console.log('添加更多倍速按钮');
-                            Common.createSpeedButtons(WebSite.selectors.youtube.videoPanel, (moreSpeedsDiv) => {
-                                videopanel.before(moreSpeedsDiv);
-                            }, (speed) => {
-                                Common.setPlaybackRate(speed);
-                                WebSite.data.youtubeLiveStreamStatus = false;
-                            });
-                        } catch (error) {
-                            console.error('Failed create speed button elements:', error);
-                        }
+                    try {
+                        let videopanel = await elmGetter.get(WebSite.selectors.youtube.videoPanel);
+                        console.log('添加更多倍速按钮');
+                        Common.createSpeedButtons((moreSpeedsDiv) => {
+                            videopanel.before(moreSpeedsDiv);
+                        }, (speed) => {
+                            Common.setPlaybackRate(speed);
+                            WebSite.data.youtubeLiveStreamStatus = false;
+                        });
+                    } catch (error) {
+                        console.error('Failed create speed button elements:', error);
                     }
 
                     try {
@@ -453,18 +452,16 @@
         },
         bilibili: function () {
             const handleBilibiliPage = async () => {
-                if (!document.querySelector('#speedButtons')) {
-                    try {
-                        await elmGetter.get(WebSite.selectors.bilibili.videoPanel);
-                        Common.createSpeedButtons(WebSite.selectors.bilibili.videoPanel, (moreSpeedsDiv) => {
-                            let ele = document.querySelector(WebSite.selectors.bilibili.speedBtn);
-                            if (ele) {
-                                ele.after(moreSpeedsDiv);
-                            }
-                        });
-                    } catch (error) {
-                        console.error('Failed create speed button elements:', error);
-                    }
+                try {
+                    await elmGetter.get(WebSite.selectors.bilibili.videoPanel);
+                    Common.createSpeedButtons((moreSpeedsDiv) => {
+                        let ele = document.querySelector(WebSite.selectors.bilibili.speedBtn);
+                        if (ele) {
+                            ele.after(moreSpeedsDiv);
+                        }
+                    });
+                } catch (error) {
+                    console.error('Failed create speed button elements:', error);
                 }
 
                 try {
@@ -506,7 +503,6 @@
                     Common.setPlaybackRate(rate);
                 }
 
-                currentVideoTitle = document.querySelector('title').text;
             };
 
             if (window.location.href.includes("bilibili.com/video")) {
