@@ -10,7 +10,7 @@
 // @description:zh    油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
 // @description:zh-CN 油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
 // @namespace         com.julong.tampermonkey.TubeBiliVideoPlayerEnhancerTools
-// @version           1.0.8
+// @version           1.0.9
 // @author            julong@111.com
 // @homepage          https://github.com/julong111/tampermonkey-TubeBili
 // @supportURL        https://github.com/julong111/tampermonkey-TubeBili/issues
@@ -345,27 +345,6 @@
             const activeButton = document.querySelector(`.speed-control-button[data-speed="${rate}"]`);
             if (activeButton) activeButton.classList.add('active');
         },
-        // 定义一个通用的方法来设置 MutationObserver
-        setupPlayerObserver: function(urlCheck, playerSelector, controlSelector, callback) {
-            if (urlCheck(window.location.href)) {
-                const playerContainer = document.querySelector(playerSelector);
-                if (playerContainer) {
-                    const observerConfig = { childList: true, subtree: true };
-                    const playerObserver = new MutationObserver((mutations) => {
-                        const hasControls = mutations.some(mutation =>
-                            Array.from(mutation.addedNodes).some(node =>
-                                node.matches && (node.matches(controlSelector) || node.querySelector(controlSelector))
-                            )
-                        );
-                        if (hasControls) {
-                            console.log(`MutationObserver 检测到 ${playerSelector} DOM变化，重新执行脚本`);
-                            callback();
-                        }
-                    });
-                    playerObserver.observe(playerContainer, observerConfig);
-                }
-            }
-        },
     };
     const WebSite = {
         data: {
@@ -535,14 +514,18 @@
             console.log('注册Youtube监听器');
             window.addEventListener(WebSite.selectors.youtube.finishListener, WebSite.youtube);
         }
-
-        // 为 Bilibili 播放器设置观察者
-        Common.setupPlayerObserver(
-            (url) => url.includes("bilibili.com"),
-            '#bilibili-player',
-            WebSite.selectors.bilibili.speedBtn,
-            WebSite.bilibili
-        );
     }
     main();
+
+    let lastUrl = location.href;
+    new MutationObserver(() => {
+        const url = location.href;
+        // 这个监听器只为Bilibili的URL变化服务，以解决自动连播问题。
+        // YouTube有自己的 'yt-navigate-finish' 事件监听器，不受此影响。
+        if (url !== lastUrl && url.includes("bilibili.com/video")) {
+            lastUrl = url;
+            console.log(`Bilibili URL changed to: ${url}. Re-running main logic.`);
+            main();
+        }
+    }).observe(document, { subtree: true, childList: true });
 })();
