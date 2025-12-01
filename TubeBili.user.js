@@ -59,6 +59,11 @@
             Bilibili_AutoRemoveSpeed: "Bilibili - 自动移除原始倍速按钮",
             Bilibili_AutoRemoveComments: "Bilibili - 自动移除评论输入区",
             Bilibili_AutoRemoveSettings: "Bilibili - 自动移除设置按钮",
+            Shortcut_Title: "快捷键:",
+            Shortcut_Items: [
+                "《 键减速",
+                " 》键加速"
+            ],
         },
         // 英文配置
         en: {
@@ -77,6 +82,11 @@
             Bilibili_AutoRemoveSpeed: "Bilibili - Auto Remove Original Speed Button",
             Bilibili_AutoRemoveComments: "Bilibili - Auto Remove Comments Input Area",
             Bilibili_AutoRemoveSettings: "Bilibili - Auto Remove Settings Button",
+            Shortcut_Title: "Shortcut:",
+            Shortcut_Items: [
+                "《 key to decrease speed",
+                " 》 key to increase speed"
+            ],
         }
     };
 
@@ -138,6 +148,8 @@
         settingPanelItems: [],
         settingPanelInitialized: false,
         settingPanelElement: null,
+        speedIndicatorElement: null,
+        speedIndicatorTimer: null,
         detectLanguage: function () {
             let userLang = navigator.language.toLowerCase();
             if (userLang.startsWith('zh')) {
@@ -185,6 +197,28 @@
                     functionDiv.appendChild(select);
                 }
             }
+
+            // shortcut
+            const shortcutContainer = document.createElement("div");
+            shortcutContainer.style.marginTop = "15px";
+            shortcutContainer.style.fontSize = "1.0em";
+            shortcutContainer.style.color = "#666";
+            shortcutContainer.style.fontWeight = "bold";
+            shortcutContainer.style.display = "flex";
+            shortcutContainer.style.flexDirection = "column";
+            shortcutContainer.style.alignItems = "center";
+            const shortcutTitleText = Common.geti18nText("Shortcut_Title");
+            const titleElement = document.createElement("div");
+            titleElement.textContent = shortcutTitleText;
+            shortcutContainer.appendChild(titleElement);
+            const shortcutItems = Common.geti18nText("Shortcut_Items");
+            shortcutItems.forEach(itemText => {
+                const line = document.createElement("div");
+                line.textContent = itemText;
+                shortcutContainer.appendChild(line);
+            });
+            panel.appendChild(shortcutContainer);
+
             let buttons = document.createElement("div");
             buttons.className = "buttons";
             let saveBtn = document.createElement("button");
@@ -337,13 +371,74 @@
             if (video) {
                 video.playbackRate = parseFloat(rate);
                 Common.updateSpeedButtonHighlight(rate);
+                Common.showSpeedIndicator(rate);
             }
+        },
+        showSpeedIndicator: function (rate) {
+            if (Common.speedIndicatorTimer) {
+                clearTimeout(Common.speedIndicatorTimer);
+            }
+            if (!Common.speedIndicatorElement) {
+                const indicator = document.createElement('div');
+                indicator.style.position = 'fixed';
+                indicator.style.top = '50%';
+                indicator.style.left = '50%';
+                indicator.style.transform = 'translate(-50%, -50%)';
+                indicator.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+                indicator.style.color = 'white';
+                indicator.style.padding = '10px 20px';
+                indicator.style.borderRadius = '8px';
+                indicator.style.fontSize = '24px';
+                indicator.style.fontWeight = 'bold';
+                indicator.style.zIndex = '2147483647';
+                indicator.style.pointerEvents = 'none';
+                indicator.style.transition = 'opacity 0.3s ease-out';
+                indicator.style.opacity = '0';
+                document.body.appendChild(indicator);
+                Common.speedIndicatorElement = indicator;
+            }
+            Common.speedIndicatorElement.textContent = `${rate}x`;
+            Common.speedIndicatorElement.style.opacity = '1';
+            Common.speedIndicatorTimer = setTimeout(() => {
+                Common.speedIndicatorElement.style.opacity = '0';
+            }, 1000);
         },
         updateSpeedButtonHighlight: function (rate) {
             const buttons = document.querySelectorAll('.speed-control-button');
             buttons.forEach(button => button.classList.remove('active'));
             const activeButton = document.querySelector(`.speed-control-button[data-speed="${rate}"]`);
             if (activeButton) activeButton.classList.add('active');
+        },
+        handleKeydown: function (event) {
+            const target = event.target;
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+                return;
+            }
+            const video = document.getElementsByTagName('video')[0];
+            if (!video) {
+                return;
+            }
+            const currentRate = video.playbackRate;
+            let currentIndex = Common.speeds.findIndex(speed => parseFloat(speed) === currentRate);
+            if (currentIndex === -1) {
+                const closest = Common.speeds.reduce((prev, curr) => {
+                    return (Math.abs(parseFloat(curr) - currentRate) < Math.abs(parseFloat(prev) - currentRate) ? curr : prev);
+                });
+                currentIndex = Common.speeds.indexOf(closest);
+            }
+            let newIndex = currentIndex;
+            if (event.code === 'Comma') {
+                if (currentIndex > 0) {
+                    newIndex = currentIndex - 1;
+                }
+            } else if (event.code === 'Period') {
+                if (currentIndex < Common.speeds.length - 1) {
+                    newIndex = currentIndex + 1;
+                }
+            } else {
+                return;
+            }
+            Common.setPlaybackRate(Common.speeds[newIndex]);
         },
     };
     const WebSite = {
@@ -500,6 +595,7 @@
         Common.initSettingItems(window.location.href);
         GM_addStyle(settingPanelStyles);
         GM_registerMenuCommand(Common.geti18nText("menu_settings"), Common.togglePanel);
+        document.addEventListener('keydown', Common.handleKeydown);
 
         // 首次加载时执行
         if (window.location.href.includes("youtube.com/watch")) {
