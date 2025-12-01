@@ -10,7 +10,7 @@
 // @description:zh    油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
 // @description:zh-CN 油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
 // @namespace         com.julong.tampermonkey.TubeBiliVideoPlayerEnhancerTools
-// @version           1.0.9
+// @version           1.0.10
 // @author            julong@111.com
 // @homepage          https://github.com/julong111/tampermonkey-TubeBili
 // @supportURL        https://github.com/julong111/tampermonkey-TubeBili/issues
@@ -401,7 +401,7 @@
             Common.speedIndicatorElement.style.opacity = '1';
             Common.speedIndicatorTimer = setTimeout(() => {
                 Common.speedIndicatorElement.style.opacity = '0';
-            }, 1000);
+            }, 500);
         },
         updateSpeedButtonHighlight: function (rate) {
             const buttons = document.querySelectorAll('.speed-control-button');
