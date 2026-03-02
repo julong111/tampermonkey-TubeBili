@@ -1,5 +1,37 @@
 [中文](README.md) | [English](#)
 
+### 🚀 Quick Start
+
+Install as a userscript here: [here](https://greasyfork.org/zh-CN/scripts/546313-youtube-bilibili-video-player-enhancer-tools)
+
+You will need a userscript manager like [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) or [Greasemonkey](https://addons.mozilla.org/nl/firefox/addon/greasemonkey/)
+
+### Changelog
+All notable changes to this project will be documented in this file.  
+
+#### [1.3]  [Bugfix & Improvement] - Resolved tagging-related bugs from previous versions for better stability and compatibility
+
+#### [1.2] Significantly increased maximum shortcut playback speed to **4x**,Allows users to browse or review content much faster and more efficiently
+
+#### [1.0.8] New **2.5x** playback speed option, Provides finer-grained control between 2x and 3x speeds for a smoother experience
+
+#### [1.0.0]
+- Initial Release
+- Official launch of the core version  
+- Includes essential playback controls, speed adjustment, website content support, and more  
+- Thank you for trying it out — your feedback will help shape future improvements!
+
+We truly appreciate every user’s support and suggestions!  
+Stay tuned for more performance enhancements, new features, and a better experience in upcoming releases.
+
+### Donate 👍
+This project is maintained by an individual. If you find the script helpful, please scan the QR code on WeChat to donate. Thank you for your support!
+![微信赞赏码](微信赞赏码.png)
+
+### Contact Me
+julong[at]111.com
+
+
 # Youtube Bilibili Video Player Enhancer Tools
 ## Core Features Overview:
 "Video PowerTools" is a powerful video enhancement userscript designed to significantly improve your viewing experience on both YouTube and Bilibili. By automating and personalizing settings, it helps you eliminate repetitive tasks and focus more on enjoying the video content.
@@ -43,21 +75,3 @@ Install "Youtube Bilibili Video Player Enhancer Tools" now to begin your enhance
 ![Setting0](Setting0.png)
 ![Setting1](Setting1.png)
 ![Setting2](Setting2.png)
-
-## Update
-V1.0.0
-
-## 🚀 Quick Start
-
-Install as a userscript here: [here](https://greasyfork.org/zh-CN/scripts/546313-youtube-bilibili-video-player-enhancer-tools)
-
-You will need a userscript manager like [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) or [Greasemonkey](https://addons.mozilla.org/nl/firefox/addon/greasemonkey/)
-
-
-### Donate 👍
-This project is maintained by an individual. If you find the script helpful, please scan the QR code on WeChat to donate. Thank you for your support!
-
-![微信赞赏码](微信赞赏码.png)
-
-## Contact Me
-julong[at]111.com

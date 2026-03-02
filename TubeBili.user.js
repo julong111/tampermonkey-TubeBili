@@ -2,7 +2,7 @@
 // @name              Youtube Bilibili Video Player Enhancer Tools
 // @name:zh-CN        油管哔哩哔哩视频播放器增强工具
 // @namespace         com.julong.tampermonkey.TubeBiliVideoPlayerEnhancerTools
-// @version           1.2
+// @version           1.3
 // @author            julong@111.com
 // @description       Adds more speed buttons and more settings to YouTube and Bilibili video players.
 // @description:zh-CN 油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
@@ -12,6 +12,8 @@
 // @icon              https://www.youtube.com/s/desktop/3748dff5/img/favicon_48.png
 // @match             *://*.youtube.com*
 // @match             *://*.bilibili.com*
+// @include           *://*.youtube.com*
+// @include           *://*.bilibili.com*
 // @require           https://scriptcat.org/lib/513/2.1.0/ElementGetter.js#sha256=aQF7JFfhQ7Hi+weLrBlOsY24Z2ORjaxgZNoni7pAz5U=
 // @grant             GM_addStyle
 // @grant             GM_setValue

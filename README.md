@@ -1,6 +1,30 @@
 [中文](#) | [English](README-en.md)
 
+### 🚀 快速开始
+
+在此处安装脚本: [here](https://greasyfork.org/zh-CN/scripts/546313-youtube-bilibili-video-player-enhancer-tools)
+
+你可以使用用户脚本管理器如[Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) or [Greasemonkey](https://addons.mozilla.org/nl/firefox/addon/greasemonkey/)
+
+
+### 更新日志
+本项目的所有显著变更都将记录在此文件中。感谢每一位用户的支持和建议！
+
+#### [1.3] [Bug修复] - 解决了之前版本中与标签相关的错误，以提高稳定性和兼容性
+#### [1.2] [功能优化]- 最大快捷播放速度显著提升至**4倍** 使用户能够更快、更高效地浏览或查看内容
+#### [1.0.8] [功能优化]新的**2.5倍**播放速度选项。在2倍和3倍速度之间提供更精细的控制，以获得更流畅的体验
+#### [1.0.0]  核心版本的正式发布，包括基本的播放控制、速度调节、网站内容支持等
+
+### 打赏支持 👍
+本项目由个人维护。如果你觉得脚本对你有帮助，欢迎使用微信扫码打赏。感谢你的支持！
+
+![微信赞赏码](微信赞赏码.png)
+
+### 联系我
+   julong[at]111.com
+
 # 油管哔哩哔哩视频播放器增强工具
+
 ## 核心功能概述:
 「油管哔哩哔哩视频播放器增强工具」是一款专为油猴用户设计的强大视频增强脚本，旨在显著提升您在 YouTube 和 Bilibili 上的观看体验。它通过自动化、个性化的设置，帮助您摆脱重复操作，让您更专注于享受视频内容。
 
@@ -40,21 +64,3 @@
 ![Setting0](Setting0.png)
 ![Setting1](Setting1.png)
 ![Setting2](Setting2.png)
-
-## Update
-    V1.0.0
-
-## 🚀 快速开始
-
-在此处安装脚本: [here](https://greasyfork.org/zh-CN/scripts/546313-youtube-bilibili-video-player-enhancer-tools)
-
-你可以使用用户脚本管理器如[Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) or [Greasemonkey](https://addons.mozilla.org/nl/firefox/addon/greasemonkey/)
-
-### 打赏支持 👍
-本项目由个人维护。如果你觉得脚本对你有帮助，欢迎使用微信扫码打赏。感谢你的支持！
-
-![微信赞赏码](微信赞赏码.png)
-
-
-## 联系我
-   julong[at]111.com
