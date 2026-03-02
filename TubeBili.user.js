@@ -1,35 +1,22 @@
 // ==UserScript==
 // @name              Youtube Bilibili Video Player Enhancer Tools
-// @name:zh           油管哔哩哔哩视频播放器增强工具
 // @name:zh-CN        油管哔哩哔哩视频播放器增强工具
-// @name:en           Youtube Bilibili Video Player Enhancer Tools
-// @name:en-US        Youtube Bilibili Video Player Enhancer Tools
-// @description       Adds more speed buttons and more settings to YouTube and Bilibili video players.
-// @description:en    Adds more speed buttons and more settings to YouTube and Bilibili video players.
-// @description:en-US Adds more speed buttons and more settings to YouTube and Bilibili video players.
-// @description:zh    油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
-// @description:zh-CN 油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
 // @namespace         com.julong.tampermonkey.TubeBiliVideoPlayerEnhancerTools
-// @version           1.1
+// @version           1.2
 // @author            julong@111.com
+// @description       Adds more speed buttons and more settings to YouTube and Bilibili video players.
+// @description:zh-CN 油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
+// @license           MIT
 // @homepage          https://github.com/julong111/tampermonkey-TubeBili
 // @supportURL        https://github.com/julong111/tampermonkey-TubeBili/issues
-
+// @icon              https://www.youtube.com/s/desktop/3748dff5/img/favicon_48.png
 // @match             *://*.youtube.com*
 // @match             *://*.bilibili.com*
-// @include           *://*.youtube.com*
-// @include           *://*.bilibili.com*
-
+// @require           https://scriptcat.org/lib/513/2.1.0/ElementGetter.js#sha256=aQF7JFfhQ7Hi+weLrBlOsY24Z2ORjaxgZNoni7pAz5U=
 // @grant             GM_addStyle
 // @grant             GM_setValue
 // @grant             GM_getValue
 // @grant             GM_registerMenuCommand
-// @icon              https://www.youtube.com/s/desktop/3748dff5/img/favicon_48.png
-// @charset		      UTF-8
-
-// @require https://scriptcat.org/lib/513/2.1.0/ElementGetter.js#sha256=aQF7JFfhQ7Hi+weLrBlOsY24Z2ORjaxgZNoni7pAz5U=
-
-// @license           MIT
 // ==/UserScript==
 
 // 广告跳过，自动网页全屏(待实现)
@@ -142,6 +129,7 @@
 
     const Common = {
         speeds: ['0.5', '1.0', '1.5', '2.0', '2.5', '3.0'],
+        shortcutSpeeds: ['0.5', '1.0', '1.5', '2.0', '2.5', '3.0', '3.5', '4.0'],
         defaultSpeed: '2.0',
         colors: ['#072525', '#287F54', '#C22544'],
         currentLang: 'en',
@@ -431,12 +419,12 @@
                 return;
             }
             const currentRate = video.playbackRate;
-            let currentIndex = Common.speeds.findIndex(speed => parseFloat(speed) === currentRate);
+            let currentIndex = Common.shortcutSpeeds.findIndex(speed => parseFloat(speed) === currentRate);
             if (currentIndex === -1) {
-                const closest = Common.speeds.reduce((prev, curr) => {
+                const closest = Common.shortcutSpeeds.reduce((prev, curr) => {
                     return (Math.abs(parseFloat(curr) - currentRate) < Math.abs(parseFloat(prev) - currentRate) ? curr : prev);
                 });
-                currentIndex = Common.speeds.indexOf(closest);
+                currentIndex = Common.shortcutSpeeds.indexOf(closest);
             }
             let newIndex = currentIndex;
             if (event.code === 'Comma') {
@@ -444,13 +432,13 @@
                     newIndex = currentIndex - 1;
                 }
             } else if (event.code === 'Period') {
-                if (currentIndex < Common.speeds.length - 1) {
+                if (currentIndex < Common.shortcutSpeeds.length - 1) {
                     newIndex = currentIndex + 1;
                 }
             } else {
                 return;
             }
-            Common.setPlaybackRate(Common.speeds[newIndex]);
+            Common.setPlaybackRate(Common.shortcutSpeeds[newIndex]);
         },
     };
     const WebSite = {
