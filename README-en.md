@@ -6,12 +6,27 @@ Install as a userscript here: [here](https://greasyfork.org/zh-CN/scripts/546313
 
 You will need a userscript manager like [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) or [Greasemonkey](https://addons.mozilla.org/nl/firefox/addon/greasemonkey/)
 
+### TODO
+* **Bilibili Unlimited 1080P Trial Without Logging In**: Automatically hijacks the trial mechanism, allowing users to endlessly try 1080P HD quality without logging in. Blocks annoying login pop-ups when not logged in, enabling a high-definition experience without the need to log in.
+
 ### Changelog
 All notable changes to this project will be documented in this file.  
 
-#### [1.4] [Function Adjustments and Additions]
-- ***Removed YouTube button settings item**: Removed the settings for the YouTube MiniPlayer- button
-- ***Added YouTube button settings item**: Added settings items for YouTube autoplay toggle, subtitle button, and settings button
+#### [2.0] [**Major Version Update**]
+* **⭐Important⭐ Settings Reset**: After updating to version 2.0, **settings from version 1.x will NOT carry over. Please reopen the settings panel and reconfigure!**
+* **System Performance Optimization**: Implemented mutex lock mechanism to prevent the Handler from being processed twice under certain race conditions.
+* **YouTube Feature Enhancements**:
+  * **New Domain Exclusion**: Added `accounts.youtube.com` subdomain exclusion to optimize YouTube matching logic
+  * **Fixed YouTube Ad Warnings**
+  * **Optimized ad detection method**, reducing the detection interval to 200ms
+  * Automatically restores to 1x speed during ad playback to avoid Google detector warnings caused by speeding through ads
+  * Automatically restores user's preferred speed after ads end
+  * Removed YouTube MiniPlayer button settings
+  * Added settings for YouTube autoplay toggle, subtitle button, and settings button
+* **Bilibili Feature Enhancements**:
+  * **New and Updated Button Removal Options**: Quality, Episode List, Picture-in-Picture, Wide Screen, Original Speed, Settings, Web Fullscreen buttons
+  * **Dynamic Button Removal**: Optimized removal of dynamically loaded buttons (e.g., comment input area that appears only in fullscreen mode)
+  * **Speed Settings Button Position Optimization**: Speed settings buttons are now added to the center of the player control bar
 
 #### [1.3] [Feature Enhancement & Optimization]
 * **New Live Stream Detection**: Automatically sets playback speed to 1.0x during YouTube live streams
@@ -91,6 +106,7 @@ julong[at]111.com
 | Auto Web Fullscreen | ❌ | ✅ |
 | Remove Redundant Buttons | ✅ | ✅ |
 | Hide Comments Section | ❌ | ✅ |
+| Unlimited 1080P Trial (No Login) | ❌ | ✅ |
 
 ## ⚙️ Detailed Configuration Options
 
@@ -103,11 +119,15 @@ julong[at]111.com
 ### Bilibili Settings:
 - [ ] Auto Web Fullscreen
 - [ ] Auto Playback Speed (customizable default speed)
+- [ ] Unlimited 1080P Trial (No Login)
+- [ ] Auto Remove Quality Button
+- [ ] Auto Remove Episode List Button
 - [ ] Auto Remove Picture-in-Picture Button
 - [ ] Auto Remove Wide Screen Button
 - [ ] Auto Remove Original Speed Button
 - [ ] Auto Remove Comments Input Area
 - [ ] Auto Remove Settings Button
+- [ ] Auto Remove Web Fullscreen Button
 
 ## 🚀 Why Choose This Script?
 * **Dual-Platform Compatibility**: One script handles both YouTube and Bilibili, eliminating the need for multiple single-purpose scripts

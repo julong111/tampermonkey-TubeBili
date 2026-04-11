@@ -1,0 +1,2 @@
+TubeBili.dev.js filter=git-crypt diff=git-crypt
+documents/** filter=git-crypt diff=git-crypt
