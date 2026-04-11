@@ -1,32 +1,25 @@
 // ==UserScript==
-// @name              Youtube Bilibili Video Player Enhancer Tools
-// @name:zh-CN        油管哔哩哔哩视频播放器增强工具
-// @namespace         com.julong.tampermonkey.TubeBiliVideoPlayerEnhancerTools
-// @version           1.3
-// @author            julong@111.com
-// @description       Adds more speed buttons and more settings to YouTube and Bilibili video players.
-// @description:zh-CN 油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
-// @license           MIT
-// @homepage          https://github.com/julong111/tampermonkey-TubeBili
-// @supportURL        https://github.com/julong111/tampermonkey-TubeBili/issues
-// @icon              https://www.youtube.com/s/desktop/3748dff5/img/favicon_48.png
-// @match             *://*.youtube.com*
-// @match             *://*.bilibili.com*
-// @include           *://*.youtube.com*
-// @include           *://*.bilibili.com*
+// @author           julong@111.com
+// @namespace        com.julong.tampermonkey.TubeBiliVideoPlayerEnhancerTools
+// @name             油管哔哩哔哩视频播放器增强工具
+// @description      油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
+// @name:en          Youtube Bilibili Video Player Enhancer Tools
+// @description:en   Adds more speed buttons and more settings to YouTube and Bilibili video players.
+// @version          1.3
+// @license          MIT
+// @icon             https://www.youtube.com/s/desktop/3748dff5/img/favicon_48.png
+// @homepage         https://github.com/julong111/tampermonkey-TubeBili
+// @supportURL       https://github.com/julong111/tampermonkey-TubeBili/issues
+// @match            https://*.youtube.com*
+// @match            https://*.bilibili.com*
+// @include          https://*.youtube.com*
+// @include          https://*.bilibili.com*
 // @require           https://scriptcat.org/lib/513/2.1.0/ElementGetter.js#sha256=aQF7JFfhQ7Hi+weLrBlOsY24Z2ORjaxgZNoni7pAz5U=
 // @grant             GM_addStyle
 // @grant             GM_setValue
 // @grant             GM_getValue
 // @grant             GM_registerMenuCommand
 // ==/UserScript==
-
-// 广告跳过，自动网页全屏(待实现)
-//<div class="ytp-skip-ad" id="skip-ad:r" style="">
-//<button class="ytp-skip-ad-button ytp-ad-component--clickable" id="skip-button:s" style="opacity: 0.5;">
-//<div class="ytp-skip-ad-button__text">Skip</div>
-//<span class="ytp-skip-ad-button__icon">
-//<svg height="100%" viewBox="-6 -6 36 36" width="100%"><path d="M5,18l10-6L5,6V18L5,18z M19,6h-2v12h2V6z" fill="#fff"></path></svg></span></button></div>
 
 (function () {
     'use strict';
@@ -50,8 +43,8 @@
             Bilibili_AutoRemoveSettings: "Bilibili - 自动移除设置按钮",
             Shortcut_Title: "快捷键:",
             Shortcut_Items: [
-                "《 键减速",
-                " 》键加速"
+                "， 键减速",
+                " 。键加速"
             ],
         },
         // 英文配置
@@ -73,8 +66,8 @@
             Bilibili_AutoRemoveSettings: "Bilibili - Auto Remove Settings Button",
             Shortcut_Title: "Shortcut:",
             Shortcut_Items: [
-                "《 key to decrease speed",
-                " 》 key to increase speed"
+                ", key to decrease speed",
+                ". key to increase speed"
             ],
         }
     };
