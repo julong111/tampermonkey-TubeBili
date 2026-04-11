@@ -9,6 +9,10 @@ You will need a userscript manager like [Tampermonkey](https://chrome.google.com
 ### Changelog
 All notable changes to this project will be documented in this file.  
 
+#### [1.4] [Function Adjustments and Additions]
+- ***Removed YouTube button settings item**: Removed the settings for the YouTube MiniPlayer- button
+- ***Added YouTube button settings item**: Added settings items for YouTube autoplay toggle, subtitle button, and settings button
+
 #### [1.3] [Feature Enhancement & Optimization]
 * **New Live Stream Detection**: Automatically sets playback speed to 1.0x during YouTube live streams
 * **Enhanced Speed Indicator**: Shows current playback speed in fullscreen mode
@@ -92,7 +96,9 @@ julong[at]111.com
 
 ### YouTube Settings:
 - [ ] Auto Playback Speed (customizable default speed)
-- [ ] Auto Remove MiniPlayer Button
+- [ ] Auto Remove Autoplay Toggle
+- [ ] Auto Remove Subtitles Button
+- [ ] Auto Remove Settings Button
 
 ### Bilibili Settings:
 - [ ] Auto Web Fullscreen
