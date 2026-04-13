@@ -4,15 +4,34 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
         {
             "type": "node",
             "request": "launch",
-            "name": "Build",
+            "name": "pnpm build",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": ["run", "build"],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "pnpm dev (watch)",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": ["run", "dev"],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "obfuscation",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/documents/build.js"
+            "program": "${workspaceFolder}/src/utils/obfuscation.js"
         }
     ]
 }

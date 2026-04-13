@@ -1,2 +1,4 @@
 # source.js filter=git-crypt diff=git-crypt
 documents/** filter=git-crypt diff=git-crypt
+src/** filter=git-crypt diff=git-crypt
+dist/** filter=git-crypt diff=git-crypt
