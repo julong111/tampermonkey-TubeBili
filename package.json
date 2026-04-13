@@ -1,0 +1,15 @@
+{
+  "name": "tampermonkey-tubebili",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node build.js",
+    "clean": "rimraf TubeBili.user.js temp.js",
+    "dev": "npm run clean && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "javascript-obfuscator": "^5.4.1",
+    "rimraf": "^6.1.3",
+    "terser": "^5.46.1"
+  }
+}

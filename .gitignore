@@ -3,5 +3,6 @@
 /workspace.xml
 
 .idea/
-
+node_modules/
 .DS_Store
+temp_processed.js
