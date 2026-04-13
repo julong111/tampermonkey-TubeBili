@@ -4,7 +4,7 @@ import { HEADER } from './src/header.js';
 export default {
   input: 'src/main.js',
   output: {
-    file: 'dist/TubeBili.user.js',
+    file: 'dist/TubeBili.dev.js',
     format: 'iife',
     name: 'TubeBili',
     sourcemap: true,

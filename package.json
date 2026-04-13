@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "rollup -c",
+    "build:obfuscated": "rollup -c && node src/utils/obfuscation.cjs",
     "dev": "rollup -c -w",
     "clean": "rimraf dist"
   },

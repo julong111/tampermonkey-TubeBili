@@ -17,21 +17,11 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "pnpm dev (watch)",
-            "runtimeExecutable": "pnpm",
-            "runtimeArgs": ["run", "dev"],
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
-            "type": "node",
-            "request": "launch",
             "name": "obfuscation",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/src/utils/obfuscation.js"
+            "program": "${workspaceFolder}src/utils/obfuscation.js"
         }
     ]
 }
