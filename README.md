@@ -1,8 +1,14 @@
 [中文](#) | [English](README-en.md)
 
-# 🚀 TubeBili Enhancer | 油管 哔哩哔哩 B站 视频播放器增强工具
+# 🚀 TubeBili Enhancer | 油管 哔哩哔哩(B站)视频播放器增强工具
 
-一款专为油猴用户设计的强大视频增强脚本，旨在显著提升您在 **YouTube** 和 **Bilibili** 上的观看体验。通过自动化、个性化的设置，帮助您摆脱重复操作，让您更专注于享受视频内容。
+TubeBili是一款专为油猴用户设计的强大视频增强脚本，旨在显著提升您在 **Youtube** 和 **Bilibili** 上的观看体验。通过自动化、个性化的设置，帮助您摆脱重复操作，让您更专注于享受视频内容。 TubeBili 为 YouTube 和 Bilibili 视频播放器提供以下增强功能:
+- 🚀 自动设置播放倍速
+- 🎯 自定义倍速列表
+- ⌨️ 快捷键调速 (逗号减速,句号加速)
+- 🎨 美观的设置面板
+- 🔧 可选移除播放器按钮
+
 
 **⭐Youtube设置面板⭐**
 ![CN-Settings-Youtube](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-Settings-Youtube.png)
@@ -18,9 +24,28 @@
 
 ## 📦 快速开始
 
-在此处安装脚本: [GreasyFork 链接](https://greasyfork.org/zh-CN/scripts/546313-youtube-bilibili-video-player-enhancer-tools)
+本项目提供两个版本,请根据您的脚本管理器选择:
 
-你需要使用用户脚本管理器如 [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) 或 [Greasemonkey](https://addons.mozilla.org/nl/firefox/addon/greasemonkey/)
+### 1️⃣ **TubeBili.user.js** - 标准油猴版本
+**适用场景:**
+- ✅ Tampermonkey (Chrome/Firefox/Edge/Safari)
+- ✅ Violentmonkey
+- ✅ Greasemonkey
+- ✅ ScriptCat
+
+**安装方法:**
+1. 安装油猴管理器扩展 (如 Tampermonkey)
+2. 在此处安装脚本 [TubeBili.user.js](https://greasyfork.org/zh-CN/scripts/546313-youtube-bilibili-video-player-enhancer-tools)
+3. 确认安装后点击脚本设置菜单按钮打开设置面板，进行配置。
+
+---
+
+### 2️⃣ **TubeBili.userscripts.js** - Safari Userscripts 专用版本 ⭐
+**适用场景:**
+- ✅ Safari + Userscripts 插件 (Mac App Store)
+- ✅ 其他不支持 GM API 的轻量级用户脚本管理器
+
+在此处下载并安装脚本 [TubeBili.userscripts.js](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/TubeBili.userscripts.js)
 
 ---
 
@@ -141,6 +166,14 @@
 
 ---
 
+## 🌍 多语言支持
+
+脚本会根据浏览器语言自动切换界面语言:
+- 🇨🇳 中文 (zh-CN)
+- 🇺🇸 English (其他语言默认使用英文)
+
+---
+
 ## ⚙️ 详细配置选项
 
 ### YouTube 设置:
@@ -166,13 +199,15 @@
 
 ## 💖 打赏支持
 
-本项目由个人维护。如果你觉得脚本对你有帮助，欢迎使用微信扫码打赏。感谢你的支持！
+如果您觉得脚本对您有帮助，欢迎使用微信进行打赏以支持作者对本项目的持续更新开发。感谢您的支持！
 
 ![微信打赏码](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/Pay.png)
 
 ## 📧 联系我
-
-julong[at]111.com
+**julong**  
+📧 反馈邮箱: julong[at]111.com  
+🏠 脚本主页: https://github.com/julong111/tampermonkey-TubeBili  
+🐛 问题反馈: https://github.com/julong111/tampermonkey-TubeBili/issues
 
 ---
 

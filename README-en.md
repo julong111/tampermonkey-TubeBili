@@ -2,25 +2,50 @@
 
 # 🚀 TubeBili Enhancer | Youtube Bilibili Video Player Enhancer Tools
 
-A powerful userscript designed to significantly improve your viewing experience on both **YouTube** and **Bilibili**. By automating and personalizing settings, it helps you eliminate repetitive tasks and focus more on enjoying the video content.
+TubeBili is a powerful userscript designed specifically for Tampermonkey users, aiming to significantly improve your viewing experience on **YouTube** and **Bilibili**. Through automation and personalized settings, it helps you eliminate repetitive operations and focus more on enjoying video content. TubeBili provides the following enhancements for YouTube and Bilibili video players:
+- 🚀 Auto playback speed setting
+- 🎯 Customizable speed list
+- ⌨️ Keyboard shortcut speed adjustment (comma to decrease, period to increase)
+- 🎨 Beautiful settings panel
+- 🔧 Optional removal of player buttons
 
 
-**⭐Youtube Settings Panel ⭐**
+**⭐Youtube Settings Panel⭐**
 ![EN-Settings-Youtube](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/EN-Settings-Youtube.png)
 ![CN-UI-1-Youtube](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-UI-1-Youtube.png)
 ![CN-UI-2-Youtube](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-UI-2-Youtube.png)
 
 
-**⭐Bilibili Settings Panel ⭐**
+**⭐Bilibili Settings Panel⭐**
 ![EN-Settings-Bilibili](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/EN-Settings-Bilibili.png)
 ![CN-UI-1-Bilibili](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-UI-1-Bilibili.png)
 ![CN-UI-2-Bilibili](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-UI-2-Bilibili.png)
 
+
 ## 📦 Quick Start
 
-Install the script here: [GreasyFork Link](https://greasyfork.org/zh-CN/scripts/546313-youtube-bilibili-video-player-enhancer-tools)
+This project provides two versions. Please choose according to your userscript manager:
 
-You will need a userscript manager like [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) or [Greasemonkey](https://addons.mozilla.org/nl/firefox/addon/greasemonkey/)
+### 1️⃣ **TubeBili.user.js** - Standard Tampermonkey Version
+**Applicable Scenarios:**
+- ✅ Tampermonkey (Chrome/Firefox/Edge/Safari)
+- ✅ Violentmonkey
+- ✅ Greasemonkey
+- ✅ ScriptCat
+
+**Installation Method:**
+1. Install userscript manager extension (e.g., Tampermonkey)
+2. Install script here: [TubeBili.user.js](https://greasyfork.org/zh-CN/scripts/546313-youtube-bilibili-video-player-enhancer-tools)
+3. After confirming installation, click the script settings menu button to open the settings panel for configuration.
+
+---
+
+### 2️⃣ **TubeBili.userscripts.js** - Safari Userscripts Dedicated Version ⭐
+**Applicable Scenarios:**
+- ✅ Safari + Userscripts plugin (Mac App Store)
+- ✅ Other lightweight userscript managers that don't support GM API
+
+Download and install the script here: [TubeBili.userscripts.js](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/TubeBili.userscripts.js)
 
 ---
 
@@ -141,6 +166,14 @@ All notable changes to this project will be documented in this file. We truly ap
 
 ---
 
+## 🌍 Multi-Language Support
+
+The script automatically switches interface language based on browser language:
+- 🇨🇳 Chinese (zh-CN)
+- 🇺🇸 English (other languages default to English)
+
+---
+
 ## ⚙️ Detailed Configuration Options
 
 ### YouTube Settings:
@@ -152,7 +185,6 @@ All notable changes to this project will be documented in this file. We truly ap
 ### Bilibili Settings:
 - [ ] Auto Web Fullscreen
 - [ ] Auto Playback Speed (customizable default speed)
-- [ ] **Unlimited 1080P Trial (No Login)**
 - [ ] Auto Remove Quality Button
 - [ ] Auto Remove Episode List Button
 - [ ] Auto Remove Picture-in-Picture Button
@@ -161,18 +193,21 @@ All notable changes to this project will be documented in this file. We truly ap
 - [ ] Auto Remove Comments Input Area
 - [ ] Auto Remove Settings Button
 - [ ] Auto Remove Web Fullscreen Button
+- [ ] **Unlimited 1080P Trial Without Login** - TODO
 
 ---
 
 ## 💖 Donate
 
-This project is maintained by an individual. If you find the script helpful, please scan the QR code on WeChat to donate. Thank you for your support!
+If you find this script helpful, feel free to use WeChat to donate and support the author's continuous development and updates of this project. Thank you for your support!
 
 ![WeChat Reward Code](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/Pay.png)
 
 ## 📧 Contact Me
-
-julong[at]111.com
+**julong**  
+📧 Feedback Email: julong[at]111.com  
+🏠 Script Homepage: https://github.com/julong111/tampermonkey-TubeBili  
+🐛 Issue Feedback: https://github.com/julong111/tampermonkey-TubeBili/issues
 
 ---
 

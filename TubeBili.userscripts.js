@@ -2,7 +2,7 @@
 // @name               TubeBili - YouTube(油管) Bilibili(B站) 视频增强工具 (Safari/通用版)
 // @name:en            TubeBili - YouTube Bilibili Video Player Enhancer Tools (Safari/Universal)
 // @namespace          com.julong.userscripts.TubeBiliVideoPlayerEnhancerTools
-// @version            2.0.1-safari
+// @version            2.0.2-safari
 // @author             julong@111.com
 // @description        自动网页全屏、自定义倍速列表、快捷键一键调速、界面漂亮，让您摆脱繁琐操作，专注享受视频 | by julong
 // @description:en     Auto web fullscreen, custom speed list, hotkey speed control, beautiful UI. Say goodbye to tedious operations and focus on enjoying videos | by julong
@@ -10,51 +10,70 @@
 // @icon               https://www.youtube.com/s/desktop/3748dff5/img/favicon_48.png
 // @homepage           https://github.com/julong111/tampermonkey-TubeBili
 // @supportURL         https://github.com/julong111/tampermonkey-TubeBili/issues
-// @match              https://*.youtube.com/*
-// @match              https://*.bilibili.com/*
-// @exclude            https://accounts.youtube.com/*
+// @match              *://*.youtube.com/*
+// @match              *://*.bilibili.com/*
+// @exclude            *://accounts.youtube.com/*
 // @run-at             document-start
+// @grant              none
 // ==/UserScript==
 
 (function () {
   'use strict';
 
   // ========== GM API Polyfill for Safari/Userscripts ==========
+  // Safari Userscripts 不支持 GM_* API,需要使用 localStorage 替代
   const GM_Polyfill = {
     getValue: function(key, defaultValue) {
       try {
         const value = localStorage.getItem('TubeBili_' + key);
-        return value !== null ? value : defaultValue;
+        if (value === null) return defaultValue;
+        // 尝试解析 JSON (支持布尔值、数字等类型)
+        if (value === 'true') return true;
+        if (value === 'false') return false;
+        if (!isNaN(value) && value !== '') return Number(value);
+        return value;
       } catch (e) {
-        console.warn('[TubeBili] localStorage access failed:', e);
+        console.warn('[TubeBili] localStorage read failed:', e);
         return defaultValue;
       }
     },
     setValue: function(key, value) {
       try {
         localStorage.setItem('TubeBili_' + key, String(value));
+        return Promise.resolve();
       } catch (e) {
         console.warn('[TubeBili] localStorage write failed:', e);
+        return Promise.reject(e);
       }
     },
     addStyle: function(css) {
       const style = document.createElement('style');
       style.textContent = css;
+      style.setAttribute('data-tubebili-style', 'true');
+      
       if (document.head) {
         document.head.appendChild(style);
       } else {
-        document.addEventListener('DOMContentLoaded', () => {
-          document.head.appendChild(style);
-        });
+        // 如果 head 还不存在,等待 DOMContentLoaded
+        const addStyleWhenReady = () => {
+          if (document.head) {
+            document.head.appendChild(style);
+            document.removeEventListener('DOMContentLoaded', addStyleWhenReady);
+          }
+        };
+        document.addEventListener('DOMContentLoaded', addStyleWhenReady);
       }
+      return style;
     },
     registerMenuCommand: function(name, callback) {
-      // Create a floating button as menu command replacement
+      // Safari Userscripts 不支持 GM_registerMenuCommand
+      // 创建浮动按钮作为替代方案
       if (document.getElementById('tubeBiliFloatingBtn')) return;
       
       const floatingBtn = document.createElement('button');
       floatingBtn.id = 'tubeBiliFloatingBtn';
       floatingBtn.textContent = '⚙️';
+      floatingBtn.title = name; // 显示菜单名称作为提示
       floatingBtn.style.cssText = `
         position: fixed;
         bottom: 20px;
@@ -70,7 +89,10 @@
         z-index: 2147483647;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         transition: all 0.3s ease;
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
       `;
+      
       floatingBtn.addEventListener('mouseenter', () => {
         floatingBtn.style.transform = 'scale(1.1)';
         floatingBtn.style.background = 'rgba(37, 99, 235, 1)';
@@ -79,68 +101,148 @@
         floatingBtn.style.transform = 'scale(1)';
         floatingBtn.style.background = 'rgba(59, 130, 246, 0.9)';
       });
-      floatingBtn.addEventListener('click', callback);
+      floatingBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        callback();
+      });
       
-      // Wait for body if not present
-      if (document.body) {
-        document.body.appendChild(floatingBtn);
-      } else {
-        window.addEventListener('load', () => document.body.appendChild(floatingBtn));
-      }
+      // 等待 body 元素出现
+      const appendButton = () => {
+        if (document.body) {
+          document.body.appendChild(floatingBtn);
+        } else {
+          requestAnimationFrame(appendButton);
+        }
+      };
+      appendButton();
       
-      // Add style to hide button when panel is open
+      // 添加样式:当设置面板打开时隐藏浮动按钮
       const hideStyle = document.createElement('style');
       hideStyle.textContent = `
         body:has(#minimalSettingsPanel.show) #tubeBiliFloatingBtn {
           opacity: 0;
           pointer-events: none;
+          transform: scale(0.8);
         }
       `;
-      if (document.head) document.head.appendChild(hideStyle);
+      if (document.head) {
+        document.head.appendChild(hideStyle);
+      }
     }
   };
 
-  // Apply Polyfills if native GM APIs are missing
-  if (typeof window.GM_getValue === 'undefined') {
+  // 应用 Polyfills - 仅在原生 GM API 不存在时注入
+  if (typeof window.GM_getValue === 'undefined' || typeof GM_getValue === 'undefined') {
     window.GM_getValue = GM_Polyfill.getValue.bind(GM_Polyfill);
+    if (typeof GM_getValue === 'undefined') {
+      var GM_getValue = window.GM_getValue;
+    }
   }
-  if (typeof window.GM_setValue === 'undefined') {
+  if (typeof window.GM_setValue === 'undefined' || typeof GM_setValue === 'undefined') {
     window.GM_setValue = GM_Polyfill.setValue.bind(GM_Polyfill);
+    if (typeof GM_setValue === 'undefined') {
+      var GM_setValue = window.GM_setValue;
+    }
   }
-  if (typeof window.GM_addStyle === 'undefined') {
+  if (typeof window.GM_addStyle === 'undefined' || typeof GM_addStyle === 'undefined') {
     window.GM_addStyle = GM_Polyfill.addStyle.bind(GM_Polyfill);
+    if (typeof GM_addStyle === 'undefined') {
+      var GM_addStyle = window.GM_addStyle;
+    }
   }
-  if (typeof window.GM_registerMenuCommand === 'undefined') {
+  if (typeof window.GM_registerMenuCommand === 'undefined' || typeof GM_registerMenuCommand === 'undefined') {
     window.GM_registerMenuCommand = GM_Polyfill.registerMenuCommand.bind(GM_Polyfill);
+    if (typeof GM_registerMenuCommand === 'undefined') {
+      var GM_registerMenuCommand = window.GM_registerMenuCommand;
+    }
   }
 
   // ========== ElementGetter Inline Implementation ==========
+  // 内联实现 ElementGetter,避免使用 @require 外部依赖
   const elmGetter = {
+    /**
+     * 等待元素出现
+     * @param {string} selector - CSS 选择器
+     * @param {number} timeout - 超时时间(毫秒),默认 10000
+     * @returns {Promise<Element>}
+     */
     get: function(selector, timeout = 10000) {
       return new Promise((resolve, reject) => {
+        // 首先检查元素是否已存在
         const element = document.querySelector(selector);
         if (element) {
           resolve(element);
           return;
         }
 
-        const observer = new MutationObserver(() => {
+        // 使用 MutationObserver 监听 DOM 变化
+        const observer = new MutationObserver((mutations, obs) => {
           const element = document.querySelector(selector);
           if (element) {
-            observer.disconnect();
+            obs.disconnect();
             clearTimeout(timer);
             resolve(element);
           }
         });
 
-        observer.observe(document.documentElement || document.body, {
-          childList: true,
-          subtree: true
-        });
+        // 开始观察
+        const observeTarget = document.documentElement || document.body;
+        if (observeTarget) {
+          observer.observe(observeTarget, {
+            childList: true,
+            subtree: true
+          });
+        }
 
+        // 设置超时
         const timer = setTimeout(() => {
           observer.disconnect();
           reject(new Error(`Element not found within ${timeout}ms: ${selector}`));
+        }, timeout);
+      });
+    },
+    
+    /**
+     * 等待多个元素中的任意一个出现
+     * @param {string[]} selectors - CSS 选择器数组
+     * @param {number} timeout - 超时时间(毫秒)
+     * @returns {Promise<{element: Element, selector: string}>}
+     */
+    any: function(selectors, timeout = 10000) {
+      return new Promise((resolve, reject) => {
+        // 检查是否有元素已存在
+        for (const selector of selectors) {
+          const element = document.querySelector(selector);
+          if (element) {
+            resolve({ element, selector });
+            return;
+          }
+        }
+
+        const observer = new MutationObserver((mutations, obs) => {
+          for (const selector of selectors) {
+            const element = document.querySelector(selector);
+            if (element) {
+              obs.disconnect();
+              clearTimeout(timer);
+              resolve({ element, selector });
+              return;
+            }
+          }
+        });
+
+        const observeTarget = document.documentElement || document.body;
+        if (observeTarget) {
+          observer.observe(observeTarget, {
+            childList: true,
+            subtree: true
+          });
+        }
+
+        const timer = setTimeout(() => {
+          observer.disconnect();
+          reject(new Error(`No elements found within ${timeout}ms: ${selectors.join(', ')}`));
         }, timeout);
       });
     }
@@ -1174,8 +1276,8 @@
       
       setRateWithRetry();
     }
-    console.log("[启动] bilibili定时移除 定时器 (间隔200ms)");
-    this.removalInterval = setInterval(() => {
+    console.log("[启动] bilibili定时移除 定时器 (间隔1000ms)");
+    sys.removalInterval = setInterval(() => {
       var _a2;
       const playerEl = document.querySelector(bilibiliSelectors.playerContainer);
       if (!playerEl) return;
@@ -1576,6 +1678,11 @@
       console.log("[清理] youtube广告 定时器");
       clearInterval(sys.youtubeAdCheckInterval);
       sys.youtubeAdCheckInterval = null;
+    }
+    if (sys.removalInterval !== null) {
+      console.log("[清理] bilibili定时移除 定时器");
+      clearInterval(sys.removalInterval);
+      sys.removalInterval = null;
     }
     if (sys.bilibiliUrlObserver !== null) {
       console.log("[清理] bilibili MutationObserver");
