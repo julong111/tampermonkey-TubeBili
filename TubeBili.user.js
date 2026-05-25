@@ -1,11 +1,11 @@
 // ==UserScript==
-// @name               油管哔哩哔哩B站视频播放器增强工具
-// @name:en            youtube bilibili Video Player Enhancer Tools
+// @name               TubeBili - YouTube(油管) Bilibili(B站) 视频增强工具
+// @name:en            TubeBili - YouTube Bilibili Video Player Enhancer Tools
 // @namespace          com.julong.tampermonkey.TubeBiliVideoPlayerEnhancerTools
 // @version            2.0
 // @author             julong@111.com
-// @description        油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
-// @description:en     Adds more speed buttons and more settings to youTube and bilibili video players.
+// @description        自动网页全屏、自定义倍速列表、快捷键一键调速、界面漂亮，让您摆脱繁琐操作，专注享受视频 | by julong
+// @description:en     Auto web fullscreen, custom speed list, hotkey speed control, beautiful UI. Say goodbye to tedious operations and focus on enjoying videos | by julong
 // @license            MIT
 // @icon               https://www.youtube.com/s/desktop/3748dff5/img/favicon_48.png
 // @homepage           https://github.com/julong111/tampermonkey-TubeBili
@@ -26,40 +26,40 @@
 (function () {
   'use strict';
 
-  // 常量定义
-  const AD_TRIAL_DELAY = 3e4;        // 30秒广告试用延迟
-  const EXTENDED_TRIAL_DELAY = 3e8;   // 延长后的试用延迟（约9.5年）
-  const PROPERTIES_TO_OVERRIDE = ['isViewToday', 'isVideoAble'];
+  // bilibili 1080P无登录无限试用时间（毫秒） todo
+  // const AD_TRIAL_DELAY = 3e4;        // 30秒广告试用延迟
+  // const EXTENDED_TRIAL_DELAY = 3e8;   // 延长后的试用延迟（约9.5年）
+  // const PROPERTIES_TO_OVERRIDE = ['isViewToday', 'isVideoAble'];
 
-  // 如果用户已登录，则无需继续执行此脚本
-  if (!document.cookie.includes('DedeUserID')) {
-    // 每次加载新视频时启用试用（必须在最开始执行）
-    const originDefineProperty = Object.defineProperty;
-    Object.defineProperty = function (obj, prop, descriptor) {
-      if (PROPERTIES_TO_OVERRIDE.includes(prop)) {
-        descriptor = {
-          get: () => true,
-          enumerable: !1,
-          configurable: !0
-        }
-      }
-      return originDefineProperty.call(this, obj, prop, descriptor);
-    }
+  // // 如果用户已登录，则无需继续执行此脚本
+  // if (!document.cookie.includes('DedeUserID')) {
+  //   // 每次加载新视频时启用试用（必须在最开始执行）
+  //   const originDefineProperty = Object.defineProperty;
+  //   Object.defineProperty = function (obj, prop, descriptor) {
+  //     if (PROPERTIES_TO_OVERRIDE.includes(prop)) {
+  //       descriptor = {
+  //         get: () => true,
+  //         enumerable: !1,
+  //         configurable: !0
+  //       }
+  //     }
+  //     return originDefineProperty.call(this, obj, prop, descriptor);
+  //   }
 
-    // 通过覆盖 "setTimeout" 延长试用时间
-    const originSetTimeout = unsafeWindow.setTimeout;
-    unsafeWindow.setTimeout = function (func, delay) {
-      if (delay === AD_TRIAL_DELAY) delay = EXTENDED_TRIAL_DELAY;
-      return originSetTimeout.call(this, func, delay);
-    }
-  }
+  //   // 通过覆盖 "setTimeout" 延长试用时间
+  //   const originSetTimeout = unsafeWindow.setTimeout;
+  //   unsafeWindow.setTimeout = function (func, delay) {
+  //     if (delay === AD_TRIAL_DELAY) delay = EXTENDED_TRIAL_DELAY;
+  //     return originSetTimeout.call(this, func, delay);
+  //   }
+  // }
 
   const i18n = {
     zh: {
-      Menu_Settings: "视频播放器增强工具",
+      Menu_Settings: "TubeBili - Youtube & Bilibili 视频播放器增强工具",
       Menu_Save: "保存",
       Menu_Close: "关闭",
-      Menu_Subtitle: "YouTube & Bilibili 视频增强设置",
+      Menu_Subtitle: "设置面板",
       Menu_Section_Actions: "功能开关",
       Menu_Section_Remove: "移除按钮",
       Menu_Section_SpeedList: "倍速列表设置",
@@ -80,6 +80,7 @@
       Youtube_Remove_Subtitles: "移除字幕按钮",
       Youtube_Remove_Settings: "移除设置按钮",
       Youtube_Remove_TheaterMode: "移除影院模式按钮",
+      Youtube_Remove_FullScreen: "移除全屏按钮",
       Bilibili_Action_Rate: "自动倍速播放",
       Bilibili_Action_WebFullscreen: "自动网页全屏",
       Bilibili_Action_Unlimited_Trial: "未登录无限试用1080P",
@@ -90,13 +91,15 @@
       Bilibili_Remove_Speed: "移除原始倍速按钮",
       Bilibili_Remove_Comments: "移除评论输入区",
       Bilibili_Remove_Settings: "移除设置按钮",
-      Bilibili_Remove_WebFullscreen: "移除网页全屏按钮"
+      Bilibili_Remove_WebFullscreen: "移除网页全屏按钮",
+      Bilibili_Remove_Volume: "移除音量按钮",
+      Bilibili_Remove_FullScreen: "移除全屏按钮"
     },
     en: {
-      Menu_Settings: "Video Player Enhancer",
+      Menu_Settings: "TubeBili - YouTube Bilibili Video Player Enhancer Tools",
       Menu_Save: "Save",
       Menu_Close: "Close",
-      Menu_Subtitle: "YouTube & Bilibili Video Enhancement Settings",
+      Menu_Subtitle: "Settings Panel",
       Menu_Section_Actions: "Features",
       Menu_Section_Remove: "Remove Buttons",
       Menu_Section_SpeedList: "Speed List Settings",
@@ -117,6 +120,7 @@
       Youtube_Remove_Subtitles: "Remove Subtitles Button",
       Youtube_Remove_Settings: "Remove Settings Button",
       Youtube_Remove_TheaterMode: "Remove Theater Mode Button",
+      Youtube_Remove_FullScreen: "Remove FullScreen Button",
       Bilibili_Action_Rate: "Auto Playback Speed",
       Bilibili_Action_WebFullscreen: "Auto Web Fullscreen",
       Bilibili_Action_Unlimited_Trial: "Unlimited 1080P Trial (No Login)",
@@ -127,7 +131,9 @@
       Bilibili_Remove_Speed: "Remove Original Speed Button",
       Bilibili_Remove_Comments: "Remove Comments Input Area",
       Bilibili_Remove_Settings: "Remove Settings Button",
-      Bilibili_Remove_WebFullscreen: "Remove Web Fullscreen Button"
+      Bilibili_Remove_WebFullscreen: "Remove Web Fullscreen Button",
+      Bilibili_Remove_Volume: "Remove Volume Button",
+      Bilibili_Remove_FullScreen: "Remove FullScreen Button"
     }
   };
   const Common = {
@@ -245,6 +251,9 @@
     initializePanel: function () {
       let panel = document.createElement("div");
       panel.id = "minimalSettingsPanel";
+      if (sys.currentLang === "en") {
+        panel.classList.add("lang-en");
+      }
       const header = document.createElement("div");
       header.className = "panel-header";
       const title = document.createElement("h2");
@@ -572,6 +581,11 @@
             classId: "Youtube_Remove_TheaterMode",
             text: this.geti18nText("Youtube_Remove_TheaterMode"),
             enableKey: "Youtube_Remove_TheaterMode"
+          },
+          Youtube_Remove_FullScreen: {
+            classId: "Youtube_Remove_FullScreen",
+            text: this.geti18nText("Youtube_Remove_FullScreen"),
+            enableKey: "Youtube_Remove_FullScreen"
           }
         };
       } else if (currentUrl.includes("bilibili.com")) {
@@ -628,6 +642,16 @@
             classId: "Bilibili_Remove_Settings",
             text: this.geti18nText("Bilibili_Remove_Settings"),
             enableKey: "Bilibili_Remove_Settings"
+          },
+          Bilibili_Remove_Volume: {
+            classId: "Bilibili_Remove_Volume",
+            text: this.geti18nText("Bilibili_Remove_Volume"),
+            enableKey: "Bilibili_Remove_Volume"
+          },
+          Bilibili_Remove_FullScreen: {
+            classId: "Bilibili_Remove_FullScreen",
+            text: this.geti18nText("Bilibili_Remove_FullScreen"),
+            enableKey: "Bilibili_Remove_FullScreen"
           }
         };
       }
@@ -811,6 +835,8 @@
     wideBtn: ".bpx-player-ctrl-wide",
     speedsListBtn: ".bpx-player-ctrl-playbackrate",
     settingsBtn: ".bpx-player-ctrl-setting",
+    volumeBtn: ".bpx-player-ctrl-volume",
+    fullScreenBtn: ".bpx-player-ctrl-full",
     trialConfirmBtn: ".bpx-player-toast-confirm-login",
     speedBtnPostionTarget: ".bpx-player-control-bottom-right"
   };
@@ -821,6 +847,7 @@
     subtitlesBtn: "#movie_player .ytp-subtitles-button",
     settingsBtn: "#movie_player .ytp-settings-button",
     theaterMode: "#movie_player .ytp-size-button",
+    fullScreenBtn: "#movie_player .ytp-fullscreen-button",
     finishListener: "yt-navigate-finish",
     liveStreamClass: "ytp-live-badge-is-livehead",
     adSelector: ".ytp-ad-player-overlay, .ytp-ad-player-overlay-layout"
@@ -840,6 +867,10 @@
     },
     Youtube_Remove_TheaterMode: {
       selector: youtubeSelectors.theaterMode,
+      mode: "remove"
+    },
+    Youtube_Remove_FullScreen: {
+      selector: youtubeSelectors.fullScreenBtn,
       mode: "remove"
     }
   };
@@ -866,7 +897,8 @@
     },
     Bilibili_Remove_Comments: {
       selector: bilibiliSelectors.commentsPanel,
-      mode: "hide"
+      // mode: "hide"
+      mode: "remove"
     },
     Bilibili_Remove_Settings: {
       selector: bilibiliSelectors.settingsBtn,
@@ -874,7 +906,16 @@
     },
     Bilibili_Remove_WebFullscreen: {
       selector: bilibiliSelectors.webFullBtn,
-      mode: "hide"
+      // mode: "hide"
+      mode: "remove"
+    },
+    Bilibili_Remove_Volume: {
+      selector: bilibiliSelectors.volumeBtn,
+      mode: "remove"
+    },
+    Bilibili_Remove_FullScreen: {
+      selector: bilibiliSelectors.fullScreenBtn,
+      mode: "remove"
     }
   };
   async function handleYoutubePage() {
@@ -970,11 +1011,11 @@
             }
           });
         } else {
-          console.warn("[UI] 未找到目标容器 .bpx-player-control-bottom-right");
+          console.warn("[UI] 未找到目标容器 "+ bilibiliSelectors.speedBtnPostionTarget);
         }
       });
     } catch (error) {
-      console.error("Failed create speed button elements:", error);
+      console.error("创建倍速按钮失败:", error);
     }
     if (GM_getValue((_a = Common.settingPanelItems.Bilibili_Action_WebFullscreen) == null ? void 0 : _a.enableKey, false)) {
       console.log("[设置] 自动网页全屏 已启用");
@@ -994,7 +1035,24 @@
     if (autoRateEnabled) {
       const rate = parseFloat(GM_getValue((_c = Common.settingPanelItems.Bilibili_Action_Rate) == null ? void 0 : _c.valueKey, Common.defaultSpeed));
       console.log("[设置] 准备设置倍速:", rate);
-      Common.setPlaybackRate(rate);
+      
+      // 持续重试直到视频元素就绪并成功设置倍速
+      let retryCount = 0;
+      const setRateWithRetry = () => {
+        const video = document.getElementsByTagName("video")[0];
+        if (video) {
+          Common.setPlaybackRate(rate);
+          console.log("[成功] 已设置倍速为:", rate);
+        } else {
+          retryCount++;
+          setTimeout(setRateWithRetry, 500);
+          if (retryCount % 10 === 0) {
+            console.log(`[等待] 视频元素加载中... (已尝试${retryCount}次)`);
+          }
+        }
+      };
+      
+      setRateWithRetry();
     }
     console.log("[启动] bilibili定时移除 定时器 (间隔200ms)");
     this.removalInterval = setInterval(() => {
@@ -1017,7 +1075,7 @@
           }
         }
       }
-    }, 200);
+    }, 1000);
     console.log("<<<< handleBilibili 执行完毕");
   }
   const STYLES = `
@@ -1035,6 +1093,9 @@
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     z-index: 2147403647 !important;
     display: none;
+  }
+  #minimalSettingsPanel.lang-en {
+    width: 600px;
   }
   #minimalSettingsPanel.show {
     display: block;
@@ -1102,6 +1163,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0;
   }
   #minimalSettingsPanel .setting-item label .star {
     color: #f59e0b;
@@ -1275,7 +1337,7 @@
     return window.location.href.includes("youtube.com/watch");
   }
   function isBilibiliVideoPage() {
-    return window.location.href.includes("bilibili.com/video");
+    return window.location.href.includes("bilibili.com/video") || window.location.href.includes("bilibili.com/bangumi/play");
   }
   function main() {
     if (sys.isMainRunning) {
@@ -1332,7 +1394,7 @@
       console.log("[初始化] youtubeFallbackRate = " + sys.youtubeFallbackRate);
     }
     console.log("[注册] yt-navigate-finish 监听器 -> youtube.init");
-    window.addEventListener(youtubeSelectors.finishListener, () => youtubeSelectors.init());
+    window.addEventListener(youtubeSelectors.finishListener, () => handleYoutubePage());
     console.log(`[启动] youtubeLiveStreamCheck 定时器 (间隔${INTERVALS.YOUTUBE_LIVE_STREAM_CHECK}ms)`);
     sys.youtubeLiveStreamCheck = setInterval(() => {
       const element = document.querySelector(youtubeSelectors.liveStreamIcon);

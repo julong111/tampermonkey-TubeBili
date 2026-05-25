@@ -31,6 +31,9 @@ All notable changes to this project will be documented in this file. We truly ap
 #### [2.0.1] (2026-05-26) [Bug Fixes & Feature Extension]
 * **Added Bilibili Bangumi Page Support**: Added support for `https://www.bilibili.com/bangumi/play` playback page
 * **Fixed YouTube Navigation Listener Error**: Fixed `yt-navigate-finish` event handler function call error
+* **Fixed Bilibili Auto Speed Issue**: Added video element loading detection with retry mechanism
+* **Added Fullscreen Button Removal**: Both YouTube and Bilibili can now remove fullscreen buttons
+* **Optimized English Panel Width**: Settings panel automatically expands to 600px in English to prevent text truncation
 
 #### [2.0] [**Major Version Update**]
 * **⭐Important⭐ Settings Reset**: After updating to version 2.0, **settings from version 1.x will NOT carry over. Please reopen the settings panel and reconfigure!**
