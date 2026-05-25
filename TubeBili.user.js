@@ -1,12 +1,11 @@
 // ==UserScript==
 // @name               油管哔哩哔哩B站视频播放器增强工具
-// @name:zh-CN         油管哔哩哔哩B站视频播放器增强工具
-// @name:en-US         youtube bilibili Video Player Enhancer Tools
+// @name:en            youtube bilibili Video Player Enhancer Tools
 // @namespace          com.julong.tampermonkey.TubeBiliVideoPlayerEnhancerTools
 // @version            2.0
 // @author             julong@111.com
-// @description:zh-CN  油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
-// @description:en-US  Adds more speed buttons and more settings to youTube and bilibili video players.
+// @description        油管哔哩哔哩视频播放器下添加更多倍速播放按钮及更多配置。
+// @description:en     Adds more speed buttons and more settings to youTube and bilibili video players.
 // @license            MIT
 // @icon               https://www.youtube.com/s/desktop/3748dff5/img/favicon_48.png
 // @homepage           https://github.com/julong111/tampermonkey-TubeBili
