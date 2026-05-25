@@ -15,7 +15,10 @@ All notable changes to this project will be documented in this file.
 #### [2.0] [**Major Version Update**]
 * **⭐Important⭐ Settings Reset**: After updating to version 2.0, **settings from version 1.x will NOT carry over. Please reopen the settings panel and reconfigure!**
 * **Brand New Settings Panel**: Completely redesigned settings interface with bilingual Chinese/English display
-* **Custom Speed List**: Users can freely configure speed list with values from 0.1 to 10
+* **Dual Speed List System**: 
+  - **Shortcut Speed List**: Customize playback speed values used when adjusting speed with keyboard shortcuts (comma/period keys)
+  - **Button Speed List**: Customize playback speed buttons displayed on the player interface
+  - Two lists are configured independently, providing more flexible speed control experience
 * **First Run Wizard**: Automatically displays settings panel on first run after script installation
 * **Frosted Glass Effect**: Player speed button list optimized with translucent frosted glass styling for better visual integration
 * **System Performance Optimization**: Implemented mutex lock mechanism to prevent the Handler from being processed twice under certain race conditions.
