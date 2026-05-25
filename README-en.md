@@ -4,11 +4,72 @@
 
 A powerful userscript designed to significantly improve your viewing experience on both **YouTube** and **Bilibili**. By automating and personalizing settings, it helps you eliminate repetitive tasks and focus more on enjoying the video content.
 
+
+**⭐Youtube Settings Panel ⭐**
+![EN-Settings-Youtube](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/EN-Settings-Youtube.png)
+![CN-UI-1-Youtube](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-UI-1-Youtube.png)
+![CN-UI-2-Youtube](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-UI-2-Youtube.png)
+
+
+**⭐Bilibili Settings Panel ⭐**
+![EN-Settings-Bilibili](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/EN-Settings-Bilibili.png)
+![CN-UI-1-Bilibili](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-UI-1-Bilibili.png)
+![CN-UI-2-Bilibili](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-UI-2-Bilibili.png)
+
 ## 📦 Quick Start
 
 Install the script here: [GreasyFork Link](https://greasyfork.org/zh-CN/scripts/546313-youtube-bilibili-video-player-enhancer-tools)
 
 You will need a userscript manager like [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) or [Greasemonkey](https://addons.mozilla.org/nl/firefox/addon/greasemonkey/)
+
+---
+
+## 📝 Changelog
+
+All notable changes to this project will be documented in this file. We truly appreciate every user's support and suggestions!
+
+#### [2.0.1] (2026-05-26) [Bug Fixes & Feature Extension]
+* **Added Bilibili Bangumi Page Support**: Added support for `https://www.bilibili.com/bangumi/play` playback page
+* **Fixed YouTube Navigation Listener Error**: Fixed `yt-navigate-finish` event handler function call error
+
+#### [2.0] [**Major Version Update**]
+* **⭐Important⭐ Settings Reset**: After updating to version 2.0, **settings from version 1.x will NOT carry over. Please reopen the settings panel and reconfigure!**
+* **Brand New Settings Panel**: Completely redesigned settings interface with bilingual Chinese/English display
+* **Dual Speed List System**: Independent configuration for shortcut and button speed lists
+* **First Run Wizard**: Automatically displays settings panel on first run after script installation
+* **Frosted Glass Effect**: Player speed button list optimized with translucent frosted glass styling
+* **System Performance Optimization**: Implemented mutex lock mechanism to prevent duplicate processing
+* **YouTube Feature Enhancements**:
+  * New domain exclusion: `accounts.youtube.com`
+  * Fixed YouTube ad warnings, optimized ad detection to 200ms interval
+  * Auto-reset to 1x speed during ads, restore user settings after ads end
+  * Removed MiniPlayer button setting, added autoplay, subtitles, and settings button options
+* **Bilibili Feature Enhancements**:
+  * New button removal options: Quality, Episode List, PiP, Wide Screen, etc.
+  * Optimized dynamic button removal (e.g., danmaku input area)
+  * Speed settings button position optimized to bottom center of player
+
+#### [1.3] [Feature Enhancement & Optimization]
+* **New Live Stream Detection**: Automatically sets playback speed to 1.0x during YouTube live streams
+* **Enhanced Speed Indicator**: Shows current playback speed in fullscreen mode
+* **Improved Shortcut Support**: Optimized comma and period key speed adjustment logic
+* **UI Improvements**: Added highlighting to active speed buttons
+* **Stability Improvements**: Fixed timer cleanup issues during page transitions
+
+#### [1.2] [Optimization]
+* **Max Shortcut Speed Increased to 4x**: Expanded shortcut speed range up to 4.0x
+* **Optimized Speed Algorithm**: Smoother speed adjustment experience
+
+#### [1.0.8] [Optimization]
+* **New 2.5x Playback Speed Option**: Provides finer-grained control between 2x and 3x speeds
+* **UI Improvements**: Optimized speed button color coding system and settings panel interface
+
+#### [1.0.0] [Initial Release]
+* Basic speed control functionality (0.5x, 1.0x, 1.5x, 2.0x, 3.0x)
+* Dual-platform support for YouTube and Bilibili
+* Visual settings panel
+* Multi-language interface support (Chinese/English)
+* Keyboard shortcut speed control
 
 ---
 
@@ -73,7 +134,7 @@ You will need a userscript manager like [Tampermonkey](https://chrome.google.com
 | Auto Web Fullscreen | ❌ | ✅ |
 | Remove Redundant Buttons | ✅ | ✅ |
 | Hide Comments Section | ❌ | ✅ |
-| Unlimited 1080P Trial (No Login) | ❌ | ✅ |
+| Unlimited 1080P Trial (No Login) | ❌ | TODO |
 
 ---
 
@@ -100,51 +161,6 @@ You will need a userscript manager like [Tampermonkey](https://chrome.google.com
 
 ---
 
-## 📝 Changelog
-
-All notable changes to this project will be documented in this file. We truly appreciate every user's support and suggestions!
-
-#### [2.0] [**Major Version Update**]
-* **⭐Important⭐ Settings Reset**: After updating to version 2.0, **settings from version 1.x will NOT carry over. Please reopen the settings panel and reconfigure!**
-* **Brand New Settings Panel**: Completely redesigned settings interface with bilingual Chinese/English display
-* **Dual Speed List System**: Independent configuration for shortcut and button speed lists
-* **First Run Wizard**: Automatically displays settings panel on first run after script installation
-* **Frosted Glass Effect**: Player speed button list optimized with translucent frosted glass styling
-* **System Performance Optimization**: Implemented mutex lock mechanism to prevent duplicate processing
-* **YouTube Feature Enhancements**:
-  * New domain exclusion: `accounts.youtube.com`
-  * Fixed YouTube ad warnings, optimized ad detection to 200ms interval
-  * Auto-reset to 1x speed during ads, restore user settings after ads end
-  * Removed MiniPlayer button setting, added autoplay, subtitles, and settings button options
-* **Bilibili Feature Enhancements**:
-  * New button removal options: Quality, Episode List, PiP, Wide Screen, etc.
-  * Optimized dynamic button removal (e.g., danmaku input area)
-  * Speed settings button position optimized to bottom center of player
-
-#### [1.3] [Feature Enhancement & Optimization]
-* **New Live Stream Detection**: Automatically sets playback speed to 1.0x during YouTube live streams
-* **Enhanced Speed Indicator**: Shows current playback speed in fullscreen mode
-* **Improved Shortcut Support**: Optimized comma and period key speed adjustment logic
-* **UI Improvements**: Added highlighting to active speed buttons
-* **Stability Improvements**: Fixed timer cleanup issues during page transitions
-
-#### [1.2] [Optimization]
-* **Max Shortcut Speed Increased to 4x**: Expanded shortcut speed range up to 4.0x
-* **Optimized Speed Algorithm**: Smoother speed adjustment experience
-
-#### [1.0.8] [Optimization]
-* **New 2.5x Playback Speed Option**: Provides finer-grained control between 2x and 3x speeds
-* **UI Improvements**: Optimized speed button color coding system and settings panel interface
-
-#### [1.0.0] [Initial Release]
-* Basic speed control functionality (0.5x, 1.0x, 1.5x, 2.0x, 3.0x)
-* Dual-platform support for YouTube and Bilibili
-* Visual settings panel
-* Multi-language interface support (Chinese/English)
-* Keyboard shortcut speed control
-
----
-
 ## 💖 Donate
 
 This project is maintained by an individual. If you find the script helpful, please scan the QR code on WeChat to donate. Thank you for your support!
@@ -166,9 +182,3 @@ julong[at]111.com
 * **Continual Updates**: The script is maintained by the author for long-term personal use. If any functionality fails, it will be updated immediately. Ensures long-term availability
 
 Install "TubeBili Enhancer" now to begin your enhanced video viewing journey!
-
-![UI0](UI0.png)
-![UI1](UI1.png)
-![Setting0](Setting0.png)
-![Setting1](Setting1.png)
-![Setting2](Setting2.png)

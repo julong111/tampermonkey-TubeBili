@@ -4,11 +4,72 @@
 
 一款专为油猴用户设计的强大视频增强脚本，旨在显著提升您在 **YouTube** 和 **Bilibili** 上的观看体验。通过自动化、个性化的设置，帮助您摆脱重复操作，让您更专注于享受视频内容。
 
+**⭐Youtube设置面板⭐**
+![CN-Settings-Youtube](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-Settings-Youtube.png)
+![CN-UI-1-Youtube](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-UI-1-Youtube.png)
+![CN-UI-2-Youtube](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-UI-2-Youtube.png)
+
+
+**⭐Bilibili设置面板⭐**
+![CN-Settings-Bilibili](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-Settings-Bilibili.png)
+![CN-UI-1-Bilibili](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-UI-1-Bilibili.png)
+![CN-UI-2-Bilibili](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-UI-2-Bilibili.png)
+
+
 ## 📦 快速开始
 
 在此处安装脚本: [GreasyFork 链接](https://greasyfork.org/zh-CN/scripts/546313-youtube-bilibili-video-player-enhancer-tools)
 
 你需要使用用户脚本管理器如 [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) 或 [Greasemonkey](https://addons.mozilla.org/nl/firefox/addon/greasemonkey/)
+
+---
+
+## 📝 更新日志
+
+本项目的所有显著变更都将记录在此文件中。感谢每一位用户的支持和建议！
+
+#### [2.0.1] (2026-05-26) [Bug修复与功能扩展]
+* **新增 Bilibili 番剧页面支持**: 添加对 `https://www.bilibili.com/bangumi/play` 播放页的支持
+* **修复 YouTube 导航监听错误**: 修复 `yt-navigate-finish` 事件处理函数调用错误
+
+#### [2.0] [**大版本更新**]
+* **⭐重要⭐设置重置**: 2.0版本更新后，**旧版1.x设置将无法沿用，请重新打开设置面板配置一次！**
+* **首次运行引导**: 脚本安装后首次运行时自动弹出设置面板
+* **全新设置面板**: 完全重构设置界面，支持中文/英文双语显示
+* **双列表倍速系统**: 快捷按键和按钮倍速列表独立配置
+* **透明玻璃效果**: 播放器倍速按钮列表优化为毛玻璃透明效果
+* **系统性能优化**: 新增并发锁机制，防止重复处理
+* **YouTube 功能增强**: 
+  * 新增域名排除: `accounts.youtube.com`
+  * 修复YouTube广告警告，优化广告检测至200ms间隔
+  * 广告时自动恢复1倍速，结束后恢复用户设置
+  * 移除MiniPlayer按钮设置项，新增自动播放、字幕、设置按钮选项
+* **Bilibili 功能增强**:
+  * 新增多个按钮移除选项：分辨率、选集、画中画、宽屏等
+  * 优化动态按钮移除（如弹幕输入区）
+  * 倍速设置按钮位置优化至播放器底部中间
+
+#### [1.3] [功能增强与优化]
+* **新增直播检测功能**: YouTube直播时自动将播放速度设为1.0倍速
+* **增强速度指示器**: 全屏模式下显示当前播放速度
+* **改进快捷键支持**: 优化逗号和句号键的调速逻辑
+* **界面优化**: 倍速按钮添加高亮显示
+* **稳定性改进**: 修复页面切换时的定时器清理问题
+
+#### [1.2] [功能优化]
+* **最大快捷播放速度提升至4倍**: 扩展快捷键支持的倍速范围至4.0倍
+* **优化调速算法**: 提供更流畅的调速体验
+
+#### [1.0.8] [功能优化]
+* **新增2.5倍播放速度选项**: 在2倍和3倍速度之间提供更精细的控制
+* **优化UI**: 倍速按钮颜色编码系统和设置面板界面改进
+
+#### [1.0.0] [初始发布]
+* 基础倍速控制功能（0.5x, 1.0x, 1.5x, 2.0x, 3.0x）
+* YouTube和Bilibili双平台支持
+* 可视化设置面板
+* 多语言界面支持（中文/英文）
+* 快捷键调速功能
 
 ---
 
@@ -100,51 +161,6 @@
 
 ---
 
-## 📝 更新日志
-
-本项目的所有显著变更都将记录在此文件中。感谢每一位用户的支持和建议！
-
-#### [2.0] [**大版本更新**]
-* **⭐重要⭐设置重置**: 2.0版本更新后，**旧版1.x设置将无法沿用，请重新打开设置面板配置一次！**
-* **首次运行引导**: 脚本安装后首次运行时自动弹出设置面板
-* **全新设置面板**: 完全重构设置界面，支持中文/英文双语显示
-* **双列表倍速系统**: 快捷按键和按钮倍速列表独立配置
-* **透明玻璃效果**: 播放器倍速按钮列表优化为毛玻璃透明效果
-* **系统性能优化**: 新增并发锁机制，防止重复处理
-* **YouTube 功能增强**: 
-  * 新增域名排除: `accounts.youtube.com`
-  * 修复YouTube广告警告，优化广告检测至200ms间隔
-  * 广告时自动恢复1倍速，结束后恢复用户设置
-  * 移除MiniPlayer按钮设置项，新增自动播放、字幕、设置按钮选项
-* **Bilibili 功能增强**:
-  * 新增多个按钮移除选项：分辨率、选集、画中画、宽屏等
-  * 优化动态按钮移除（如弹幕输入区）
-  * 倍速设置按钮位置优化至播放器底部中间
-
-#### [1.3] [功能增强与优化]
-* **新增直播检测功能**: YouTube直播时自动将播放速度设为1.0倍速
-* **增强速度指示器**: 全屏模式下显示当前播放速度
-* **改进快捷键支持**: 优化逗号和句号键的调速逻辑
-* **界面优化**: 倍速按钮添加高亮显示
-* **稳定性改进**: 修复页面切换时的定时器清理问题
-
-#### [1.2] [功能优化]
-* **最大快捷播放速度提升至4倍**: 扩展快捷键支持的倍速范围至4.0倍
-* **优化调速算法**: 提供更流畅的调速体验
-
-#### [1.0.8] [功能优化]
-* **新增2.5倍播放速度选项**: 在2倍和3倍速度之间提供更精细的控制
-* **优化UI**: 倍速按钮颜色编码系统和设置面板界面改进
-
-#### [1.0.0] [初始发布]
-* 基础倍速控制功能（0.5x, 1.0x, 1.5x, 2.0x, 3.0x）
-* YouTube和Bilibili双平台支持
-* 可视化设置面板
-* 多语言界面支持（中文/英文）
-* 快捷键调速功能
-
----
-
 ## 💖 打赏支持
 
 本项目由个人维护。如果你觉得脚本对你有帮助，欢迎使用微信扫码打赏。感谢你的支持！
@@ -166,9 +182,3 @@ julong[at]111.com
 * **持续更新**: 脚本为维护者长期自用，如有失效会第一时间更新，具备长期可用性
 
 立即安装「TubeBili 油管哔哩哔哩视频播放器增强工具」，开启您的全新视频观看旅程！
-
-![UI0](UI0.png)
-![UI1](UI1.png)
-![Setting0](Setting0.png)
-![Setting1](Setting1.png)
-![Setting2](Setting2.png)
