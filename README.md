@@ -168,7 +168,7 @@
 
 本项目由个人维护。如果你觉得脚本对你有帮助，欢迎使用微信扫码打赏。感谢你的支持！
 
-![微信赞赏码](微信赞赏码.png)
+![微信打赏码](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/Pay.png)
 
 ## 📧 联系我
 

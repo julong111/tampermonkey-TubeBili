@@ -168,7 +168,7 @@ All notable changes to this project will be documented in this file. We truly ap
 
 This project is maintained by an individual. If you find the script helpful, please scan the QR code on WeChat to donate. Thank you for your support!
 
-![WeChat Appreciation Code](微信赞赏码.png)
+![WeChat Reward Code](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/Pay.png)
 
 ## 📧 Contact Me
 
