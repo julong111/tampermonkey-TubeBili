@@ -76,12 +76,13 @@
       floatingBtn.title = name; // 显示菜单名称作为提示
       floatingBtn.style.cssText = `
         position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
+        top: 5%;
+        right: -25px;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px 0 0 8px;
         background: rgba(59, 130, 246, 0.9);
+        opacity: 0.3;
         color: white;
         border: none;
         font-size: 24px;
@@ -94,13 +95,18 @@
       `;
       
       floatingBtn.addEventListener('mouseenter', () => {
+        floatingBtn.style.right = '20px';
+        floatingBtn.style.opacity = '1';
         floatingBtn.style.transform = 'scale(1.1)';
         floatingBtn.style.background = 'rgba(37, 99, 235, 1)';
       });
       floatingBtn.addEventListener('mouseleave', () => {
+        floatingBtn.style.right = '-25px';
+        floatingBtn.style.opacity = '0.3';
         floatingBtn.style.transform = 'scale(1)';
-        floatingBtn.style.background = 'rgba(59, 130, 246, 0.9)';
+        floatingBtn.style.background = 'rgba(37, 99, 235, 0.8)';
       });
+
       floatingBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
