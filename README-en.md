@@ -28,7 +28,7 @@ You will need a userscript manager like [Tampermonkey](https://chrome.google.com
 
 All notable changes to this project will be documented in this file. We truly appreciate every user's support and suggestions!
 
-#### [2.0.1] (2026-05-26) [Bug Fixes & Feature Extension]
+#### [2.0.2] (2026-05-26) [Bug Fixes & Feature Extension]
 * **Added Bilibili Bangumi Page Support**: Added support for `https://www.bilibili.com/bangumi/play` playback page
 * **Fixed YouTube Navigation Listener Error**: Fixed `yt-navigate-finish` event handler function call error
 * **Fixed Bilibili Auto Speed Issue**: Added video element loading detection with retry mechanism

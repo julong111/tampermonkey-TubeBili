@@ -2,7 +2,7 @@
 // @name               TubeBili - YouTube(油管) Bilibili(B站) 视频增强工具
 // @name:en            TubeBili - YouTube Bilibili Video Player Enhancer Tools
 // @namespace          com.julong.tampermonkey.TubeBiliVideoPlayerEnhancerTools
-// @version            2.0.1
+// @version            2.0.2
 // @author             julong@111.com
 // @description        自动网页全屏、自定义倍速列表、快捷键一键调速、界面漂亮，让您摆脱繁琐操作，专注享受视频 | by julong
 // @description:en     Auto web fullscreen, custom speed list, hotkey speed control, beautiful UI. Say goodbye to tedious operations and focus on enjoying videos | by julong
@@ -1055,7 +1055,7 @@
       setRateWithRetry();
     }
     console.log("[启动] bilibili定时移除 定时器 (间隔200ms)");
-    this.removalInterval = setInterval(() => {
+    sys.removalInterval = setInterval(() => {
       var _a2;
       const playerEl = document.querySelector(bilibiliSelectors.playerContainer);
       if (!playerEl) return;
