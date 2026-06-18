@@ -916,22 +916,19 @@
           this.colors[2];
         }
         let btn = document.createElement("button");
-        // btn.style.backgroundColor = "transparent";
-        // 【修改】背景色：改为白色半透明
-        btn.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
+        // 【修改】背景色：改为深色半透明，提高在白色背景下的可见性
+        btn.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
         // 【新增】毛玻璃模糊效果
         btn.style.backdropFilter = "blur(8px)";
         // 兼容 Safari/Chrome
         btn.style.webkitBackdropFilter = "blur(8px)";
-        // 【新增】边框：增加细微白色边框以增强轮廓感
-        btn.style.border = "1px solid rgba(255, 255, 255, 0.4)";
-        // 【修改】文字颜色：因为背景变白，建议将文字颜色改为深色以保证清晰度
-        // btn.style.color = "#333333"; 
+        // 【修改】边框：使用浅色边框增强轮廓
+        btn.style.border = "1px solid rgba(255, 255, 255, 0.3)";
+        // 【保持】文字颜色：白色，与深色背景形成高对比度
+        btn.style.color = "#ffffff";
 
         btn.style.marginRight = "1px";
-        // btn.style.border = "1px solid rgba(211, 211, 211, 0.5)";
         btn.style.borderRadius = "4px";
-        btn.style.color = "#ffffff";
         btn.style.cursor = "pointer";
         btn.style.fontFamily = 'Arial, "Helvetica Neue", Helvetica, sans-serif';
         btn.style.display = "flex";
