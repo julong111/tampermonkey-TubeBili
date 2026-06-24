@@ -137,9 +137,9 @@
     }
   };
   const Common = {
-    speeds: ["0.5", "1.0", "1.5", "2.0"],
+    shortcutSpeeds: ["0.5", "1.0", "1.5", "2.0", "2.5", "3.0"],
     buttonSpeeds: ["0.5", "1.0", "1.5", "2.0"],
-    defaultSpeed: "2.0",
+    defaultSpeed: "1.0",
     colors: ["#072525", "#287F54", "#C22544"],
     settingPanelItems: [],
     settingPanelInitialized: false,
@@ -148,8 +148,6 @@
     speedIndicatorTimer: null,
     shortcutSpeedListKey: "Shortcut_Speed_List",
     buttonSpeedListKey: "Button_Speed_List",
-    defaultSpeedList: "0.5,1,1.5,2",
-    speedListKey: "Speed_List", // Deprecated but kept for potential legacy compatibility if needed, otherwise unused in new logic
     detectLanguage: function () {
       let userLang = navigator.language.toLowerCase();
       if (userLang.startsWith("zh")) {
@@ -165,22 +163,16 @@
       return i18n[sys.currentLang][key];
     },
     loadSpeedList: function () {
-      // 加载快捷键倍速列表
-      const savedShortcutSpeedList = GM_getValue(this.shortcutSpeedListKey, this.defaultSpeedList);
-      const shortcutSpeedListResult = this.validateSpeedList(savedShortcutSpeedList);
-      if (shortcutSpeedListResult.valid) {
-        this.speeds = shortcutSpeedListResult.speeds;
-      } else {
-        this.speeds = this.defaultSpeedList.split(/[,，]/).map((s) => parseFloat(s).toFixed(1));
+      const shortcutRaw = GM_getValue(this.shortcutSpeedListKey);
+      if (shortcutRaw != null) {
+        const r = this.validateSpeedList(shortcutRaw);
+        if (r.valid) this.shortcutSpeeds = r.speeds;
       }
 
-      // 加载按钮倍速列表
-      const savedButtonSpeedList = GM_getValue(this.buttonSpeedListKey, this.defaultSpeedList);
-      const buttonSpeedListResult = this.validateSpeedList(savedButtonSpeedList);
-      if (buttonSpeedListResult.valid) {
-        this.buttonSpeeds = buttonSpeedListResult.speeds;
-      } else {
-        this.buttonSpeeds = this.defaultSpeedList.split(/[,，]/).map((s) => parseFloat(s).toFixed(1));
+      const buttonRaw = GM_getValue(this.buttonSpeedListKey);
+      if (buttonRaw != null) {
+        const r = this.validateSpeedList(buttonRaw);
+        if (r.valid) this.buttonSpeeds = r.speeds;
       }
     },
     validateSpeedList: function (input) {
@@ -214,7 +206,7 @@
       });
     },
     updateSpeedSelects: function (shortcutSpeeds, buttonSpeeds, shortcutSpeedListString, buttonSpeedListString) {
-      this.speeds = shortcutSpeeds;
+      this.shortcutSpeeds = shortcutSpeeds;
       this.buttonSpeeds = buttonSpeeds || shortcutSpeeds;
       
       if (shortcutSpeedListString !== void 0) {
@@ -282,7 +274,7 @@
       shortcutSpeedListInput.type = "text";
       shortcutSpeedListInput.id = "shortcutSpeedListInput";
       shortcutSpeedListInput.placeholder = this.geti18nText("Menu_SpeedList_Placeholder");
-      shortcutSpeedListInput.value = GM_getValue(this.shortcutSpeedListKey, this.defaultSpeedList);
+      shortcutSpeedListInput.value = GM_getValue(this.shortcutSpeedListKey) ?? this.shortcutSpeeds.join(",");
       shortcutInputRow.appendChild(shortcutSpeedListInput);
       shortcutSpeedListSection.appendChild(shortcutInputRow);
       const shortcutSeparatorHint = document.createElement("div");
@@ -329,7 +321,7 @@
       buttonSpeedListInput.type = "text";
       buttonSpeedListInput.id = "buttonSpeedListInput";
       buttonSpeedListInput.placeholder = this.geti18nText("Menu_SpeedList_Placeholder");
-      buttonSpeedListInput.value = GM_getValue(this.buttonSpeedListKey, this.defaultSpeedList);
+      buttonSpeedListInput.value = GM_getValue(this.buttonSpeedListKey) ?? this.buttonSpeeds.join(",");
       buttonInputRow.appendChild(buttonSpeedListInput);
       buttonSpeedListSection.appendChild(buttonInputRow);
       const buttonSeparatorHint = document.createElement("div");
@@ -470,7 +462,7 @@
       if (item.valueKey) {
         let select = document.createElement("select");
         select.id = item.valueKey;
-        this.createSpeedList(this.speeds, select);
+        this.createSpeedList(this.shortcutSpeeds, select);
         select.value = GM_getValue(item.valueKey, this.defaultSpeed);
         functionDiv.appendChild(select);
       }
@@ -524,10 +516,10 @@
       if (!this.settingPanelInitialized) {
         this.initializePanel();
       } else {
-        const savedShortcutSpeedList = GM_getValue(this.shortcutSpeedListKey, this.defaultSpeedList);
+        const savedShortcutSpeedList = GM_getValue(this.shortcutSpeedListKey) ?? this.shortcutSpeeds.join(",");
         const shortcutSpeedListResult = this.validateSpeedList(savedShortcutSpeedList);
         
-        const savedButtonSpeedList = GM_getValue(this.buttonSpeedListKey, this.defaultSpeedList);
+        const savedButtonSpeedList = GM_getValue(this.buttonSpeedListKey) ?? this.buttonSpeeds.join(",");
         const buttonSpeedListResult = this.validateSpeedList(savedButtonSpeedList);
 
         if (shortcutSpeedListResult.valid && buttonSpeedListResult.valid) {
@@ -785,12 +777,12 @@
         return;
       }
       const currentRate = video.playbackRate;
-      let currentIndex = this.speeds.findIndex((speed) => parseFloat(speed) === currentRate);
+      let currentIndex = this.shortcutSpeeds.findIndex((speed) => parseFloat(speed) === currentRate);
       if (currentIndex === -1) {
-        const closest = this.speeds.reduce((prev, curr) => {
+        const closest = this.shortcutSpeeds.reduce((prev, curr) => {
           return Math.abs(parseFloat(curr) - currentRate) < Math.abs(parseFloat(prev) - currentRate) ? curr : prev;
         });
-        currentIndex = this.speeds.indexOf(closest);
+        currentIndex = this.shortcutSpeeds.indexOf(closest);
       }
       let newIndex = currentIndex;
       if (event.code === "Comma") {
@@ -798,13 +790,13 @@
           newIndex = currentIndex - 1;
         }
       } else if (event.code === "Period") {
-        if (currentIndex < this.speeds.length - 1) {
+        if (currentIndex < this.shortcutSpeeds.length - 1) {
           newIndex = currentIndex + 1;
         }
       } else {
         return;
       }
-      this.setPlaybackRate(this.speeds[newIndex]);
+      this.setPlaybackRate(this.shortcutSpeeds[newIndex]);
     }
   };
   const sys = {
@@ -1358,7 +1350,10 @@
       logSection("执行一次性初始化");
       GM_addStyle(STYLES);
       GM_registerMenuCommand(Common.geti18nText("Menu_Settings"), Common.togglePanel.bind(Common));
-      document.addEventListener("keydown", Common.handleKeydown.bind(Common));
+      if (!document.KeyDownFlag) {
+        document.KeyDownFlag = Common.handleKeydown.bind(Common);
+        document.addEventListener("keydown", document.KeyDownFlag);
+      }
       if (isYoutubePage()) {
         initYoutubeListeners();
       } else if (isBilibiliVideoPage()) {
