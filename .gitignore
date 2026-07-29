@@ -8,3 +8,5 @@ node_modules/
 temp_processed.js
 
 dist/
+.worktrees/
+.superpowers/
