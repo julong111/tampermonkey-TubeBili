@@ -53,7 +53,7 @@ Download and install the script here: [TubeBili.userscripts.js](https://raw.gith
 
 All notable changes to this project will be documented in this file. We truly appreciate every user's support and suggestions!
 
-#### [2.0.1] (2026-05-26) [Bug Fixes & Feature Extension]
+#### [2.0.2] (2026-05-26) [Bug Fixes & Feature Extension]
 * **Added Bilibili Bangumi Page Support**: Added support for `https://www.bilibili.com/bangumi/play` playback page
 * **Fixed YouTube Navigation Listener Error**: Fixed `yt-navigate-finish` event handler function call error
 * **Fixed Bilibili Auto Speed Issue**: Added video element loading detection with retry mechanism
@@ -136,7 +136,7 @@ All notable changes to this project will be documented in this file. We truly ap
 * **Customizable Controls**: Added settings for autoplay toggle, subtitle button, and settings button
 
 #### Bilibili
-* **Unlimited 1080P Trial Without Logging In**: Automatically hijacks the trial mechanism, allowing users to endlessly try 1080P HD quality without logging in. Blocks annoying login pop-ups when not logged in
+* **Auto Close Login Window**: Periodically detects the login prompt dialog shown when not logged in, automatically closes it and resumes playback, blocking annoying login pop-ups when not logged in
 * **Auto Web Fullscreen**: Automatically enters web fullscreen mode after video loads
 * **Enhanced Button Management**: Options to remove Quality, Episode List, Picture-in-Picture, Wide Screen, Original Speed, Settings, and Web Fullscreen buttons
 * **Speed Settings Button Position Optimization**: Speed settings buttons are now added to the center bottom of the player control bar
@@ -162,7 +162,7 @@ All notable changes to this project will be documented in this file. We truly ap
 | Auto Web Fullscreen | ❌ | ✅ |
 | Remove Redundant Buttons | ✅ | ✅ |
 | Hide Comments Section | ❌ | ✅ |
-| Unlimited 1080P Trial (No Login) | ❌ | TODO |
+| Auto Close Login Window and Resume Playback | ❌ | ✅ |
 
 ---
 
@@ -193,7 +193,7 @@ The script automatically switches interface language based on browser language:
 - [ ] Auto Remove Comments Input Area
 - [ ] Auto Remove Settings Button
 - [ ] Auto Remove Web Fullscreen Button
-- [ ] **Unlimited 1080P Trial Without Login** - TODO
+- [x] Auto close login dialog and resume playback when not logged in
 
 ---
 

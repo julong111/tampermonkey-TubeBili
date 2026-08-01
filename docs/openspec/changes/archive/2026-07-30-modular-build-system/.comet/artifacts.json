@@ -1,0 +1,8 @@
+{
+  "openspec_proposal": "docs/openspec/changes/modular-build-system/proposal.md",
+  "openspec_design": "docs/openspec/changes/modular-build-system/design.md",
+  "openspec_tasks": "docs/openspec/changes/modular-build-system/tasks.md",
+  "handoff_context": "docs/openspec/changes/archive/2026-07-30-modular-build-system/.comet/handoff/design-context.json",
+  "handoff_markdown": "docs/openspec/changes/archive/2026-07-30-modular-build-system/.comet/handoff/design-context.md",
+  "archive_directory": "docs/openspec/changes/archive/2026-07-30-modular-build-system"
+}

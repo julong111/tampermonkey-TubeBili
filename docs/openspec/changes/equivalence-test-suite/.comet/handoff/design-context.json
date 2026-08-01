@@ -1,0 +1,13 @@
+{
+  "change": "equivalence-test-suite",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "770d7aaecc8173e52054afb467da6987efddeb504a094c131743c71024f39697",
+  "files": [
+    { "path": "docs/openspec/changes/equivalence-test-suite/proposal.md", "sha256": "b8426b120f43db451d65299cb32536b19568df4d9c0a97bdd781c490af5aeb50" },
+    { "path": "docs/openspec/changes/equivalence-test-suite/design.md", "sha256": "d5cebf38d95687b6061522903cc243cf2897a306984860cf63443290d3d1e144" },
+    { "path": "docs/openspec/changes/equivalence-test-suite/tasks.md", "sha256": "07127605372eaf0f9147748f49a3484c3f61d8f1abd09d1a90b68216a3c86a79" }
+  ]
+}

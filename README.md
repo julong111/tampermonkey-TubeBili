@@ -22,6 +22,62 @@ TubeBili是一款专为油猴用户设计的强大视频增强脚本，旨在显
 ![CN-UI-2-Bilibili](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-UI-2-Bilibili.png)
 
 
+## 🛠 开发者：本地构建
+
+> 从 v2.0.2 开始，源代码采用模块化结构，通过 Rollup 构建产出最终脚本。
+
+**前置要求：** Node.js >= 18
+
+```bash
+# 安装依赖
+npm install
+
+# 构建两个版本（输出到 dist/）
+npm run build
+
+# 输出文件：
+#   dist/TubeBili.user.js        - Tampermonkey 标准版
+#   dist/TubeBili.userscripts.js - Safari Userscripts 通用版
+```
+
+**源代码结构：**
+
+```
+src/
+├── core/
+│   ├── gm-api.js           # GM API 适配层（按平台条件编译）
+│   ├── element-getter.js   # Element 等待工具（waitElement / getVideoElement）
+│   ├── i18n.js             # 国际化函数（t / detectLanguage）
+│   └── i18n-constants.js   # 国际化字典（常量）
+├── main.js                 # 入口（路由编排，只依赖 PlatformAdapter 接口）
+├── settings/
+│   ├── speed-list.js       # 倍速列表校验函数（纯函数）
+│   ├── speed-list-constants.js # 倍速列表键名与默认值（常量）
+│   ├── catalog.js          # 平台设置项目录（纯数据）
+│   └── store.js            # 全局状态唯一 store
+├── ui/
+│   ├── settings-panel.js   # 设置面板（DOM）
+│   ├── speed-buttons.js    # 倍速按钮 UI
+│   ├── speed-indicator.js  # 倍速悬浮提示 UI
+│   └── styles.js           # CSS 样式
+├── features/
+│   ├── rate.js             # 自动倍速动作
+│   ├── shortcut.js         # 快捷键
+│   └── removal/
+│       ├── config.js       # 启用项过滤
+│       ├── remove-once.js  # YouTube 一次性移除策略
+│       └── remove-loop.js  # Bilibili 轮询移除策略
+└── platforms/
+    ├── adapter.js          # PlatformAdapter 契约（definePlatformAdapter）
+    ├── router.js           # URL 检测纯函数
+    ├── youtube.js          # YouTube 适配器（逻辑）
+    ├── youtube-constants.js # YouTube 选择器/移除项/间隔（常量）
+    ├── bilibili.js         # Bilibili 适配器（逻辑）
+    └── bilibili-constants.js # Bilibili 选择器/移除项/间隔（常量）
+```
+
+---
+
 ## 📦 快速开始
 
 本项目提供两个版本,请根据您的脚本管理器选择:
@@ -52,8 +108,7 @@ TubeBili是一款专为油猴用户设计的强大视频增强脚本，旨在显
 ## 📝 更新日志
 
 本项目的所有显著变更都将记录在此文件中。感谢每一位用户的支持和建议！
-
-#### [2.0.1] (2026-05-26) [Bug修复与功能扩展]
+#### [2.0.2] (2026-05-26) [Bug修复与功能扩展]
 * **新增 Bilibili 番剧页面支持**: 添加对 `https://www.bilibili.com/bangumi/play` 播放页的支持
 * **修复 YouTube 导航监听错误**: 修复 `yt-navigate-finish` 事件处理函数调用错误
 * **修复 Bilibili 自动倍速失效**: 增加视频元素加载检测与重试机制
@@ -139,7 +194,7 @@ TubeBili是一款专为油猴用户设计的强大视频增强脚本，旨在显
 * **自动网页全屏**: 视频加载后自动进入网页全屏模式
 * **增强按钮管理**: 分辨率、选集、画中画、宽屏、原始倍速、设置、网页全屏按钮的移除选项
 * **倍速设置按钮位置优化**: 倍速设置按钮现在添加到播放器底部中间区域
-* **未登录无限试用1080P**: 自动劫持试用机制，使用户在未登录的情况下无限试用1080P高清画质。屏蔽未登录时烦人的登录弹窗，无需登录即可享受高清体验 -- TODO
+* **自动关闭登录弹窗**: 定时检测未登录时弹出的登录提示弹窗，检测到后自动点击关闭并恢复播放，屏蔽未登录时烦人的登录弹窗
 
 ### 5. 用户友好与个性化
 * **全新设置面板**: 完全重构设置界面，支持中文/英文双语显示
@@ -162,7 +217,7 @@ TubeBili是一款专为油猴用户设计的强大视频增强脚本，旨在显
 | 自动网页全屏 | ❌ | ✅ |
 | 移除冗余按钮 | ✅ | ✅ |
 | 隐藏评论区 | ❌ | ✅ |
-| 未登录无限试用1080P | ❌ | TODO |
+| 自动关闭登录弹窗并恢复播放 | ❌ | ✅ |
 
 ---
 
@@ -193,7 +248,7 @@ TubeBili是一款专为油猴用户设计的强大视频增强脚本，旨在显
 - [ ] 自动移除评论输入区
 - [ ] 自动移除设置按钮
 - [ ] 自动移除网页全屏按钮
-- [ ] **未登录时无限试用1080P** - TODO
+- [x] 自动关闭登录弹窗并恢复播放
 
 ---
 

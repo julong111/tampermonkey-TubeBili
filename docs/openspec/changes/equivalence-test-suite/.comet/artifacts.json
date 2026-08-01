@@ -1,0 +1,7 @@
+{
+  "openspec_proposal": "docs/openspec/changes/equivalence-test-suite/proposal.md",
+  "openspec_design": "docs/openspec/changes/equivalence-test-suite/design.md",
+  "openspec_tasks": "docs/openspec/changes/equivalence-test-suite/tasks.md",
+  "handoff_context": "docs/openspec/changes/equivalence-test-suite/.comet/handoff/design-context.json",
+  "handoff_markdown": "docs/openspec/changes/equivalence-test-suite/.comet/handoff/design-context.md"
+}

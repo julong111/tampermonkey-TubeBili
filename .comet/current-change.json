@@ -1,0 +1,6 @@
+{
+  "schema": "comet.selection.v2",
+  "workflow": "classic",
+  "change": "equivalence-test-suite",
+  "branch": "feature/20260730/equivalence-test-suite"
+}

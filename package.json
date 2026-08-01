@@ -1,0 +1,29 @@
+{
+  "name": "TubeBili",
+  "nameen": "TubeBili - YouTube Bilibili Video Player Enhancer Tools",
+  "namezh": "TubeBili - YouTube(油管) Bilibili(B站) 视频增强工具",
+  "descriptionen": "Auto web fullscreen, custom speed list, hotkey speed control, beautiful UI. Say goodbye to tedious operations and focus on enjoying videos",
+  "descriptionzh": "自动网页全屏、自定义倍速列表、快捷键一键调速、界面漂亮，让您摆脱繁琐操作，专注享受视频",
+  "namespace": "com.julong.tampermonkey.TubeBiliVideoPlayerEnhancerTools",
+  "author": "julong@111.com",
+  "license": "AGPL-3.0-only",
+  "icon": "https://www.youtube.com/s/desktop/3748dff5/img/favicon_48.png",
+  "homepage": "https://github.com/julong111/tampermonkey-TubeBili",
+  "supportURL": "https://github.com/julong111/tampermonkey-TubeBili/issues",
+  "version": "2.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@rollup/plugin-replace": "^6.0.0",
+    "@rollup/plugin-terser": "^0.4.0",
+    "jsdom": "^30.0.1",
+    "rollup": "^4.0.0",
+    "vitest": "^4.1.10"
+  }
+}
