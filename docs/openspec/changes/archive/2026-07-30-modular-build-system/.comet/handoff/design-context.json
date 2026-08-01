@@ -1,0 +1,13 @@
+{
+  "change": "modular-build-system",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "59b7bd2c0f8313ae456aa14dd3b56fb631cea09fb1ea8fce4445d9a0fcedf34a",
+  "files": [
+    { "path": "docs/openspec/changes/modular-build-system/proposal.md", "sha256": "f04e78e4edfb630b520184ee80df0b04c063c1897533cd1898b93599170a9a28" },
+    { "path": "docs/openspec/changes/modular-build-system/design.md", "sha256": "c9118d4ea957e97aaec162890d7d6b344476f78bd5393ab41db0119bf89eda25" },
+    { "path": "docs/openspec/changes/modular-build-system/tasks.md", "sha256": "5412d39aa6d69ccb866979612dc60d3eda98ce83f9a3f96b66892ed6a400b312" }
+  ]
+}
