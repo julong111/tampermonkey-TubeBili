@@ -10,8 +10,8 @@
 // @icon               https://www.youtube.com/s/desktop/3748dff5/img/favicon_48.png
 // @homepage           https://github.com/julong111/tampermonkey-TubeBili
 // @supportURL         https://github.com/julong111/tampermonkey-TubeBili/issues
-// @downloadURL        https://github.com/julong111/tampermonkey-TubeBili/raw/main/TubeBili.user.js
-// @updateURL          https://github.com/julong111/tampermonkey-TubeBili/raw/main/TubeBili.user.js
+// @downloadURL        https://github.com/julong111/tampermonkey-TubeBili/raw/main/dist/TubeBili.user.js
+// @updateURL          https://github.com/julong111/tampermonkey-TubeBili/raw/main/dist/TubeBili.user.js
 // @match              https://*.youtube.com/*
 // @match              https://*.bilibili.com/*
 // @exclude            https://accounts.youtube.com/*
