@@ -36,8 +36,10 @@ npm install
 npm run build
 
 # 输出文件：
-#   dist/TubeBili.user.js        - Tampermonkey 标准版
-#   dist/TubeBili.userscripts.js - Safari Userscripts 通用版
+#   dist/v2.1/TubeBili.user.js        - Tampermonkey 标准版（当前版本）
+#   dist/v2.1/TubeBili.userscripts.js - Safari Userscripts 通用版（当前版本）
+#   dist/latest/TubeBili.user.js      - Tampermonkey 标准版（最新版）
+#   dist/latest/TubeBili.userscripts.js - Safari Userscripts 通用版（最新版）
 ```
 
 **源代码结构：**
@@ -59,10 +61,12 @@ src/
 │   ├── settings-panel.js   # 设置面板（DOM）
 │   ├── speed-buttons.js    # 倍速按钮 UI
 │   ├── speed-indicator.js  # 倍速悬浮提示 UI
+│   ├── floating-button.js  # 悬浮按钮 UI
 │   └── styles.js           # CSS 样式
 ├── features/
 │   ├── rate.js             # 自动倍速动作
 │   ├── shortcut.js         # 快捷键
+│   ├── auto-close-login-window.js # 登录弹窗自动关闭守卫
 │   └── removal/
 │       ├── config.js       # 启用项过滤
 │       ├── remove-once.js  # YouTube 一次性移除策略
@@ -101,13 +105,20 @@ src/
 - ✅ Safari + Userscripts 插件 (Mac App Store)
 - ✅ 其他不支持 GM API 的轻量级用户脚本管理器
 
-在此处下载并安装脚本 [TubeBili.userscripts.js](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/TubeBili.userscripts.js)
+在此处下载并安装脚本 [TubeBili.userscripts.js](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/dist/latest/TubeBili.userscripts.js)
 
 ---
 
 ## 📝 更新日志
 
 本项目的所有显著变更都将记录在此文件中。感谢每一位用户的支持和建议！
+#### [2.1.1] (2026-08-05) [UI优化]
+* **优化 YouTube 倍速按钮背景**: 快捷键按钮背景色调整为深色半透明效果 `rgba(15, 15, 15, 0.8)`，在 YouTube 播放器中更协调
+* **加大设置面板倍速下拉框**: 设置面板中的倍速选择 select 控件宽度增加一倍，避免选项内容显示不全
+
+#### [2.1] (2026-08-02) [选项调整]
+* **移除 Bilibili 部分移除选项**: 移除了「分辨率、选集、宽屏、设置、网页全屏」按钮的移除选项，仅保留画中画、原始倍速、评论输入区
+
 #### [2.0.2] (2026-05-26) [Bug修复与功能扩展]
 * **新增 Bilibili 番剧页面支持**: 添加对 `https://www.bilibili.com/bangumi/play` 播放页的支持
 * **修复 YouTube 导航监听错误**: 修复 `yt-navigate-finish` 事件处理函数调用错误
@@ -176,7 +187,7 @@ src/
 ### 3. 界面精简与优化
 * **透明玻璃效果**: 播放器倍速按钮列表优化为毛玻璃透明效果，与原生界面更协调
 * **按钮高亮显示**: 当前选中的倍速按钮有醒目边框提示
-* **移除冗余按钮**: 可选择移除不常用的画中画、宽屏、原始倍速、设置等按钮，提供更专注的观看环境
+* **移除冗余按钮**: 可选择移除不常用的播放器按钮（如字幕、设置、影院模式、全屏、画中画、原始倍速、评论输入区等），提供更专注的观看环境
 * **动态按钮移除**: 优化动态加载按钮的移除（如全屏后才出现的弹幕输入区）
 * **隐藏评论区**: 自动移除评论输入区，提供更简洁界面
 
@@ -188,11 +199,11 @@ src/
   * 广告播放时自动恢复至1倍速，避免因超速播放广告导致Google检测器警告
   * 广告结束后自动恢复用户设置的倍速
 * **域名排除**: 添加 `accounts.youtube.com` 子域名排除，优化匹配逻辑
-* **可定制控件**: 新增自动播放开关、字幕按钮、设置按钮的设置项目
+* **可定制控件**: 新增自动播放开关、字幕按钮、设置按钮、影院模式、全屏按钮的设置项目
 
 #### Bilibili
 * **自动网页全屏**: 视频加载后自动进入网页全屏模式
-* **增强按钮管理**: 分辨率、选集、画中画、宽屏、原始倍速、设置、网页全屏按钮的移除选项
+* **增强按钮管理**: 画中画、原始倍速、评论输入区按钮的移除选项
 * **倍速设置按钮位置优化**: 倍速设置按钮现在添加到播放器底部中间区域
 * **自动关闭登录弹窗**: 定时检测未登录时弹出的登录提示弹窗，检测到后自动点击关闭并恢复播放，屏蔽未登录时烦人的登录弹窗
 
@@ -233,21 +244,19 @@ src/
 
 ### YouTube 设置:
 - [ ] 自动倍速播放（可自定义默认速度）
+- [ ] 自动进入影院模式
 - [ ] 自动播放开关
 - [ ] 自动移除字幕按钮
 - [ ] 自动移除设置按钮
+- [ ] 自动移除影院模式按钮
+- [ ] 自动移除全屏按钮
 
 ### Bilibili 设置:
 - [ ] 自动网页全屏
 - [ ] 自动倍速播放（可自定义默认速度）
-- [ ] 自动移除分辨率按钮
-- [ ] 自动移除选集按钮
 - [ ] 自动移除画中画按钮
-- [ ] 自动移除宽屏按钮
 - [ ] 自动移除原始倍速按钮
 - [ ] 自动移除评论输入区
-- [ ] 自动移除设置按钮
-- [ ] 自动移除网页全屏按钮
 - [x] 自动关闭登录弹窗并恢复播放
 
 ---

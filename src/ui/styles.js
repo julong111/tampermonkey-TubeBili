@@ -90,7 +90,7 @@ const STYLES = `
   margin-right: 4px;
 }
 #minimalSettingsPanel .setting-item select {
-  width: 50px;
+  width: 80px;
   margin-left: 12px;
   padding: 4px 8px;
   border: 1px solid #d1d5db;
@@ -269,6 +269,7 @@ const STYLES = `
   width: 40px;
 }
 .speed-control-button.youtube {
+  background-color: rgba(15, 15, 15, 0.8) !important;
   height: 28px;
   font-size: 15px;
 }

@@ -45,13 +45,20 @@ This project provides two versions. Please choose according to your userscript m
 - ✅ Safari + Userscripts plugin (Mac App Store)
 - ✅ Other lightweight userscript managers that don't support GM API
 
-Download and install the script here: [TubeBili.userscripts.js](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/TubeBili.userscripts.js)
+Download and install the script here: [TubeBili.userscripts.js](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/dist/latest/TubeBili.userscripts.js)
 
 ---
 
 ## 📝 Changelog
 
 All notable changes to this project will be documented in this file. We truly appreciate every user's support and suggestions!
+
+#### [2.1.1] (2026-08-05) [UI Optimization]
+* **Improved YouTube Speed Button Background**: Shortcut button background changed to a dark translucent effect `rgba(15, 15, 15, 0.8)` for better visual harmony in the YouTube player
+* **Widened Settings Panel Speed Select**: The speed select control width in the settings panel has been doubled to prevent option content from being cut off
+
+#### [2.1] (2026-08-02) [Option Adjustments]
+* **Removed Some Bilibili Removal Options**: Removed the "Quality, Episode List, Wide Screen, Settings, Web Fullscreen" button removal options. Only PiP, Original Speed, and Comments Input Area removal are retained
 
 #### [2.0.2] (2026-05-26) [Bug Fixes & Feature Extension]
 * **Added Bilibili Bangumi Page Support**: Added support for `https://www.bilibili.com/bangumi/play` playback page
@@ -121,7 +128,7 @@ All notable changes to this project will be documented in this file. We truly ap
 ### 3. Interface Simplification & Optimization
 * **Frosted Glass Effect**: Player speed button list optimized with translucent frosted glass styling for better visual integration
 * **Button Highlighting**: Current speed button has prominent border indication
-* **Remove Redundant Buttons**: Option to remove less commonly used Picture-in-Picture, Wide Screen, original speed, settings buttons for a more focused viewing environment
+* **Remove Redundant Buttons**: Option to remove less commonly used player buttons (e.g., Subtitles, Settings, Theater Mode, Fullscreen, PiP, Original Speed, Comments Input Area) for a more focused viewing environment
 * **Dynamic Button Removal**: Optimized removal of dynamically loaded buttons (e.g., comment input area that appears only in fullscreen mode)
 * **Hide Comments Section**: Automatically removes comment input area for cleaner interface
 
@@ -133,12 +140,12 @@ All notable changes to this project will be documented in this file. We truly ap
   * Automatically restores to 1x speed during ad playback to avoid Google detector warnings caused by speeding through ads
   * Automatically restores user's preferred speed after ads end
 * **Domain Exclusion**: Added `accounts.youtube.com` subdomain exclusion to optimize matching logic
-* **Customizable Controls**: Added settings for autoplay toggle, subtitle button, and settings button
+* **Customizable Controls**: Added settings for autoplay toggle, subtitle button, settings button, theater mode, and fullscreen button
 
 #### Bilibili
 * **Auto Close Login Window**: Periodically detects the login prompt dialog shown when not logged in, automatically closes it and resumes playback, blocking annoying login pop-ups when not logged in
 * **Auto Web Fullscreen**: Automatically enters web fullscreen mode after video loads
-* **Enhanced Button Management**: Options to remove Quality, Episode List, Picture-in-Picture, Wide Screen, Original Speed, Settings, and Web Fullscreen buttons
+* **Enhanced Button Management**: Options to remove Picture-in-Picture, Original Speed, and Comments Input Area buttons
 * **Speed Settings Button Position Optimization**: Speed settings buttons are now added to the center bottom of the player control bar
 
 ### 5. User-Friendly & Customization
@@ -178,21 +185,19 @@ The script automatically switches interface language based on browser language:
 
 ### YouTube Settings:
 - [ ] Auto Playback Speed (customizable default speed)
+- [ ] Auto Theater Mode
 - [ ] Auto Remove Autoplay Toggle
 - [ ] Auto Remove Subtitles Button
 - [ ] Auto Remove Settings Button
+- [ ] Auto Remove Theater Mode Button
+- [ ] Auto Remove FullScreen Button
 
 ### Bilibili Settings:
 - [ ] Auto Web Fullscreen
 - [ ] Auto Playback Speed (customizable default speed)
-- [ ] Auto Remove Quality Button
-- [ ] Auto Remove Episode List Button
 - [ ] Auto Remove Picture-in-Picture Button
-- [ ] Auto Remove Wide Screen Button
 - [ ] Auto Remove Original Speed Button
 - [ ] Auto Remove Comments Input Area
-- [ ] Auto Remove Settings Button
-- [ ] Auto Remove Web Fullscreen Button
 - [x] Auto close login dialog and resume playback when not logged in
 
 ---

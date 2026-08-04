@@ -36,8 +36,8 @@ describe('legacy/TubeBili.user.js header 元数据', () => {
   })
 })
 
-describe('dist/TubeBili.user.js header', () => {
-  const header = parseHeader('./dist/TubeBili.user.js')
+describe('dist/latest/TubeBili.user.js header', () => {
+  const header = parseHeader('./dist/latest/TubeBili.user.js')
 
   test('@version 与 package.json 一致', () => {
     expect(header.some(l => l.includes(`@version            ${pkgVersion}`))).toBe(true)
@@ -64,8 +64,8 @@ describe('legacy/TubeBili.userscripts.js header', () => {
   })
 })
 
-describe('dist/TubeBili.userscripts.js header', () => {
-  const header = parseHeader('./dist/TubeBili.userscripts.js')
+describe('dist/latest/TubeBili.userscripts.js header', () => {
+  const header = parseHeader('./dist/latest/TubeBili.userscripts.js')
 
   test('@version 与 package.json 一致', () => {
     expect(header.some(l => l.includes(`@version            ${pkgVersion}`))).toBe(true)

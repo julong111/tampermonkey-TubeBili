@@ -5,6 +5,8 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
 const tampermonkeyHeader = readFileSync('./src/build/header-tampermonkey.js', 'utf8');
 const userscriptsHeader = readFileSync('./src/build/header-userscripts.js', 'utf8');
 
+const versionDir = `v${pkg.version}`;
+
 function replaceHeaderInfo(str) {
   return str.replace(/\$\{version\}/g, pkg.version)
     .replace(/\$\{namezh\}/g, pkg.namezh)
@@ -19,33 +21,37 @@ function replaceHeaderInfo(str) {
     .replace(/\$\{supportURL\}/g, pkg.supportURL);
 }
 
+function makeConfig(file, header, target) {
+  const base = {
+    input: 'src/main.js',
+    plugins: [
+      replace({
+        preventAssignment: true,
+        __TARGET__: JSON.stringify(target),
+      }),
+    ],
+  };
+  return [
+    {
+      ...base,
+      output: {
+        file: `dist/${versionDir}/${file}`,
+        format: 'iife',
+        banner: replaceHeaderInfo(header),
+      },
+    },
+    {
+      ...base,
+      output: {
+        file: `dist/latest/${file}`,
+        format: 'iife',
+        banner: replaceHeaderInfo(header),
+      },
+    },
+  ];
+}
+
 export default [
-  {
-    input: 'src/main.js',
-    output: {
-      file: 'dist/TubeBili.user.js',
-      format: 'iife',
-      banner: replaceHeaderInfo(tampermonkeyHeader),
-    },
-    plugins: [
-      replace({
-        preventAssignment: true,
-        __TARGET__: JSON.stringify('tampermonkey'),
-      }),
-    ],
-  },
-  {
-    input: 'src/main.js',
-    output: {
-      file: 'dist/TubeBili.userscripts.js',
-      format: 'iife',
-      banner: replaceHeaderInfo(userscriptsHeader),
-    },
-    plugins: [
-      replace({
-        preventAssignment: true,
-        __TARGET__: JSON.stringify('userscripts'),
-      }),
-    ],
-  },
+  ...makeConfig('TubeBili.user.js', tampermonkeyHeader, 'tampermonkey'),
+  ...makeConfig('TubeBili.userscripts.js', userscriptsHeader, 'userscripts'),
 ];
