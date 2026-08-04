@@ -223,7 +223,7 @@
   margin-right: 4px;
 }
 #minimalSettingsPanel .setting-item select {
-  width: 50px;
+  width: 80px;
   margin-left: 12px;
   padding: 4px 8px;
   border: 1px solid #d1d5db;
