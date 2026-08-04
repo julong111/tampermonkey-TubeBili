@@ -36,8 +36,10 @@ npm install
 npm run build
 
 # 输出文件：
-#   dist/TubeBili.user.js        - Tampermonkey 标准版
-#   dist/TubeBili.userscripts.js - Safari Userscripts 通用版
+#   dist/v2.1/TubeBili.user.js        - Tampermonkey 标准版（当前版本）
+#   dist/v2.1/TubeBili.userscripts.js - Safari Userscripts 通用版（当前版本）
+#   dist/latest/TubeBili.user.js      - Tampermonkey 标准版（最新版）
+#   dist/latest/TubeBili.userscripts.js - Safari Userscripts 通用版（最新版）
 ```
 
 **源代码结构：**
@@ -103,7 +105,7 @@ src/
 - ✅ Safari + Userscripts 插件 (Mac App Store)
 - ✅ 其他不支持 GM API 的轻量级用户脚本管理器
 
-在此处下载并安装脚本 [TubeBili.userscripts.js](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/dist/TubeBili.userscripts.js)
+在此处下载并安装脚本 [TubeBili.userscripts.js](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/dist/latest/TubeBili.userscripts.js)
 
 ---
 

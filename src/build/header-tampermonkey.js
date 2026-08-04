@@ -10,8 +10,8 @@
 // @icon               ${icon}
 // @homepage           ${homepage}
 // @supportURL         ${supportURL}
-// @downloadURL        https://github.com/julong111/tampermonkey-TubeBili/raw/main/dist/TubeBili.user.js
-// @updateURL          https://github.com/julong111/tampermonkey-TubeBili/raw/main/dist/TubeBili.user.js
+// @downloadURL        https://github.com/julong111/tampermonkey-TubeBili/raw/main/dist/latest/TubeBili.user.js
+// @updateURL          https://github.com/julong111/tampermonkey-TubeBili/raw/main/dist/latest/TubeBili.user.js
 // @match              https://*.youtube.com/*
 // @match              https://*.bilibili.com/*
 // @exclude            https://accounts.youtube.com/*

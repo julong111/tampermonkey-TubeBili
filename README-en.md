@@ -45,7 +45,7 @@ This project provides two versions. Please choose according to your userscript m
 - ✅ Safari + Userscripts plugin (Mac App Store)
 - ✅ Other lightweight userscript managers that don't support GM API
 
-Download and install the script here: [TubeBili.userscripts.js](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/dist/TubeBili.userscripts.js)
+Download and install the script here: [TubeBili.userscripts.js](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/dist/latest/TubeBili.userscripts.js)
 
 ---
 
