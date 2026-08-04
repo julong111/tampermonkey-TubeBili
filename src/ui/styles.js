@@ -269,6 +269,7 @@ const STYLES = `
   width: 40px;
 }
 .speed-control-button.youtube {
+  background-color: rgba(15, 15, 15, 0.8) !important;
   height: 28px;
   font-size: 15px;
 }
