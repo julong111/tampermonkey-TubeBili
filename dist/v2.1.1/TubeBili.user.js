@@ -2,7 +2,7 @@
 // @name               TubeBili - YouTube(油管) Bilibili(B站) 视频增强工具
 // @name:en            TubeBili - YouTube Bilibili Video Player Enhancer Tools
 // @namespace          com.julong.tampermonkey.TubeBiliVideoPlayerEnhancerTools
-// @version            2.1
+// @version            2.1.1
 // @author             julong@111.com
 // @description        自动网页全屏、自定义倍速列表、快捷键一键调速、界面漂亮，让您摆脱繁琐操作，专注享受视频
 // @description:en     Auto web fullscreen, custom speed list, hotkey speed control, beautiful UI. Say goodbye to tedious operations and focus on enjoying videos
@@ -10,126 +10,44 @@
 // @icon               https://www.youtube.com/s/desktop/3748dff5/img/favicon_48.png
 // @homepage           https://github.com/julong111/tampermonkey-TubeBili
 // @supportURL         https://github.com/julong111/tampermonkey-TubeBili/issues
-// @match              *://*.youtube.com/*
-// @match              *://*.bilibili.com/*
-// @exclude            *://accounts.youtube.com/*
+// @downloadURL        https://github.com/julong111/tampermonkey-TubeBili/raw/main/dist/latest/TubeBili.user.js
+// @updateURL          https://github.com/julong111/tampermonkey-TubeBili/raw/main/dist/latest/TubeBili.user.js
+// @match              https://*.youtube.com/*
+// @match              https://*.bilibili.com/*
+// @exclude            https://accounts.youtube.com/*
+// @grant              GM_addStyle
+// @grant              GM_getValue
+// @grant              GM_registerMenuCommand
+// @grant              GM_setValue
 // @run-at             document-start
-// @grant              none
 // ==/UserScript==
 
 (function () {
   'use strict';
 
-  function createFloatingButton(name, callback) {
-    if (document.getElementById('tubeBiliFloatingBtn')) return;
-
-    const btn = document.createElement('button');
-    btn.id = 'tubeBiliFloatingBtn';
-    btn.textContent = '\u2699\uFE0F';
-    btn.title = name;
-    Object.assign(btn.style, {
-      position: 'fixed',
-      top: '5%',
-      right: '-25px',
-      width: '40px',
-      height: '40px',
-      borderRadius: '8px 0 0 8px',
-      background: 'rgba(59, 130, 246, 0.9)',
-      opacity: '0.3',
-      color: 'white',
-      border: 'none',
-      fontSize: '24px',
-      cursor: 'pointer',
-      zIndex: '2147483647',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-      transition: 'all 0.3s ease',
-      WebkitBackdropFilter: 'blur(10px)',
-      backdropFilter: 'blur(10px)',
-    });
-
-    btn.addEventListener('mouseenter', () => {
-      btn.style.right = '20px';
-      btn.style.opacity = '1';
-      btn.style.transform = 'scale(1.1)';
-      btn.style.background = 'rgba(37, 99, 235, 1)';
-    });
-    btn.addEventListener('mouseleave', () => {
-      btn.style.right = '-25px';
-      btn.style.opacity = '0.3';
-      btn.style.transform = 'scale(1)';
-      btn.style.background = 'rgba(37, 99, 235, 0.8)';
-    });
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      callback();
-    });
-
-    const appendBtn = () => {
-      if (document.body) {
-        document.body.appendChild(btn);
-      } else {
-        requestAnimationFrame(appendBtn);
-      }
-    };
-    appendBtn();
-
-    const hideStyle = document.createElement('style');
-    hideStyle.textContent = `
-    body:has(#minimalSettingsPanel.show) #tubeBiliFloatingBtn {
-      opacity: 0;
-      pointer-events: none;
-      transform: scale(0.8);
-    }
-  `;
-    if (document.head) document.head.appendChild(hideStyle);
-  }
-
   const gm = {
     getValue(key, defaultValue) {
-      try {
-        const value = localStorage.getItem('TubeBili_' + key);
-        if (value === null) return defaultValue;
-        if (value === 'true') return true;
-        if (value === 'false') return false;
-        if (!isNaN(value) && value !== '') return Number(value);
-        return value;
-      } catch (e) {
-        console.warn('[TubeBili] localStorage read failed:', e);
-        return defaultValue;
+      {
+        return GM_getValue(key, defaultValue);
       }
     },
 
     setValue(key, value) {
-      try {
-        localStorage.setItem('TubeBili_' + key, String(value));
-        return Promise.resolve();
-      } catch (e) {
-        console.warn('[TubeBili] localStorage write failed:', e);
-        return Promise.reject(e);
+      {
+        return GM_setValue(key, value);
       }
     },
 
     addStyle(css) {
-      const style = document.createElement('style');
-      style.textContent = css;
-      style.setAttribute('data-tubebili-style', 'true');
-      if (document.head) {
-        document.head.appendChild(style);
-      } else {
-        const addWhenReady = () => {
-          if (document.head) {
-            document.head.appendChild(style);
-            document.removeEventListener('DOMContentLoaded', addWhenReady);
-          }
-        };
-        document.addEventListener('DOMContentLoaded', addWhenReady);
+      {
+        return GM_addStyle(css);
       }
-      return style;
     },
 
     registerMenuCommand(name, callback) {
-      createFloatingButton(name, callback);
+      {
+        return GM_registerMenuCommand(name, callback);
+      }
     }
   };
 
