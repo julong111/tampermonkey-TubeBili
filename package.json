@@ -14,16 +14,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "build": "bun build.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@rollup/plugin-replace": "^6.0.0",
-    "@rollup/plugin-terser": "^0.4.0",
-    "jsdom": "^30.0.1",
-    "rollup": "^4.0.0",
-    "vitest": "^4.1.10"
+    "@types/bun": "^1.3.0",
+    "typescript": "^5.9.0"
   }
 }

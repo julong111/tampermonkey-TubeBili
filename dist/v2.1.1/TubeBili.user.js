@@ -21,37 +21,136 @@
 // @grant              GM_setValue
 // @run-at             document-start
 // ==/UserScript==
+(() => {
 
-(function () {
-  'use strict';
+  // src/ui/floating-button.ts
+  function createFloatingButton(name, callback) {
+    if (document.getElementById("tubeBiliFloatingBtn"))
+      return;
+    const btn = document.createElement("button");
+    btn.id = "tubeBiliFloatingBtn";
+    btn.textContent = "⚙️";
+    btn.title = name;
+    Object.assign(btn.style, {
+      position: "fixed",
+      top: "5%",
+      right: "-25px",
+      width: "40px",
+      height: "40px",
+      borderRadius: "8px 0 0 8px",
+      background: "rgba(59, 130, 246, 0.9)",
+      opacity: "0.3",
+      color: "white",
+      border: "none",
+      fontSize: "24px",
+      cursor: "pointer",
+      zIndex: "2147483647",
+      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+      transition: "all 0.3s ease",
+      WebkitBackdropFilter: "blur(10px)",
+      backdropFilter: "blur(10px)"
+    });
+    btn.addEventListener("mouseenter", () => {
+      btn.style.right = "20px";
+      btn.style.opacity = "1";
+      btn.style.transform = "scale(1.1)";
+      btn.style.background = "rgba(37, 99, 235, 1)";
+    });
+    btn.addEventListener("mouseleave", () => {
+      btn.style.right = "-25px";
+      btn.style.opacity = "0.3";
+      btn.style.transform = "scale(1)";
+      btn.style.background = "rgba(37, 99, 235, 0.8)";
+    });
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      callback();
+    });
+    const appendBtn = () => {
+      if (document.body) {
+        document.body.appendChild(btn);
+      } else {
+        requestAnimationFrame(appendBtn);
+      }
+    };
+    appendBtn();
+    const hideStyle = document.createElement("style");
+    hideStyle.textContent = `
+    body:has(#minimalSettingsPanel.show) #tubeBiliFloatingBtn {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.8);
+    }
+  `;
+    if (document.head)
+      document.head.appendChild(hideStyle);
+  }
 
-  const gm = {
+  // src/core/gm-api.ts
+  var gm = {
     getValue(key, defaultValue) {
-      {
+      if (true) {
         return GM_getValue(key, defaultValue);
       }
+      try {
+        const value = localStorage.getItem("TubeBili_" + key);
+        if (value === null)
+          return defaultValue;
+        if (value === "true")
+          return true;
+        if (value === "false")
+          return false;
+        if (!isNaN(Number(value)) && value !== "")
+          return Number(value);
+        return value;
+      } catch (e) {
+        console.warn("[TubeBili] localStorage read failed:", e);
+        return defaultValue;
+      }
     },
-
     setValue(key, value) {
-      {
+      if (true) {
         return GM_setValue(key, value);
       }
+      try {
+        localStorage.setItem("TubeBili_" + key, String(value));
+        return Promise.resolve();
+      } catch (e) {
+        console.warn("[TubeBili] localStorage write failed:", e);
+        return Promise.reject(e);
+      }
     },
-
     addStyle(css) {
-      {
+      if (true) {
         return GM_addStyle(css);
       }
+      const style = document.createElement("style");
+      style.textContent = css;
+      style.setAttribute("data-tubebili-style", "true");
+      if (document.head) {
+        document.head.appendChild(style);
+      } else {
+        const addWhenReady = () => {
+          if (document.head) {
+            document.head.appendChild(style);
+            document.removeEventListener("DOMContentLoaded", addWhenReady);
+          }
+        };
+        document.addEventListener("DOMContentLoaded", addWhenReady);
+      }
+      return style;
     },
-
     registerMenuCommand(name, callback) {
-      {
+      if (true) {
         return GM_registerMenuCommand(name, callback);
       }
+      createFloatingButton(name, callback);
     }
   };
 
-  const STYLES = `
+  // src/ui/styles.ts
+  var STYLES = `
 #minimalSettingsPanel {
   font-size: 12px;
   position: fixed;
@@ -329,12 +428,12 @@
   font-size: 14px;
 }
 `;
-
   function injectStyles() {
     gm.addStyle(STYLES);
   }
 
-  const i18n = {
+  // src/core/i18n-constants.ts
+  var i18n = {
     zh: {
       Menu_Settings: "TubeBili - Youtube & Bilibili 视频播放器增强工具",
       Menu_Save: "保存",
@@ -401,60 +500,62 @@
     }
   };
 
-  function t(key, lang = 'zh') {
+  // src/core/i18n.ts
+  function t(key, lang = "zh") {
     return i18n[lang]?.[key] || key;
   }
-
   function detectLanguage() {
     let userLang = navigator.language.toLowerCase();
-    if (userLang.startsWith("zh")) return "zh";
-    if (userLang.startsWith("en")) return "en";
+    if (userLang.startsWith("zh"))
+      return "zh";
+    if (userLang.startsWith("en"))
+      return "en";
     return "en";
   }
 
-  function getText$1(key, lang) {
+  // src/settings/catalog.ts
+  function getText(key, lang) {
     return i18n[lang]?.[key] || key;
   }
-
   function buildCatalog(url, lang) {
     if (url.includes("youtube.com")) {
       return {
         Youtube_Action_Rate: {
           classId: "Youtube_Action_Rate",
-          text: getText$1("Youtube_Action_Rate", lang),
+          text: getText("Youtube_Action_Rate", lang),
           enableKey: "Youtube_Action_Rate_Enabled",
           valueKey: "Youtube_Action_Rate_Value",
           recommended: true
         },
         Youtube_Action_TheaterMode: {
           classId: "Youtube_Action_TheaterMode",
-          text: getText$1("Youtube_Action_TheaterMode", lang),
+          text: getText("Youtube_Action_TheaterMode", lang),
           enableKey: "Youtube_Action_TheaterMode",
           recommended: true
         },
         Youtube_Remove_Autoplay: {
           classId: "Youtube_Remove_Autoplay",
-          text: getText$1("Youtube_Remove_Autoplay", lang),
+          text: getText("Youtube_Remove_Autoplay", lang),
           enableKey: "Youtube_Remove_Autoplay"
         },
         Youtube_Remove_Subtitles: {
           classId: "Youtube_Remove_Subtitles",
-          text: getText$1("Youtube_Remove_Subtitles", lang),
+          text: getText("Youtube_Remove_Subtitles", lang),
           enableKey: "Youtube_Remove_Subtitles"
         },
         Youtube_Remove_Settings: {
           classId: "Youtube_Remove_Settings",
-          text: getText$1("Youtube_Remove_Settings", lang),
+          text: getText("Youtube_Remove_Settings", lang),
           enableKey: "Youtube_Remove_Settings"
         },
         Youtube_Remove_TheaterMode: {
           classId: "Youtube_Remove_TheaterMode",
-          text: getText$1("Youtube_Remove_TheaterMode", lang),
+          text: getText("Youtube_Remove_TheaterMode", lang),
           enableKey: "Youtube_Remove_TheaterMode"
         },
         Youtube_Remove_FullScreen: {
           classId: "Youtube_Remove_FullScreen",
-          text: getText$1("Youtube_Remove_FullScreen", lang),
+          text: getText("Youtube_Remove_FullScreen", lang),
           enableKey: "Youtube_Remove_FullScreen"
         }
       };
@@ -462,35 +563,35 @@
       return {
         Bilibili_Action_Rate: {
           classId: "Bilibili_Action_Rate",
-          text: getText$1("Bilibili_Action_Rate", lang),
+          text: getText("Bilibili_Action_Rate", lang),
           enableKey: "Bilibili_Action_Rate_Enabled",
           valueKey: "Bilibili_Action_Rate_Value",
           recommended: true
         },
         Bilibili_Action_WebFullscreen: {
           classId: "Bilibili_Action_WebFullscreen",
-          text: getText$1("Bilibili_Action_WebFullscreen", lang),
+          text: getText("Bilibili_Action_WebFullscreen", lang),
           enableKey: "Bilibili_Action_WebFullscreen",
           recommended: true
         },
         Bilibili_Action_AutoCloseLoginWindow: {
           classId: "Bilibili_Action_AutoCloseLoginWindow",
-          text: getText$1("Bilibili_Action_AutoCloseLoginWindow", lang),
+          text: getText("Bilibili_Action_AutoCloseLoginWindow", lang),
           enableKey: "Bilibili_Action_AutoCloseLoginWindow"
         },
         Bilibili_Remove_Pip: {
           classId: "Bilibili_Remove_Pip",
-          text: getText$1("Bilibili_Remove_Pip", lang),
+          text: getText("Bilibili_Remove_Pip", lang),
           enableKey: "Bilibili_Remove_Pip"
         },
         Bilibili_Remove_Speed: {
           classId: "Bilibili_Remove_Speed",
-          text: getText$1("Bilibili_Remove_Speed", lang),
+          text: getText("Bilibili_Remove_Speed", lang),
           enableKey: "Bilibili_Remove_Speed"
         },
         Bilibili_Remove_Comments: {
           classId: "Bilibili_Remove_Comments",
-          text: getText$1("Bilibili_Remove_Comments", lang),
+          text: getText("Bilibili_Remove_Comments", lang),
           enableKey: "Bilibili_Remove_Comments"
         }
       };
@@ -498,18 +599,18 @@
     return {};
   }
 
-  const shortcutSpeedListKey = "Shortcut_Speed_List";
-  const buttonSpeedListKey = "Button_Speed_List";
+  // src/settings/speed-list-constants.ts
+  var shortcutSpeedListKey = "Shortcut_Speed_List";
+  var buttonSpeedListKey = "Button_Speed_List";
+  var DEFAULT_SHORTCUT_SPEEDS = ["0.5", "1.0", "1.5", "2.0", "2.5", "3.0"];
+  var DEFAULT_BUTTON_SPEEDS = ["0.5", "1.0", "1.5", "2.0"];
+  var DEFAULT_SPEED = "1.0";
 
-  const DEFAULT_SHORTCUT_SPEEDS = ["0.5", "1.0", "1.5", "2.0", "2.5", "3.0"];
-  const DEFAULT_BUTTON_SPEEDS = ["0.5", "1.0", "1.5", "2.0"];
-  const DEFAULT_SPEED = "1.0";
-
+  // src/settings/speed-list.ts
   function speedListError(lang) {
     return i18n[lang]?.["Menu_SpeedList_Error"] || "Menu_SpeedList_Error";
   }
-
-  function validateSpeedList(input, lang = 'en') {
+  function validateSpeedList(input, lang = "en") {
     if (!input || typeof input !== "string") {
       return { valid: false, speeds: [], error: speedListError(lang) };
     }
@@ -532,65 +633,59 @@
     return { valid: true, speeds, error: "" };
   }
 
-  const settingsState = {
+  // src/settings/store.ts
+  var settingsState = {
     shortcutSpeeds: [...DEFAULT_SHORTCUT_SPEEDS],
     buttonSpeeds: [...DEFAULT_BUTTON_SPEEDS],
     defaultSpeed: DEFAULT_SPEED,
     settingPanelItems: {},
-    currentLang: 'en'
+    currentLang: "en"
   };
-
   function initSettings(url) {
     settingsState.currentLang = detectLanguage();
     loadSpeedLists();
     settingsState.settingPanelItems = buildCatalog(url, settingsState.currentLang);
   }
-
   function loadSpeedLists() {
     const shortcutRaw = gm.getValue(shortcutSpeedListKey);
     if (shortcutRaw != null) {
       const result = validateSpeedList(shortcutRaw, settingsState.currentLang);
-      if (result.valid) settingsState.shortcutSpeeds = result.speeds;
+      if (result.valid)
+        settingsState.shortcutSpeeds = result.speeds;
     }
     const buttonRaw = gm.getValue(buttonSpeedListKey);
     if (buttonRaw != null) {
       const result = validateSpeedList(buttonRaw, settingsState.currentLang);
-      if (result.valid) settingsState.buttonSpeeds = result.speeds;
+      if (result.valid)
+        settingsState.buttonSpeeds = result.speeds;
     }
   }
-
   function getShortcutSpeeds() {
     return [...settingsState.shortcutSpeeds];
   }
-
   function getButtonSpeeds() {
     return [...settingsState.buttonSpeeds];
   }
-
   function getDefaultSpeed() {
     return settingsState.defaultSpeed;
   }
-
   function getSettingPanelItems() {
     return { ...settingsState.settingPanelItems };
   }
-
   function getCurrentLang() {
     return settingsState.currentLang;
   }
-
   function setSpeedLists(shortcutSpeeds, buttonSpeeds) {
     settingsState.shortcutSpeeds = [...shortcutSpeeds];
     settingsState.buttonSpeeds = buttonSpeeds ? [...buttonSpeeds] : [...shortcutSpeeds];
   }
 
-  let settingPanelInitialized = false;
-  let settingPanelElement = null;
-
-  function getText(key) {
+  // src/ui/settings-panel.ts
+  var settingPanelInitialized = false;
+  var settingPanelElement = null;
+  function getText2(key) {
     return t(key, getCurrentLang());
   }
-
   function createSpeedList(speeds, select) {
     speeds.forEach((speed) => {
       const option = document.createElement("option");
@@ -599,24 +694,20 @@
       select.appendChild(option);
     });
   }
-
   function updateSpeedSelects(shortcutSpeedsNew, buttonSpeedsNew, shortcutSpeedListString, buttonSpeedListString) {
     setSpeedLists(shortcutSpeedsNew, buttonSpeedsNew);
-
-    if (shortcutSpeedListString !== void 0) {
+    if (shortcutSpeedListString !== undefined) {
       const shortcutSpeedListInput = document.getElementById("shortcutSpeedListInput");
       if (shortcutSpeedListInput) {
         shortcutSpeedListInput.value = shortcutSpeedListString;
       }
     }
-
-    if (buttonSpeedListString !== void 0) {
+    if (buttonSpeedListString !== undefined) {
       const buttonSpeedListInput = document.getElementById("buttonSpeedListInput");
       if (buttonSpeedListInput) {
         buttonSpeedListInput.value = buttonSpeedListString;
       }
     }
-
     const selectIds = ["Youtube_Action_Rate_Value", "Bilibili_Action_Rate_Value"];
     for (const selectId of selectIds) {
       const select = document.getElementById(selectId);
@@ -634,14 +725,13 @@
       }
     }
   }
-
   function createSettingItem(item) {
     let functionDiv = document.createElement("div");
     functionDiv.className = "setting-item";
     let functionValue = gm.getValue(item.enableKey, false);
     let itemCheckBox = document.createElement("input");
     itemCheckBox.type = "checkbox";
-    itemCheckBox.checked = functionValue;
+    itemCheckBox.checked = Boolean(functionValue);
     itemCheckBox.id = item.classId;
     functionDiv.appendChild(itemCheckBox);
     let itemTextLabel = document.createElement("label");
@@ -659,12 +749,11 @@
       let select = document.createElement("select");
       select.id = item.valueKey;
       createSpeedList(getShortcutSpeeds(), select);
-      select.value = gm.getValue(item.valueKey, getDefaultSpeed());
+      select.value = String(gm.getValue(item.valueKey, getDefaultSpeed()));
       functionDiv.appendChild(select);
     }
     return functionDiv;
   }
-
   function initializePanel() {
     let panel = document.createElement("div");
     panel.id = "minimalSettingsPanel";
@@ -674,14 +763,13 @@
     const header = document.createElement("div");
     header.className = "panel-header";
     const title = document.createElement("h2");
-    title.textContent = getText("Menu_Settings");
+    title.textContent = getText2("Menu_Settings");
     const subtitle = document.createElement("div");
     subtitle.className = "subtitle";
-    subtitle.textContent = getText("Menu_Subtitle");
+    subtitle.textContent = getText2("Menu_Subtitle");
     header.appendChild(title);
     header.appendChild(subtitle);
     panel.appendChild(header);
-
     const shortcutSpeedListSection = document.createElement("div");
     shortcutSpeedListSection.className = "speed-list-section";
     const shortcutInputRow = document.createElement("div");
@@ -692,24 +780,24 @@
     starSpan.className = "star";
     starSpan.textContent = "★";
     shortcutSpeedListLabel.appendChild(starSpan);
-    shortcutSpeedListLabel.appendChild(document.createTextNode(getText("Menu_ShortcutSpeedList_Label")));
+    shortcutSpeedListLabel.appendChild(document.createTextNode(getText2("Menu_ShortcutSpeedList_Label")));
     shortcutInputRow.appendChild(shortcutSpeedListLabel);
     const shortcutSpeedListInput = document.createElement("input");
     shortcutSpeedListInput.type = "text";
     shortcutSpeedListInput.id = "shortcutSpeedListInput";
-    shortcutSpeedListInput.placeholder = getText("Menu_SpeedList_Placeholder");
-    shortcutSpeedListInput.value = gm.getValue(shortcutSpeedListKey) ?? getShortcutSpeeds().join(",");
+    shortcutSpeedListInput.placeholder = getText2("Menu_SpeedList_Placeholder");
+    shortcutSpeedListInput.value = String(gm.getValue(shortcutSpeedListKey) ?? getShortcutSpeeds().join(","));
     shortcutInputRow.appendChild(shortcutSpeedListInput);
     shortcutSpeedListSection.appendChild(shortcutInputRow);
     const shortcutSeparatorHint = document.createElement("div");
     shortcutSeparatorHint.className = "separator-hint";
     shortcutSeparatorHint.id = "shortcutSeparatorHint";
-    shortcutSeparatorHint.textContent = getText("Menu_SpeedList_Separator");
+    shortcutSeparatorHint.textContent = getText2("Menu_SpeedList_Separator");
     shortcutSpeedListSection.appendChild(shortcutSeparatorHint);
     const shortcutErrorMessage = document.createElement("div");
     shortcutErrorMessage.className = "error-message";
     shortcutErrorMessage.id = "shortcutSpeedListError";
-    shortcutErrorMessage.textContent = getText("Menu_SpeedList_Error");
+    shortcutErrorMessage.textContent = getText2("Menu_SpeedList_Error");
     shortcutSpeedListSection.appendChild(shortcutErrorMessage);
     shortcutSpeedListInput.addEventListener("blur", () => {
       const result = validateSpeedList(shortcutSpeedListInput.value, getCurrentLang());
@@ -717,45 +805,44 @@
       const separatorEl = document.getElementById("shortcutSeparatorHint");
       if (!result.valid) {
         shortcutSpeedListInput.classList.add("error");
-        errorEl.classList.add("show");
-        separatorEl.classList.add("hidden");
+        errorEl?.classList.add("show");
+        separatorEl?.classList.add("hidden");
       } else {
         shortcutSpeedListInput.classList.remove("error");
-        errorEl.classList.remove("show");
-        separatorEl.classList.remove("hidden");
+        errorEl?.classList.remove("show");
+        separatorEl?.classList.remove("hidden");
       }
     });
     shortcutSpeedListInput.addEventListener("input", () => {
       shortcutSpeedListInput.classList.remove("error");
-      document.getElementById("shortcutSpeedListError").classList.remove("show");
-      document.getElementById("shortcutSeparatorHint").classList.remove("hidden");
+      document.getElementById("shortcutSpeedListError")?.classList.remove("show");
+      document.getElementById("shortcutSeparatorHint")?.classList.remove("hidden");
     });
     panel.appendChild(shortcutSpeedListSection);
-
     const buttonSpeedListSection = document.createElement("div");
     buttonSpeedListSection.className = "speed-list-section";
     const buttonInputRow = document.createElement("div");
     buttonInputRow.className = "input-row";
     const buttonSpeedListLabel = document.createElement("div");
     buttonSpeedListLabel.className = "section-label";
-    buttonSpeedListLabel.appendChild(document.createTextNode(getText("Menu_ButtonSpeedList_Label")));
+    buttonSpeedListLabel.appendChild(document.createTextNode(getText2("Menu_ButtonSpeedList_Label")));
     buttonInputRow.appendChild(buttonSpeedListLabel);
     const buttonSpeedListInput = document.createElement("input");
     buttonSpeedListInput.type = "text";
     buttonSpeedListInput.id = "buttonSpeedListInput";
-    buttonSpeedListInput.placeholder = getText("Menu_SpeedList_Placeholder");
-    buttonSpeedListInput.value = gm.getValue(buttonSpeedListKey) ?? getButtonSpeeds().join(",");
+    buttonSpeedListInput.placeholder = getText2("Menu_SpeedList_Placeholder");
+    buttonSpeedListInput.value = String(gm.getValue(buttonSpeedListKey) ?? getButtonSpeeds().join(","));
     buttonInputRow.appendChild(buttonSpeedListInput);
     buttonSpeedListSection.appendChild(buttonInputRow);
     const buttonSeparatorHint = document.createElement("div");
     buttonSeparatorHint.className = "separator-hint";
     buttonSeparatorHint.id = "buttonSeparatorHint";
-    buttonSeparatorHint.textContent = getText("Menu_SpeedList_Separator");
+    buttonSeparatorHint.textContent = getText2("Menu_SpeedList_Separator");
     buttonSpeedListSection.appendChild(buttonSeparatorHint);
     const buttonErrorMessage = document.createElement("div");
     buttonErrorMessage.className = "error-message";
     buttonErrorMessage.id = "buttonSpeedListError";
-    buttonErrorMessage.textContent = getText("Menu_SpeedList_Error");
+    buttonErrorMessage.textContent = getText2("Menu_SpeedList_Error");
     buttonSpeedListSection.appendChild(buttonErrorMessage);
     buttonSpeedListInput.addEventListener("blur", () => {
       const result = validateSpeedList(buttonSpeedListInput.value, getCurrentLang());
@@ -763,21 +850,20 @@
       const separatorEl = document.getElementById("buttonSeparatorHint");
       if (!result.valid) {
         buttonSpeedListInput.classList.add("error");
-        errorEl.classList.add("show");
-        separatorEl.classList.add("hidden");
+        errorEl?.classList.add("show");
+        separatorEl?.classList.add("hidden");
       } else {
         buttonSpeedListInput.classList.remove("error");
-        errorEl.classList.remove("show");
-        separatorEl.classList.remove("hidden");
+        errorEl?.classList.remove("show");
+        separatorEl?.classList.remove("hidden");
       }
     });
     buttonSpeedListInput.addEventListener("input", () => {
       buttonSpeedListInput.classList.remove("error");
-      document.getElementById("buttonSpeedListError").classList.remove("show");
-      document.getElementById("buttonSeparatorHint").classList.remove("hidden");
+      document.getElementById("buttonSpeedListError")?.classList.remove("show");
+      document.getElementById("buttonSeparatorHint")?.classList.remove("hidden");
     });
     panel.appendChild(buttonSpeedListSection);
-
     const settingPanelItems = getSettingPanelItems();
     const actionItems = [];
     const removeItems = [];
@@ -791,7 +877,7 @@
     if (actionItems.length > 0) {
       const actionsTitle = document.createElement("div");
       actionsTitle.className = "section-title";
-      actionsTitle.textContent = getText("Menu_Section_Actions");
+      actionsTitle.textContent = getText2("Menu_Section_Actions");
       panel.appendChild(actionsTitle);
       const actionsList = document.createElement("div");
       actionsList.className = "setting-list";
@@ -803,7 +889,7 @@
     if (removeItems.length > 0) {
       const removeTitle = document.createElement("div");
       removeTitle.className = "section-title";
-      removeTitle.textContent = getText("Menu_Section_Remove");
+      removeTitle.textContent = getText2("Menu_Section_Remove");
       panel.appendChild(removeTitle);
       const removeList = document.createElement("div");
       removeList.className = "setting-list two-columns";
@@ -812,42 +898,39 @@
       }
       panel.appendChild(removeList);
     }
-
     const shortcutContainer = document.createElement("div");
     shortcutContainer.className = "shortcut-container";
     const shortcutTitle = document.createElement("div");
     shortcutTitle.className = "shortcut-title";
-    shortcutTitle.textContent = getText("Menu_Section_Shortcut");
+    shortcutTitle.textContent = getText2("Menu_Section_Shortcut");
     shortcutContainer.appendChild(shortcutTitle);
     const shortcutDesc = document.createElement("div");
-    shortcutDesc.textContent = getText("Menu_Shortcut_Desc");
+    shortcutDesc.textContent = getText2("Menu_Shortcut_Desc");
     shortcutContainer.appendChild(shortcutDesc);
     panel.appendChild(shortcutContainer);
-
     let buttons = document.createElement("div");
     buttons.className = "buttons";
     let saveBtn = document.createElement("button");
     saveBtn.id = "saveBtn";
-    saveBtn.textContent = getText("Menu_Save");
+    saveBtn.textContent = getText2("Menu_Save");
     saveBtn.addEventListener("click", () => saveSettings());
     let closeBtn = document.createElement("button");
     closeBtn.id = "closeBtn";
-    closeBtn.textContent = getText("Menu_Close");
+    closeBtn.textContent = getText2("Menu_Close");
     closeBtn.addEventListener("click", () => togglePanel());
     buttons.appendChild(saveBtn);
     buttons.appendChild(closeBtn);
     panel.appendChild(buttons);
-
     const footer = document.createElement("div");
     footer.className = "panel-footer";
     const authorInfo = document.createElement("div");
     authorInfo.className = "author-info";
     const authorLabel = document.createElement("span");
     authorLabel.className = "author-label";
-    authorLabel.textContent = getText("Menu_Author_Title") + ":";
+    authorLabel.textContent = getText2("Menu_Author_Title") + ":";
     const authorName = document.createElement("span");
     authorName.className = "author-name";
-    authorName.textContent = getText("Menu_Author");
+    authorName.textContent = getText2("Menu_Author");
     authorInfo.appendChild(authorLabel);
     authorInfo.appendChild(authorName);
     footer.appendChild(authorInfo);
@@ -855,7 +938,7 @@
     emailInfo.className = "email-info";
     const emailLabel = document.createElement("span");
     emailLabel.className = "author-label";
-    emailLabel.textContent = getText("Menu_Email") + ":";
+    emailLabel.textContent = getText2("Menu_Email") + ":";
     const emailLink = document.createElement("a");
     emailLink.href = "mailto:julong@111.com";
     emailLink.textContent = "julong@111.com";
@@ -863,21 +946,17 @@
     emailInfo.appendChild(emailLink);
     footer.appendChild(emailInfo);
     panel.appendChild(footer);
-
     document.body.appendChild(panel);
     settingPanelElement = panel;
     settingPanelInitialized = true;
   }
-
   function saveSettings() {
     const shortcutSpeedListInput = document.getElementById("shortcutSpeedListInput");
     const shortcutErrorMessage = document.getElementById("shortcutSpeedListError");
     const shortcutResult = validateSpeedList(shortcutSpeedListInput.value, getCurrentLang());
-
     const buttonSpeedListInput = document.getElementById("buttonSpeedListInput");
     const buttonErrorMessage = document.getElementById("buttonSpeedListError");
     const buttonResult = validateSpeedList(buttonSpeedListInput.value, getCurrentLang());
-
     if (!shortcutResult.valid) {
       shortcutSpeedListInput.classList.add("error");
       shortcutErrorMessage.classList.add("show");
@@ -888,18 +967,14 @@
       buttonErrorMessage.classList.add("show");
       return;
     }
-
     shortcutSpeedListInput.classList.remove("error");
     shortcutErrorMessage.classList.remove("show");
     buttonSpeedListInput.classList.remove("error");
     buttonErrorMessage.classList.remove("show");
-
     gm.setValue(shortcutSpeedListKey, shortcutSpeedListInput.value);
     gm.setValue(buttonSpeedListKey, buttonSpeedListInput.value);
-
     setSpeedLists(shortcutResult.speeds, buttonResult.speeds);
     updateSpeedSelects(shortcutResult.speeds, buttonResult.speeds, shortcutSpeedListInput.value, buttonSpeedListInput.value);
-
     const settingPanelItems = getSettingPanelItems();
     for (const [key, item] of Object.entries(settingPanelItems)) {
       const isChecked = document.getElementById(item.classId).checked;
@@ -909,40 +984,32 @@
         gm.setValue(item.valueKey, value);
       }
     }
-    settingPanelElement.classList.toggle("show");
+    settingPanelElement?.classList.toggle("show");
   }
-
   function togglePanel() {
     if (!settingPanelInitialized) {
       initializePanel();
     } else {
-      const savedShortcutSpeedList = gm.getValue(shortcutSpeedListKey) ?? getShortcutSpeeds().join(",");
+      const savedShortcutSpeedList = String(gm.getValue(shortcutSpeedListKey) ?? getShortcutSpeeds().join(","));
       const shortcutResult = validateSpeedList(savedShortcutSpeedList, getCurrentLang());
-
-      const savedButtonSpeedList = gm.getValue(buttonSpeedListKey) ?? getButtonSpeeds().join(",");
+      const savedButtonSpeedList = String(gm.getValue(buttonSpeedListKey) ?? getButtonSpeeds().join(","));
       const buttonResult = validateSpeedList(savedButtonSpeedList, getCurrentLang());
-
       if (shortcutResult.valid && buttonResult.valid) {
-        updateSpeedSelects(
-          shortcutResult.speeds,
-          buttonResult.speeds,
-          savedShortcutSpeedList,
-          savedButtonSpeedList
-        );
+        updateSpeedSelects(shortcutResult.speeds, buttonResult.speeds, savedShortcutSpeedList, savedButtonSpeedList);
       }
     }
-    settingPanelElement.classList.toggle("show");
+    settingPanelElement?.classList.toggle("show");
   }
 
-  function waitElement(selector, timeout = 10000) {
+  // src/core/element-getter.ts
+  function waitElement(selector, timeout = 1e4) {
     return new Promise((resolve, reject) => {
       const element = document.querySelector(selector);
       if (element) {
         resolve(element);
         return;
       }
-
-      const observer = new MutationObserver((mutations, obs) => {
+      const observer = new MutationObserver((_mutations, obs) => {
         const el = document.querySelector(selector);
         if (el) {
           obs.disconnect();
@@ -950,7 +1017,6 @@
           resolve(el);
         }
       });
-
       const observeTarget = document.documentElement || document.body;
       if (observeTarget) {
         observer.observe(observeTarget, {
@@ -958,43 +1024,41 @@
           subtree: true
         });
       }
-
       const timer = setTimeout(() => {
         observer.disconnect();
         reject(new Error(`Element not found within ${timeout}ms: ${selector}`));
       }, timeout);
     });
   }
-
   function getVideoElement() {
     return document.getElementsByTagName("video")[0] || null;
   }
 
-  let speedIndicatorElement = null;
-  let speedIndicatorTimer = null;
-
+  // src/ui/speed-indicator.ts
+  var speedIndicatorElement = null;
+  var speedIndicatorTimer = null;
   function showSpeedIndicator(rate) {
     if (speedIndicatorTimer) {
       clearTimeout(speedIndicatorTimer);
     }
     if (!speedIndicatorElement) {
-      const indicator = document.createElement("div");
-      indicator.style.position = "fixed";
-      indicator.style.top = "50%";
-      indicator.style.left = "50%";
-      indicator.style.transform = "translate(-50%, -50%)";
-      indicator.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-      indicator.style.color = "white";
-      indicator.style.padding = "10px 20px";
-      indicator.style.borderRadius = "8px";
-      indicator.style.fontSize = "24px";
-      indicator.style.fontWeight = "bold";
-      indicator.style.zIndex = "2147483647";
-      indicator.style.pointerEvents = "none";
-      indicator.style.transition = "opacity 0.3s ease-out";
-      indicator.style.opacity = "0";
-      document.body.appendChild(indicator);
-      speedIndicatorElement = indicator;
+      const indicator2 = document.createElement("div");
+      indicator2.style.position = "fixed";
+      indicator2.style.top = "50%";
+      indicator2.style.left = "50%";
+      indicator2.style.transform = "translate(-50%, -50%)";
+      indicator2.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+      indicator2.style.color = "white";
+      indicator2.style.padding = "10px 20px";
+      indicator2.style.borderRadius = "8px";
+      indicator2.style.fontSize = "24px";
+      indicator2.style.fontWeight = "bold";
+      indicator2.style.zIndex = "2147483647";
+      indicator2.style.pointerEvents = "none";
+      indicator2.style.transition = "opacity 0.3s ease-out";
+      indicator2.style.opacity = "0";
+      document.body.appendChild(indicator2);
+      speedIndicatorElement = indicator2;
     }
     const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
     if (fullscreenElement) {
@@ -1008,30 +1072,33 @@
     }
     speedIndicatorElement.textContent = `${rate}x`;
     speedIndicatorElement.style.opacity = "1";
+    const indicator = speedIndicatorElement;
     speedIndicatorTimer = setTimeout(() => {
-      speedIndicatorElement.style.opacity = "0";
+      indicator.style.opacity = "0";
     }, 500);
   }
 
+  // src/ui/speed-buttons.ts
   function updateSpeedButtonHighlight(rate) {
     const buttons = document.querySelectorAll(".speed-control-button");
     buttons.forEach((button) => button.classList.remove("active"));
     const activeButton = document.querySelector(`.speed-control-button[data-speed="${rate}"]`);
-    if (activeButton) activeButton.classList.add("active");
+    if (activeButton)
+      activeButton.classList.add("active");
   }
-
   function createSpeedButtons(panelCallback, btnClickCallback) {
     if (document.querySelector("#speedButtons")) {
       return;
     }
-
     const speedListDiv = document.createElement("div");
     speedListDiv.id = "speedButtons";
     const isYoutube = window.location.href.includes("youtube.com");
     speedListDiv.classList.add(isYoutube ? "youtube" : "bilibili");
-
     const buttonSpeeds = getButtonSpeeds();
-    for (let i = 0; i < buttonSpeeds.length; i++) {
+    for (let i = 0;i < buttonSpeeds.length; i++) {
+      const speed = buttonSpeeds[i];
+      if (speed === undefined)
+        continue;
       const btn = document.createElement("button");
       btn.className = "speed-control-button";
       if (isYoutube) {
@@ -1039,29 +1106,31 @@
       } else {
         btn.classList.add("bilibili");
       }
-      btn.dataset.speed = buttonSpeeds[i];
-      btn.textContent = buttonSpeeds[i] + "×";
+      btn.dataset.speed = speed;
+      btn.textContent = speed + "×";
       btn.addEventListener("click", () => {
-        btnClickCallback(buttonSpeeds[i]);
+        btnClickCallback(speed);
       });
       speedListDiv.appendChild(btn);
     }
     panelCallback(speedListDiv);
   }
 
+  // src/features/rate.ts
   function setPlaybackRate(rate) {
     const video = getVideoElement();
-    if (!video) return;
-    video.playbackRate = parseFloat(rate);
-    updateSpeedButtonHighlight(rate);
+    if (!video)
+      return;
+    video.playbackRate = parseFloat(String(rate));
+    updateSpeedButtonHighlight(String(rate));
     showSpeedIndicator(rate);
   }
 
-  let shortcutHandler = null;
-
+  // src/features/shortcut.ts
+  var shortcutHandler = null;
   function handleKeydown(event) {
     const target = event.target;
-    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) {
+    if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) {
       return;
     }
     const video = getVideoElement();
@@ -1089,67 +1158,64 @@
     } else {
       return;
     }
-    setPlaybackRate(shortcutSpeeds[newIndex]);
+    setPlaybackRate(shortcutSpeeds[newIndex] ?? shortcutSpeeds[0] ?? "1.0");
   }
-
   function initShortcuts() {
-    if (shortcutHandler) return;
+    if (shortcutHandler)
+      return;
     shortcutHandler = handleKeydown;
     document.addEventListener("keydown", shortcutHandler);
   }
 
+  // src/platforms/router.ts
   function isYoutubePage(url) {
     return url.includes("youtube.com/");
   }
-
   function isYoutubeWatchPage(url) {
     return url.includes("youtube.com/watch");
   }
-
   function isBilibiliVideoPage(url) {
     return url.includes("bilibili.com/video") || url.includes("bilibili.com/bangumi/play");
   }
 
-  const REQUIRED_KEYS = ['id', 'matches', 'isWatchPage', 'init', 'onPage', 'cleanup'];
-
-  // PlatformAdapter 契约：
-  // {
-  //   id: string,                       // 平台标识
-  //   matches(url): boolean,            // 该 URL 是否由本适配器处理（纯函数）
-  //   isWatchPage(url): boolean,        // 该 URL 是否为播放页（纯函数）
-  //   init(onPageChange): void,         // 一次性初始化：注册监听器/观察器，onPageChange 用于 SPA 导航重入
-  //   onPage(): void,                   // 每次进入播放页时执行
-  //   cleanup(): void,                  // 页面卸载时清理定时器/观察器
-  // }
+  // src/platforms/adapter.ts
+  var REQUIRED_KEYS = ["id", "matches", "isWatchPage", "init", "onPage", "cleanup"];
   function definePlatformAdapter(adapter) {
     const missing = REQUIRED_KEYS.filter((key) => !(key in adapter));
     if (missing.length > 0) {
-      throw new Error(`PlatformAdapter missing keys: ${missing.join(', ')}`);
+      throw new Error(`PlatformAdapter missing keys: ${missing.join(", ")}`);
     }
     return Object.freeze({ ...adapter });
   }
 
+  // src/features/removal/config.ts
   function getEnabledRemovalItems(removalItems) {
     const settingPanelItems = getSettingPanelItems();
     const enabledItems = [];
     for (const key in removalItems) {
       const itemConfig = settingPanelItems[key];
-      if (!itemConfig) continue;
+      if (!itemConfig)
+        continue;
+      const item = removalItems[key];
+      if (!item)
+        continue;
       if (gm.getValue(itemConfig.enableKey, false)) {
-        enabledItems.push(removalItems[key]);
+        enabledItems.push(item);
       }
     }
     return enabledItems;
   }
 
+  // src/features/removal/remove-once.ts
   function initYouTubeElementRemover(removalItems) {
     const enabledItems = getEnabledRemovalItems(removalItems);
     for (const item of enabledItems) {
       waitElement(item.selector).then((element) => {
         if (item.mode === "hide") {
-          element.style.width = "0";
-          element.style.overflow = "hidden";
-          element.style.flexShrink = "0";
+          const el = element;
+          el.style.width = "0";
+          el.style.overflow = "hidden";
+          el.style.flexShrink = "0";
         } else {
           element.remove();
         }
@@ -1157,10 +1223,10 @@
     }
   }
 
-  const INTERVAL_YOUTUBE_LIVE_STREAM_CHECK = 1000;
-  const INTERVAL_YOUTUBE_AD_CHECK = 200;
-
-  const youtubeSelectors = {
+  // src/platforms/youtube-constants.ts
+  var INTERVAL_YOUTUBE_LIVE_STREAM_CHECK = 1000;
+  var INTERVAL_YOUTUBE_AD_CHECK = 200;
+  var youtubeSelectors = {
     videoPanel: "#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-right-controls",
     liveStreamIcon: "#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-left-controls > div.ytp-time-display.notranslate.ytp-live > button",
     autoplayToggleBtn: "#movie_player .ytp-autonav-toggle",
@@ -1172,8 +1238,7 @@
     liveStreamClass: "ytp-live-badge-is-livehead",
     adSelector: ".ytp-ad-player-overlay, .ytp-ad-player-overlay-layout"
   };
-
-  const youtubeRemovalItems = {
+  var youtubeRemovalItems = {
     Youtube_Remove_Autoplay: {
       selector: youtubeSelectors.autoplayToggleBtn,
       mode: "remove"
@@ -1196,7 +1261,8 @@
     }
   };
 
-  const youtubeState = {
+  // src/platforms/youtube.ts
+  var youtubeState = {
     liveStreamStatus: false,
     fallbackRate: null,
     adDetected: false,
@@ -1204,20 +1270,12 @@
     liveStreamCheck: null,
     isPageProcessing: false
   };
-
-  const youtubeHandlers = {
-    // theaterMode() {
-    //   waitElement(youtubeSelectors.theaterMode).then((item) => {
-    //     item.click();
-    //   });
-    // },
+  var youtubeHandlers = {
     initListeners() {
       const settingPanelItems = getSettingPanelItems();
       if (youtubeState.fallbackRate === null) {
         const item = settingPanelItems.Youtube_Action_Rate;
-        youtubeState.fallbackRate = parseFloat(
-          gm.getValue(item?.valueKey, getDefaultSpeed())
-        );
+        youtubeState.fallbackRate = parseFloat(String(gm.getValue(item?.valueKey ?? getDefaultSpeed(), getDefaultSpeed())));
       }
       window.addEventListener(youtubeSelectors.finishListener, () => handleYoutubePage());
       youtubeState.liveStreamCheck = setInterval(() => {
@@ -1247,7 +1305,6 @@
       }, INTERVAL_YOUTUBE_AD_CHECK);
     }
   };
-
   function cleanupYoutube() {
     if (youtubeState.liveStreamCheck !== null) {
       clearInterval(youtubeState.liveStreamCheck);
@@ -1259,43 +1316,36 @@
     }
     youtubeState.adDetected = false;
   }
-
   async function handleYoutubePage() {
-    if (youtubeState.isPageProcessing) return;
+    if (youtubeState.isPageProcessing)
+      return;
     youtubeState.isPageProcessing = true;
     const settingPanelItems = getSettingPanelItems();
-
     try {
       let videoPanel = await waitElement(youtubeSelectors.videoPanel);
-      createSpeedButtons(
-        (moreSpeedsDiv) => {
-          videoPanel.before(moreSpeedsDiv);
-          const video = getVideoElement();
-          if (video) {
-            updateSpeedButtonHighlight(video.playbackRate.toString());
-          }
-        },
-        setPlaybackRate
-      );
+      createSpeedButtons((moreSpeedsDiv) => {
+        videoPanel.before(moreSpeedsDiv);
+        const video = getVideoElement();
+        if (video) {
+          updateSpeedButtonHighlight(video.playbackRate.toString());
+        }
+      }, setPlaybackRate);
     } catch (error) {
       console.error("Failed create speed button elements:", error);
     }
-
     const autoRateEnabled = gm.getValue(settingPanelItems.Youtube_Action_Rate?.enableKey, false);
     if (autoRateEnabled) {
       const adOverlay = document.querySelector(youtubeSelectors.adSelector);
       if (!adOverlay) {
-        const rate = parseFloat(gm.getValue(settingPanelItems.Youtube_Action_Rate?.valueKey, getDefaultSpeed()));
+        const rate = parseFloat(String(gm.getValue(settingPanelItems.Youtube_Action_Rate?.valueKey ?? getDefaultSpeed(), getDefaultSpeed())));
         setPlaybackRate(rate);
         youtubeState.liveStreamStatus = false;
       }
     }
-
     youtubeState.isPageProcessing = false;
   }
-
-  const youtubeAdapter = definePlatformAdapter({
-    id: 'youtube',
+  var youtubeAdapter = definePlatformAdapter({
+    id: "youtube",
     matches: (url) => isYoutubePage(url),
     isWatchPage: (url) => isYoutubeWatchPage(url),
     init: () => youtubeHandlers.initListeners(),
@@ -1303,39 +1353,43 @@
       handleYoutubePage();
       initYouTubeElementRemover(youtubeRemovalItems);
     },
-    cleanup: cleanupYoutube,
+    cleanup: cleanupYoutube
   });
 
-  const BILIBILI_REMOVAL_INTERVAL = 1000;
-
+  // src/features/removal/remove-loop.ts
+  var BILIBILI_REMOVAL_INTERVAL = 1000;
   function initBilibiliElementRemover(removalItems, bilibiliSelectors) {
     const enabledItems = getEnabledRemovalItems(removalItems);
     return setInterval(() => {
       const playerEl = document.querySelector(bilibiliSelectors.playerContainer);
-      if (!playerEl) return;
+      if (!playerEl)
+        return;
       const isWebFullScreen = playerEl.classList.contains(bilibiliSelectors.webscreenClass);
       for (const item of enabledItems) {
         const element = document.querySelector(item.selector);
-        if (!element) continue;
+        if (!element)
+          continue;
         if (item.mode === "remove") {
           element.remove();
         } else {
+          const el = element;
           if (isWebFullScreen) {
-            element.style.width = "0";
+            el.style.width = "0";
           } else {
-            element.style.width = "";
+            el.style.width = "";
           }
         }
       }
     }, BILIBILI_REMOVAL_INTERVAL);
   }
 
-  const AUTO_CLOSE_LOGIN_WINDOW_INTERVAL = 1000;
-
+  // src/features/auto-close-login-window.ts
+  var AUTO_CLOSE_LOGIN_WINDOW_INTERVAL = 1000;
   function initAutoCloseLoginWindowGuard(closeBtnSelector, onDialogClosed) {
     return setInterval(() => {
       const closeBtn = document.querySelector(closeBtnSelector);
-      if (!closeBtn) return;
+      if (!closeBtn)
+        return;
       closeBtn.click();
       const video = getVideoElement();
       if (video && video.paused) {
@@ -1347,24 +1401,24 @@
     }, AUTO_CLOSE_LOGIN_WINDOW_INTERVAL);
   }
 
-  const BILIBILI_RATE_RETRY_DELAY = 500;
-
-  const BILIBILI_WEB_FULLSCREEN_GESTURE_WINDOW = 1000;
-
-  const bilibiliSelectors = {
+  // src/platforms/bilibili-constants.ts
+  var BILIBILI_RATE_RETRY_DELAY = 500;
+  var BILIBILI_WEB_FULLSCREEN_GESTURE_WINDOW = 1000;
+  var bilibiliSelectors = {
     playerContainer: "#bilibili-player",
     webscreenClass: "mode-webscreen",
+    speedBtn: ".bpx-player-control-bottom-center",
     videoPanel: ".bpx-player-container",
     commentsPanel: ".bpx-player-sending-bar",
     webFullBtn: ".bpx-player-ctrl-web",
     fullScreenBtn: ".bpx-player-ctrl-full",
     pipBtn: ".bpx-player-ctrl-pip",
     speedsListBtn: ".bpx-player-ctrl-playbackrate",
+    trialConfirmBtn: ".bpx-player-toast-confirm-login",
     LoginWindowCloseBtn: ".bili-mini-close-icon",
     speedBtnPostionTarget: ".bpx-player-control-bottom-right"
   };
-
-  const bilibiliRemovalItems = {
+  var bilibiliRemovalItems = {
     Bilibili_Remove_Pip: {
       selector: bilibiliSelectors.pipBtn,
       mode: "remove"
@@ -1379,85 +1433,80 @@
     }
   };
 
-  const bilibiliState = {
+  // src/platforms/bilibili.ts
+  var bilibiliState = {
     removalInterval: null,
     autoCloseLoginWindowInterval: null,
     urlObserver: null,
-    lastUrl: '',
-    displayMode: 'normal',
-    desiredMode: 'normal',
+    lastUrl: "",
+    displayMode: "normal",
+    desiredMode: "normal",
     lastUserGesture: 0,
     webFullscreenObserver: null,
     gestureListenersRegistered: false,
     removeGestureListeners: null
   };
-
   function markUserGesture() {
     bilibiliState.lastUserGesture = Date.now();
   }
-
   function getDisplayMode() {
-    if (document.fullscreenElement) return 'fullscreen';
+    if (document.fullscreenElement)
+      return "fullscreen";
     const container = document.querySelector(bilibiliSelectors.videoPanel);
-    const screen = container ? container.getAttribute('data-screen') : null;
-    if (screen === 'web') return 'web-fullscreen';
-    if (screen === 'full') return 'fullscreen';
-    return 'normal';
+    const screen = container ? container.getAttribute("data-screen") : null;
+    if (screen === "web")
+      return "web-fullscreen";
+    if (screen === "full")
+      return "fullscreen";
+    return "normal";
   }
-
   function updateDisplayMode() {
     const mode = getDisplayMode();
-    if (mode === bilibiliState.displayMode) return;
+    if (mode === bilibiliState.displayMode)
+      return;
     bilibiliState.displayMode = mode;
-    if (mode === 'normal') {
+    if (mode === "normal") {
       if (Date.now() - bilibiliState.lastUserGesture < BILIBILI_WEB_FULLSCREEN_GESTURE_WINDOW) {
-        bilibiliState.desiredMode = 'normal';
+        bilibiliState.desiredMode = "normal";
       }
       return;
     }
     bilibiliState.desiredMode = mode;
     bilibiliState.lastUserGesture = 0;
   }
-
   function markUserExitMode() {
     const mode = getDisplayMode();
-    if (mode === 'web-fullscreen' || mode === 'fullscreen') {
-      bilibiliState.desiredMode = 'normal';
+    if (mode === "web-fullscreen" || mode === "fullscreen") {
+      bilibiliState.desiredMode = "normal";
     }
   }
-
   function onFullscreenControlKeydown(e) {
     markUserGesture();
-    if (e.key === 'Escape' || e.key === 'Esc' || e.key === 'f' || e.key === 'F') {
+    if (e.key === "Escape" || e.key === "Esc" || e.key === "f" || e.key === "F") {
       markUserExitMode();
     }
   }
-
   function onFullscreenControlClick(e) {
     const mode = getDisplayMode();
-    if (
-      (mode === 'fullscreen' && e.target.closest?.(bilibiliSelectors.fullScreenBtn)) ||
-      (mode === 'web-fullscreen' && e.target.closest?.(bilibiliSelectors.webFullBtn))
-    ) {
+    if (mode === "fullscreen" && e.target?.closest?.(bilibiliSelectors.fullScreenBtn) || mode === "web-fullscreen" && e.target?.closest?.(bilibiliSelectors.webFullBtn)) {
       markUserExitMode();
     }
   }
-
   function ensureDisplayModeListeners() {
-    if (bilibiliState.gestureListenersRegistered) return;
-    window.addEventListener('pointerdown', markUserGesture, true);
-    window.addEventListener('keydown', onFullscreenControlKeydown, true);
-    document.addEventListener('click', onFullscreenControlClick, true);
-    document.addEventListener('fullscreenchange', updateDisplayMode);
+    if (bilibiliState.gestureListenersRegistered)
+      return;
+    window.addEventListener("pointerdown", markUserGesture, true);
+    window.addEventListener("keydown", onFullscreenControlKeydown, true);
+    document.addEventListener("click", onFullscreenControlClick, true);
+    document.addEventListener("fullscreenchange", updateDisplayMode);
     bilibiliState.removeGestureListeners = () => {
-      window.removeEventListener('pointerdown', markUserGesture, true);
-      window.removeEventListener('keydown', onFullscreenControlKeydown, true);
-      document.removeEventListener('click', onFullscreenControlClick, true);
-      document.removeEventListener('fullscreenchange', updateDisplayMode);
+      window.removeEventListener("pointerdown", markUserGesture, true);
+      window.removeEventListener("keydown", onFullscreenControlKeydown, true);
+      document.removeEventListener("click", onFullscreenControlClick, true);
+      document.removeEventListener("fullscreenchange", updateDisplayMode);
     };
     bilibiliState.gestureListenersRegistered = true;
   }
-
   function removeDisplayModeListeners() {
     if (bilibiliState.gestureListenersRegistered) {
       bilibiliState.removeGestureListeners?.();
@@ -1465,7 +1514,6 @@
       bilibiliState.gestureListenersRegistered = false;
     }
   }
-
   function setupDisplayModeTracking() {
     if (bilibiliState.webFullscreenObserver) {
       bilibiliState.webFullscreenObserver.disconnect();
@@ -1474,18 +1522,19 @@
     bilibiliState.displayMode = getDisplayMode();
     bilibiliState.desiredMode = bilibiliState.displayMode;
     waitElement(bilibiliSelectors.videoPanel).then((container) => {
-      if (bilibiliState.webFullscreenObserver) return;
+      if (bilibiliState.webFullscreenObserver)
+        return;
       updateDisplayMode();
       const observer = new MutationObserver(updateDisplayMode);
-      observer.observe(container, { attributes: true, attributeFilter: ['data-screen'] });
+      observer.observe(container, { attributes: true, attributeFilter: ["data-screen"] });
       bilibiliState.webFullscreenObserver = observer;
     }).catch(() => {});
   }
-
-  const bilibiliHandlers = {
+  var bilibiliHandlers = {
     webFullscreen() {
       waitElement(bilibiliSelectors.videoPanel).then(() => {
-        if (getDisplayMode() === 'web-fullscreen') return;
+        if (getDisplayMode() === "web-fullscreen")
+          return;
         waitElement(bilibiliSelectors.webFullBtn).then((item) => {
           item.click();
         });
@@ -1493,7 +1542,8 @@
     },
     enterFullscreen() {
       waitElement(bilibiliSelectors.videoPanel).then(() => {
-        if (getDisplayMode() === 'fullscreen') return;
+        if (getDisplayMode() === "fullscreen")
+          return;
         waitElement(bilibiliSelectors.fullScreenBtn).then((item) => {
           item.click();
         });
@@ -1526,20 +1576,16 @@
         bilibiliState.autoCloseLoginWindowInterval = null;
       }
       if (gm.getValue(settingPanelItems.Bilibili_Action_AutoCloseLoginWindow?.enableKey, false)) {
-        bilibiliState.autoCloseLoginWindowInterval = initAutoCloseLoginWindowGuard(
-          bilibiliSelectors.LoginWindowCloseBtn,
-          () => {
-            if (bilibiliState.desiredMode === 'web-fullscreen') {
-              bilibiliHandlers.webFullscreen();
-            } else if (bilibiliState.desiredMode === 'fullscreen') {
-              bilibiliHandlers.enterFullscreen();
-            }
+        bilibiliState.autoCloseLoginWindowInterval = initAutoCloseLoginWindowGuard(bilibiliSelectors.LoginWindowCloseBtn, () => {
+          if (bilibiliState.desiredMode === "web-fullscreen") {
+            bilibiliHandlers.webFullscreen();
+          } else if (bilibiliState.desiredMode === "fullscreen") {
+            bilibiliHandlers.enterFullscreen();
           }
-        );
+        });
       }
     }
   };
-
   function cleanupBilibili() {
     if (bilibiliState.removalInterval !== null) {
       clearInterval(bilibiliState.removalInterval);
@@ -1558,13 +1604,11 @@
       bilibiliState.webFullscreenObserver = null;
     }
     removeDisplayModeListeners();
-    bilibiliState.displayMode = 'normal';
-    bilibiliState.desiredMode = 'normal';
+    bilibiliState.displayMode = "normal";
+    bilibiliState.desiredMode = "normal";
   }
-
   function handleBilibiliPage() {
     const settingPanelItems = getSettingPanelItems();
-
     waitElement(bilibiliSelectors.speedBtnPostionTarget).then((targetContainer) => {
       if (targetContainer) {
         createSpeedButtons((moreSpeedsDiv) => {
@@ -1580,10 +1624,9 @@
         }, setPlaybackRate);
       }
     });
-
     const autoRateEnabled = gm.getValue(settingPanelItems.Bilibili_Action_Rate?.enableKey, false);
     if (autoRateEnabled) {
-      const rate = parseFloat(gm.getValue(settingPanelItems.Bilibili_Action_Rate?.valueKey, getDefaultSpeed()));
+      const rate = parseFloat(String(gm.getValue(settingPanelItems.Bilibili_Action_Rate?.valueKey ?? getDefaultSpeed(), getDefaultSpeed())));
       let retryCount = 0;
       const setRateWithRetry = () => {
         const video = getVideoElement();
@@ -1600,9 +1643,8 @@
       setRateWithRetry();
     }
   }
-
-  const bilibiliAdapter = definePlatformAdapter({
-    id: 'bilibili',
+  var bilibiliAdapter = definePlatformAdapter({
+    id: "bilibili",
     matches: (url) => isBilibiliVideoPage(url),
     isWatchPage: (url) => isBilibiliVideoPage(url),
     init: (onPageChange) => bilibiliHandlers.initUrlObserver(onPageChange),
@@ -1617,69 +1659,59 @@
       ensureDisplayModeListeners();
       setupDisplayModeTracking();
     },
-    cleanup: cleanupBilibili,
+    cleanup: cleanupBilibili
   });
 
-  const adapters = [youtubeAdapter, bilibiliAdapter];
-
-  const sys = {
+  // src/main.ts
+  var adapters = [youtubeAdapter, bilibiliAdapter];
+  var sys = {
     initialized: false,
     isMainRunning: false,
-    currentLang: 'en'
+    currentLang: "en"
   };
-
   function logSection(msg) {
     console.log(`========== ${msg} ==========`);
   }
-
   function getAdapter(url) {
     return adapters.find((adapter) => adapter.matches(url)) || null;
   }
-
   function main() {
-    if (sys.isMainRunning) return;
+    if (sys.isMainRunning)
+      return;
     sys.isMainRunning = true;
     logSection("main 开始执行");
     const url = window.location.href;
-
     if (!sys.initialized) {
       sys.currentLang = detectLanguage();
       initSettings(url);
-
       logSection("执行一次性初始化");
       injectStyles();
       gm.registerMenuCommand(t("Menu_Settings", sys.currentLang), togglePanel);
       initShortcuts();
-
-      const adapter = getAdapter(url);
-      if (adapter) {
-        adapter.init(() => main());
+      const adapter2 = getAdapter(url);
+      if (adapter2) {
+        adapter2.init(() => main());
       }
-
       const isFirstRun = gm.getValue("firstRunComplete", false);
       if (!isFirstRun) {
         gm.setValue("firstRunComplete", true);
         setTimeout(() => togglePanel(), 500);
       }
-
       sys.initialized = true;
       logSection("一次性初始化完成");
     }
-
     const adapter = getAdapter(url);
     if (adapter && adapter.isWatchPage(url)) {
       adapter.onPage();
     }
-
     logSection("main 执行完毕");
     sys.isMainRunning = false;
   }
-
-  const cleanup = () => {
+  var cleanup = () => {
     adapters.forEach((adapter) => adapter.cleanup());
   };
 
+  // src/entry.ts
   window.addEventListener("beforeunload", cleanup);
   main();
-
 })();

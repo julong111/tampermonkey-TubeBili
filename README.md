@@ -24,21 +24,27 @@ TubeBili是一款专为油猴用户设计的强大视频增强脚本，旨在显
 
 ## 🛠 开发者：本地构建
 
-> 从 v2.0.2 开始，源代码采用模块化结构，通过 Rollup 构建产出最终脚本。
+> 从 v2.1.1 开始，项目已全量迁移至 Bun 工具链：源码与测试均为 TypeScript（strict），用 Bun.build 产出最终脚本，用 bun:test 运行测试。
 
-**前置要求：** Node.js >= 18
+**前置要求：** [Bun](https://bun.sh) >= 1.3
 
 ```bash
 # 安装依赖
-npm install
+bun install
 
-# 构建两个版本（输出到 dist/）
-npm run build
+# 构建
+bun run build
+
+# 运行测试
+bun test
+
+# 类型检查
+bun run typecheck
 
 # 输出文件：
-#   dist/v2.1/TubeBili.user.js        - Tampermonkey 标准版（当前版本）
-#   dist/v2.1/TubeBili.userscripts.js - Safari Userscripts 通用版（当前版本）
-#   dist/latest/TubeBili.user.js      - Tampermonkey 标准版（最新版）
+#   dist/v2.1.1/TubeBili.user.js        - Tampermonkey 标准版（当前版本）
+#   dist/v2.1.1/TubeBili.userscripts.js - Safari Userscripts 通用版（当前版本）
+#   dist/latest/TubeBili.user.js        - Tampermonkey 标准版（最新版）
 #   dist/latest/TubeBili.userscripts.js - Safari Userscripts 通用版（最新版）
 ```
 
@@ -46,38 +52,40 @@ npm run build
 
 ```
 src/
+├── entry.ts              # 构建入口（beforeunload 清理 + main() 自动执行）
+├── main.ts               # 主流程（路由编排，只依赖 PlatformAdapter 接口）
 ├── core/
-│   ├── gm-api.js           # GM API 适配层（按平台条件编译）
-│   ├── element-getter.js   # Element 等待工具（waitElement / getVideoElement）
-│   ├── i18n.js             # 国际化函数（t / detectLanguage）
-│   └── i18n-constants.js   # 国际化字典（常量）
-├── main.js                 # 入口（路由编排，只依赖 PlatformAdapter 接口）
+│   ├── gm-api.ts         # GM API 适配层（按 __TARGET__ 条件分支）
+│   ├── element-getter.ts # Element 等待工具（waitElement / getVideoElement）
+│   ├── i18n.ts           # 国际化函数（t / detectLanguage）
+│   └── i18n-constants.ts # 国际化字典（常量）
 ├── settings/
-│   ├── speed-list.js       # 倍速列表校验函数（纯函数）
-│   ├── speed-list-constants.js # 倍速列表键名与默认值（常量）
-│   ├── catalog.js          # 平台设置项目录（纯数据）
-│   └── store.js            # 全局状态唯一 store
+│   ├── speed-list.ts     # 倍速列表校验函数（纯函数）
+│   ├── speed-list-constants.ts # 倍速列表键名与默认值（常量）
+│   ├── catalog.ts        # 平台设置项目录（纯数据）
+│   └── store.ts          # 全局状态唯一 store
 ├── ui/
-│   ├── settings-panel.js   # 设置面板（DOM）
-│   ├── speed-buttons.js    # 倍速按钮 UI
-│   ├── speed-indicator.js  # 倍速悬浮提示 UI
-│   ├── floating-button.js  # 悬浮按钮 UI
-│   └── styles.js           # CSS 样式
+│   ├── settings-panel.ts # 设置面板（DOM）
+│   ├── speed-buttons.ts  # 倍速按钮 UI
+│   ├── speed-indicator.ts # 倍速悬浮提示 UI
+│   ├── floating-button.ts # 悬浮按钮 UI
+│   └── styles.ts         # CSS 样式
 ├── features/
-│   ├── rate.js             # 自动倍速动作
-│   ├── shortcut.js         # 快捷键
-│   ├── auto-close-login-window.js # 登录弹窗自动关闭守卫
+│   ├── rate.ts           # 自动倍速动作
+│   ├── shortcut.ts       # 快捷键
+│   ├── auto-close-login-window.ts # 登录弹窗自动关闭守卫
 │   └── removal/
-│       ├── config.js       # 启用项过滤
-│       ├── remove-once.js  # YouTube 一次性移除策略
-│       └── remove-loop.js  # Bilibili 轮询移除策略
-└── platforms/
-    ├── adapter.js          # PlatformAdapter 契约（definePlatformAdapter）
-    ├── router.js           # URL 检测纯函数
-    ├── youtube.js          # YouTube 适配器（逻辑）
-    ├── youtube-constants.js # YouTube 选择器/移除项/间隔（常量）
-    ├── bilibili.js         # Bilibili 适配器（逻辑）
-    └── bilibili-constants.js # Bilibili 选择器/移除项/间隔（常量）
+│       ├── config.ts     # 启用项过滤
+│       ├── remove-once.ts # YouTube 一次性移除策略
+│       └── remove-loop.ts # Bilibili 轮询移除策略
+├── platforms/
+│   ├── adapter.ts        # PlatformAdapter 契约（definePlatformAdapter）
+│   ├── router.ts         # URL 检测纯函数
+│   ├── youtube.ts        # YouTube 适配器（逻辑）
+│   ├── youtube-constants.ts # YouTube 选择器/移除项/间隔（常量）
+│   ├── bilibili.ts       # Bilibili 适配器（逻辑）
+│   └── bilibili-constants.ts # Bilibili 选择器/移除项/间隔（常量）
+└── __tests__/            # bun:test 测试（行为 mock，无真实 DOM）
 ```
 
 ---

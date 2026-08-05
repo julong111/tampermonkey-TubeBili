@@ -22,6 +22,74 @@ TubeBili is a powerful userscript designed specifically for Tampermonkey users, 
 ![CN-UI-2-Bilibili](https://raw.githubusercontent.com/julong111/tampermonkey-TubeBili/refs/heads/main/resources/CN-UI-2-Bilibili.png)
 
 
+## 🛠 Developers: Local Build
+
+> Since v2.1.1, the project has been fully migrated to the Bun toolchain: source code and tests are TypeScript (strict), built with Bun.build, and tested with bun:test.
+
+**Prerequisites:** [Bun](https://bun.sh) >= 1.3
+
+```bash
+# Install dependencies
+bun install
+
+# Build
+bun run build
+
+# Run tests
+bun test
+
+# Type checking
+bun run typecheck
+
+# Output files:
+#   dist/v2.1.1/TubeBili.user.js        - Tampermonkey standard version (current)
+#   dist/v2.1.1/TubeBili.userscripts.js - Safari Userscripts universal version (current)
+#   dist/latest/TubeBili.user.js        - Tampermonkey standard version (latest)
+#   dist/latest/TubeBili.userscripts.js - Safari Userscripts universal version (latest)
+```
+
+**Source structure:**
+
+```
+src/
+├── entry.ts              # Build entry (beforeunload cleanup + main() auto-run)
+├── main.ts               # Main flow (routing orchestration, depends only on PlatformAdapter interface)
+├── core/
+│   ├── gm-api.ts         # GM API adapter layer (branches on __TARGET__)
+│   ├── element-getter.ts # Element wait utilities (waitElement / getVideoElement)
+│   ├── i18n.ts           # i18n functions (t / detectLanguage)
+│   └── i18n-constants.ts # i18n dictionary (constants)
+├── settings/
+│   ├── speed-list.ts     # Speed list validation (pure functions)
+│   ├── speed-list-constants.ts # Speed list keys and defaults (constants)
+│   ├── catalog.ts        # Platform settings catalog (pure data)
+│   └── store.ts          # Single global state store
+├── ui/
+│   ├── settings-panel.ts # Settings panel (DOM)
+│   ├── speed-buttons.ts  # Speed button UI
+│   ├── speed-indicator.ts # Speed indicator UI
+│   ├── floating-button.ts # Floating button UI
+│   └── styles.ts         # CSS styles
+├── features/
+│   ├── rate.ts           # Auto playback speed action
+│   ├── shortcut.ts       # Keyboard shortcuts
+│   ├── auto-close-login-window.ts # Login dialog auto-close guard
+│   └── removal/
+│       ├── config.ts     # Enabled item filtering
+│       ├── remove-once.ts # YouTube one-shot removal strategy
+│       └── remove-loop.ts # Bilibili polling removal strategy
+├── platforms/
+│   ├── adapter.ts        # PlatformAdapter contract (definePlatformAdapter)
+│   ├── router.ts         # URL detection pure functions
+│   ├── youtube.ts        # YouTube adapter (logic)
+│   ├── youtube-constants.ts # YouTube selectors/removal items/intervals (constants)
+│   ├── bilibili.ts       # Bilibili adapter (logic)
+│   └── bilibili-constants.ts # Bilibili selectors/removal items/intervals (constants)
+└── __tests__/            # bun:test tests (behavior mocks, no real DOM)
+```
+
+---
+
 ## 📦 Quick Start
 
 This project provides two versions. Please choose according to your userscript manager:
