@@ -4,6 +4,7 @@ import { createDocumentMock, type ElementStub } from '../helpers/mock-document.t
 import { createVideoMock } from '../helpers/mock-video.ts'
 import { initSettings, resetSettings } from '../../settings/store.ts'
 import { youtubeHandlers, cleanupYoutube } from '../../platforms/youtube.ts'
+import { setPlaybackRate } from '../../features/rate.ts'
 
 const AD_SELECTOR = '.ytp-ad-player-overlay, .ytp-ad-player-overlay-layout'
 const SKIP_SELECTOR = '.ytp-skip-ad-button'
@@ -144,6 +145,22 @@ describe('youtube skip-ad — 自动点击跳过广告按钮', () => {
     vi.advanceTimersByTime(2000)
     expect(skipBtn.click).toHaveBeenCalledTimes(1)
     expect(video.currentTime).toBe(5)
+  })
+
+  test('广告结束后恢复广告前的用户倍速，而非配置默认倍速', () => {
+    setupAdEnvironment(true)
+    setPlaybackRate(1.0)
+
+    vi.advanceTimersByTime(200)
+    expect(video.playbackRate).toBe(1)
+
+    doc.querySelector.mockImplementation((selector) => {
+      if (selector === SKIP_SELECTOR) return skipBtn
+      return null
+    })
+
+    vi.advanceTimersByTime(200)
+    expect(video.playbackRate).toBe(1.0)
   })
 
   test('广告中关闭开关后立即停止点击', () => {

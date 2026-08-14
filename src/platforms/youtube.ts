@@ -4,8 +4,9 @@ import { isYoutubePage, isYoutubeWatchPage } from './router.js';
 import { definePlatformAdapter } from './adapter.js';
 import type { PlatformAdapter } from './adapter.js';
 import { getSettingPanelItems, getDefaultSpeed } from '../settings/store.js';
-import { setPlaybackRate } from '../features/rate.js';
+import { setPlaybackRate, setUserRateChangeListener } from '../features/rate.js';
 import { createSpeedButtons, updateSpeedButtonHighlight } from '../ui/speed-buttons.js';
+import { showSpeedIndicator } from '../ui/speed-indicator.js';
 import { initYouTubeElementRemover } from '../features/removal/remove-once.js';
 import {
   INTERVAL_YOUTUBE_LIVE_STREAM_CHECK,
@@ -33,6 +34,14 @@ const youtubeState: {
   isPageProcessing: false
 };
 
+function setRateInternal(rate: number): void {
+  const video = getVideoElement();
+  if (!video) return;
+  video.playbackRate = rate;
+  updateSpeedButtonHighlight(String(rate));
+  showSpeedIndicator(rate);
+}
+
 export const youtubeHandlers = {
   // theaterMode() {
   //   waitElement(youtubeSelectors.theaterMode).then((item) => {
@@ -54,6 +63,9 @@ export const youtubeHandlers = {
         String(gm.getValue(item?.valueKey ?? getDefaultSpeed(), getDefaultSpeed()))
       );
     }
+    setUserRateChangeListener((rate) => {
+      youtubeState.fallbackRate = rate;
+    });
     window.addEventListener(youtubeSelectors.finishListener, () => handleYoutubePage());
     youtubeState.liveStreamCheck = setInterval(() => {
       const element = document.querySelector(youtubeSelectors.liveStreamIcon);
@@ -61,10 +73,10 @@ export const youtubeHandlers = {
       const isWatchPage = isYoutubeWatchPage(window.location.href);
       if (isWatchPage) {
         if (isLive && !youtubeState.liveStreamStatus) {
-          setPlaybackRate(1);
+          setRateInternal(1);
           youtubeState.liveStreamStatus = true;
         } else if (!isLive && youtubeState.liveStreamStatus) {
-          setPlaybackRate(youtubeState.fallbackRate as number);
+          setRateInternal(youtubeState.fallbackRate as number);
           youtubeState.liveStreamStatus = false;
         }
       }
@@ -73,7 +85,7 @@ export const youtubeHandlers = {
       const adOverlay = document.querySelector(youtubeSelectors.adSelector);
       const video = getVideoElement();
       if (adOverlay && !youtubeState.adDetected && video) {
-        setPlaybackRate(1);
+        setRateInternal(1);
         youtubeState.adDetected = true;
         if (
           skipAdEnableKey &&
@@ -99,7 +111,7 @@ export const youtubeHandlers = {
           }, INTERVAL_YOUTUBE_SKIP_AD_CHECK);
         }
       } else if (!adOverlay && youtubeState.adDetected && video) {
-        setPlaybackRate(youtubeState.fallbackRate as number);
+        setRateInternal(youtubeState.fallbackRate as number);
         youtubeState.adDetected = false;
         stopSkipAdCheck();
       }
@@ -121,6 +133,7 @@ export function cleanupYoutube() {
     youtubeState.skipAdCheckInterval = null;
   }
   youtubeState.adDetected = false;
+  setUserRateChangeListener(null);
 }
 
 export async function handleYoutubePage(): Promise<void> {

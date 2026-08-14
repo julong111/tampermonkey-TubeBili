@@ -12,11 +12,11 @@ describe('youtube constants — 自动点击跳过广告', () => {
   })
 
   test('skip 检查间隔为 1000ms', () => {
-    expect(INTERVAL_YOUTUBE_SKIP_AD_CHECK).toBe(1000)
+    expect(INTERVAL_YOUTUBE_SKIP_AD_CHECK).toBe(500)
   })
 
   test('广告检测选择器保持存在', () => {
     expect(youtubeSelectors.adSelector).toBe('.ytp-ad-player-overlay, .ytp-ad-player-overlay-layout')
-    expect(INTERVAL_YOUTUBE_AD_CHECK).toBe(200)
+    expect(INTERVAL_YOUTUBE_AD_CHECK).toBe(500)
   })
 })

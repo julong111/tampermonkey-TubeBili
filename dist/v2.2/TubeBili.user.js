@@ -1125,13 +1125,19 @@
   }
 
   // src/features/rate.ts
+  var userRateChangeListener = null;
+  function setUserRateChangeListener(listener) {
+    userRateChangeListener = listener;
+  }
   function setPlaybackRate(rate) {
     const video = getVideoElement();
     if (!video)
       return;
-    video.playbackRate = parseFloat(String(rate));
+    const parsedRate = parseFloat(String(rate));
+    video.playbackRate = parsedRate;
     updateSpeedButtonHighlight(String(rate));
     showSpeedIndicator(rate);
+    userRateChangeListener?.(parsedRate);
   }
 
   // src/features/shortcut.ts
@@ -1233,8 +1239,8 @@
 
   // src/platforms/youtube-constants.ts
   var INTERVAL_YOUTUBE_LIVE_STREAM_CHECK = 1000;
-  var INTERVAL_YOUTUBE_AD_CHECK = 200;
-  var INTERVAL_YOUTUBE_SKIP_AD_CHECK = 1000;
+  var INTERVAL_YOUTUBE_AD_CHECK = 500;
+  var INTERVAL_YOUTUBE_SKIP_AD_CHECK = 500;
   var youtubeSelectors = {
     videoPanel: "#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-right-controls",
     liveStreamIcon: "#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-left-controls > div.ytp-time-display.notranslate.ytp-live > button",
@@ -1281,6 +1287,14 @@
     liveStreamCheck: null,
     isPageProcessing: false
   };
+  function setRateInternal(rate) {
+    const video = getVideoElement();
+    if (!video)
+      return;
+    video.playbackRate = rate;
+    updateSpeedButtonHighlight(String(rate));
+    showSpeedIndicator(rate);
+  }
   var youtubeHandlers = {
     initListeners() {
       const settingPanelItems = getSettingPanelItems();
@@ -1295,6 +1309,9 @@
         const item = settingPanelItems.Youtube_Action_Rate;
         youtubeState.fallbackRate = parseFloat(String(gm.getValue(item?.valueKey ?? getDefaultSpeed(), getDefaultSpeed())));
       }
+      setUserRateChangeListener((rate) => {
+        youtubeState.fallbackRate = rate;
+      });
       window.addEventListener(youtubeSelectors.finishListener, () => handleYoutubePage());
       youtubeState.liveStreamCheck = setInterval(() => {
         const element = document.querySelector(youtubeSelectors.liveStreamIcon);
@@ -1302,10 +1319,10 @@
         const isWatchPage = isYoutubeWatchPage(window.location.href);
         if (isWatchPage) {
           if (isLive && !youtubeState.liveStreamStatus) {
-            setPlaybackRate(1);
+            setRateInternal(1);
             youtubeState.liveStreamStatus = true;
           } else if (!isLive && youtubeState.liveStreamStatus) {
-            setPlaybackRate(youtubeState.fallbackRate);
+            setRateInternal(youtubeState.fallbackRate);
             youtubeState.liveStreamStatus = false;
           }
         }
@@ -1314,7 +1331,7 @@
         const adOverlay = document.querySelector(youtubeSelectors.adSelector);
         const video = getVideoElement();
         if (adOverlay && !youtubeState.adDetected && video) {
-          setPlaybackRate(1);
+          setRateInternal(1);
           youtubeState.adDetected = true;
           if (skipAdEnableKey && gm.getValue(skipAdEnableKey, false) && youtubeState.skipAdCheckInterval === null) {
             youtubeState.skipAdCheckInterval = setInterval(() => {
@@ -1336,7 +1353,7 @@
             }, INTERVAL_YOUTUBE_SKIP_AD_CHECK);
           }
         } else if (!adOverlay && youtubeState.adDetected && video) {
-          setPlaybackRate(youtubeState.fallbackRate);
+          setRateInternal(youtubeState.fallbackRate);
           youtubeState.adDetected = false;
           stopSkipAdCheck();
         }
@@ -1357,6 +1374,7 @@
       youtubeState.skipAdCheckInterval = null;
     }
     youtubeState.adDetected = false;
+    setUserRateChangeListener(null);
   }
   async function handleYoutubePage() {
     if (youtubeState.isPageProcessing)
