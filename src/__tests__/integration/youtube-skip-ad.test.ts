@@ -41,12 +41,17 @@ beforeEach(() => {
   stubGlobal('window', {
     location: { href: 'https://www.youtube.com/watch?v=test' },
     addEventListener: mock(() => {}),
-    removeEventListener: mock(() => {})
+    removeEventListener: mock(() => {}),
+    getComputedStyle: mock((el: unknown) => {
+      const style = (el as { style?: Record<string, string> }).style
+      return { opacity: style?.opacity ?? '1' }
+    })
   })
   video = createVideoMock()
   adOverlay = doc.createElement('div')
   skipBtn = doc.createElement('div')
   skipBtn.className = 'ytp-skip-ad-button'
+  skipBtn.offsetParent = adOverlay
   resetSettings()
   vi.useFakeTimers()
 })
@@ -76,6 +81,26 @@ describe('youtube skip-ad — 自动点击跳过广告按钮', () => {
       if (selector === AD_SELECTOR) return adOverlay
       return null
     })
+
+    vi.advanceTimersByTime(200)
+    vi.advanceTimersByTime(2000)
+
+    expect(skipBtn.click).not.toHaveBeenCalled()
+  })
+
+  test('skip 按钮存在但未显示（offsetParent 为 null）时不点击', () => {
+    setupAdEnvironment(true)
+    skipBtn.offsetParent = null
+
+    vi.advanceTimersByTime(200)
+    vi.advanceTimersByTime(2000)
+
+    expect(skipBtn.click).not.toHaveBeenCalled()
+  })
+
+  test('skip 按钮存在但半透明（倒计时中 opacity 0.5）时不点击', () => {
+    setupAdEnvironment(true)
+    skipBtn.style.opacity = '0.5'
 
     vi.advanceTimersByTime(200)
     vi.advanceTimersByTime(2000)

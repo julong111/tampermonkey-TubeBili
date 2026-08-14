@@ -85,9 +85,9 @@ export const youtubeHandlers = {
               stopSkipAdCheck();
               return;
             }
-            const skipBtn = document.querySelector(youtubeSelectors.skipAdButton);
-            if (skipBtn && typeof (skipBtn as HTMLElement).click === 'function') {
-              (skipBtn as HTMLElement).click();
+            const skipBtn = document.querySelector(youtubeSelectors.skipAdButton) as HTMLElement | null;
+            if (skipBtn && skipBtn.offsetParent !== null && window.getComputedStyle(skipBtn).opacity === '1') {
+              skipBtn.click();
             }
           }, INTERVAL_YOUTUBE_SKIP_AD_CHECK);
         }

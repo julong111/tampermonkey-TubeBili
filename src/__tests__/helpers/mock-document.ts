@@ -13,6 +13,7 @@ export type ElementStub = {
   children: ElementStub[]
   firstChild: ElementStub | null
   parentNode: ElementStub | null
+  offsetParent: ElementStub | null
   classList: {
     add: Mock<(tokens: string) => void>
     remove: Mock<(tokens: string) => void>
@@ -49,6 +50,7 @@ export function createElementStub(tagName = 'div'): ElementStub {
     children: [],
     firstChild: null,
     parentNode: null,
+    offsetParent: null,
     classList: {
       add: mock((token: string) => {
         classes.add(token)
