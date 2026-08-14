@@ -1,4 +1,5 @@
 // ==UserScript==
+// Tampermonkey
 // @name               ${namezh}
 // @name:en            ${nameen}
 // @namespace          ${namespace}

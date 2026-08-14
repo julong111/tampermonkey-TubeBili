@@ -121,6 +121,10 @@ Download and install the script here: [TubeBili.userscripts.js](https://raw.gith
 
 All notable changes to this project will be documented in this file. We truly appreciate every user's support and suggestions!
 
+#### [2.2] (2026-08-14) [New Feature]
+* **New Auto Skip Ad on YouTube**: Automatically detects and clicks the "Skip Ad" button while an ad is playing; if the button is not visible, fast-forwards the video to skip the ad directly
+* **Auto Restore 1x Speed During Ads**: Playback speed is restored to 1.0x while an ad plays to avoid triggering Google's detector warning from over-speeding ads, and restores the user's configured speed automatically after the ad ends
+
 #### [2.1.1] (2026-08-05) [UI Optimization]
 * **Improved YouTube Speed Button Background**: Shortcut button background changed to a dark translucent effect `rgba(15, 15, 15, 0.8)` for better visual harmony in the YouTube player
 * **Widened Settings Panel Speed Select**: The speed select control width in the settings panel has been doubled to prevent option content from being cut off
@@ -207,6 +211,7 @@ All notable changes to this project will be documented in this file. We truly ap
   * Optimized ad detection method, reducing the detection interval to 200ms
   * Automatically restores to 1x speed during ad playback to avoid Google detector warnings caused by speeding through ads
   * Automatically restores user's preferred speed after ads end
+* **Auto Skip Ad**: Automatically detects and clicks the "Skip Ad" button while an ad plays; if the button is not visible, fast-forwards the video to skip the ad directly (toggleable)
 * **Domain Exclusion**: Added `accounts.youtube.com` subdomain exclusion to optimize matching logic
 * **Customizable Controls**: Added settings for autoplay toggle, subtitle button, settings button, theater mode, and fullscreen button
 
@@ -234,6 +239,7 @@ All notable changes to this project will be documented in this file. We truly ap
 | Speed Indicator | ✅ | ✅ |
 | Auto Playback Speed | ✅ | ✅ |
 | Live Stream Detection | ✅ | ❌ |
+| Auto Skip Ad | ✅ | ❌ |
 | Auto Web Fullscreen | ❌ | ✅ |
 | Remove Redundant Buttons | ✅ | ✅ |
 | Hide Comments Section | ❌ | ✅ |
@@ -253,6 +259,7 @@ The script automatically switches interface language based on browser language:
 
 ### YouTube Settings:
 - [ ] Auto Playback Speed (customizable default speed)
+- [ ] Auto Skip Ad
 - [ ] Auto Theater Mode
 - [ ] Auto Remove Autoplay Toggle
 - [ ] Auto Remove Subtitles Button
