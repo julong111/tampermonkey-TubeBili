@@ -125,6 +125,7 @@ export function cleanupYoutube() {
 
 export async function handleYoutubePage(): Promise<void> {
   if (youtubeState.isPageProcessing) return;
+  if (!isYoutubeWatchPage(window.location.href)) return;
   youtubeState.isPageProcessing = true;
   const settingPanelItems = getSettingPanelItems();
 
