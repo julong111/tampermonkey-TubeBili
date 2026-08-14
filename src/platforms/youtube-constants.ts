@@ -2,6 +2,7 @@ import type { RemovalItem } from '../features/removal/config.js';
 
 export const INTERVAL_YOUTUBE_LIVE_STREAM_CHECK = 1000;
 export const INTERVAL_YOUTUBE_AD_CHECK = 200;
+export const INTERVAL_YOUTUBE_SKIP_AD_CHECK = 1000;
 
 export const youtubeSelectors = {
   videoPanel: "#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-right-controls",
@@ -13,7 +14,8 @@ export const youtubeSelectors = {
   fullScreenBtn: "#movie_player .ytp-fullscreen-button",
   finishListener: "yt-navigate-finish",
   liveStreamClass: "ytp-live-badge-is-livehead",
-  adSelector: ".ytp-ad-player-overlay, .ytp-ad-player-overlay-layout"
+  adSelector: ".ytp-ad-player-overlay, .ytp-ad-player-overlay-layout",
+  skipAdButton: ".ytp-skip-ad-button"
 };
 
 export const youtubeRemovalItems: Record<string, RemovalItem> = {
