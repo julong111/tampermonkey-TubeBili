@@ -108,6 +108,16 @@ describe('youtube skip-ad — 自动点击跳过广告按钮', () => {
     expect(skipBtn.click).not.toHaveBeenCalled()
   })
 
+  test('广告播放且按钮未出现时，快进视频跳过广告（fallback）', () => {
+    setupAdEnvironment(true)
+    skipBtn.offsetParent = null
+
+    vi.advanceTimersByTime(200)
+    vi.advanceTimersByTime(1000)
+
+    expect(video.currentTime).toBe(video.duration)
+  })
+
   test('设置项关闭时即便广告出现也不点击', () => {
     setupAdEnvironment(false)
 
@@ -117,13 +127,14 @@ describe('youtube skip-ad — 自动点击跳过广告按钮', () => {
     expect(skipBtn.click).not.toHaveBeenCalled()
   })
 
-  test('广告结束后停止点击', () => {
+  test('广告结束后停止点击和快进', () => {
     setupAdEnvironment(true)
 
     vi.advanceTimersByTime(200)
     vi.advanceTimersByTime(1000)
     expect(skipBtn.click).toHaveBeenCalledTimes(1)
 
+    video.currentTime = 5
     doc.querySelector.mockImplementation((selector) => {
       if (selector === SKIP_SELECTOR) return skipBtn
       return null
@@ -132,6 +143,7 @@ describe('youtube skip-ad — 自动点击跳过广告按钮', () => {
     vi.advanceTimersByTime(200)
     vi.advanceTimersByTime(2000)
     expect(skipBtn.click).toHaveBeenCalledTimes(1)
+    expect(video.currentTime).toBe(5)
   })
 
   test('广告中关闭开关后立即停止点击', () => {

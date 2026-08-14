@@ -85,9 +85,16 @@ export const youtubeHandlers = {
               stopSkipAdCheck();
               return;
             }
-            const skipBtn = document.querySelector(youtubeSelectors.skipAdButton) as HTMLElement | null;
-            if (skipBtn && skipBtn.offsetParent !== null && window.getComputedStyle(skipBtn).opacity === '1') {
-              skipBtn.click();
+            const skipAdOverlay = document.querySelector(youtubeSelectors.adSelector);
+            if (skipAdOverlay) {
+              const skipBtn = document.querySelector(youtubeSelectors.skipAdButton) as HTMLElement | null;
+              if (skipBtn && skipBtn.offsetParent !== null && window.getComputedStyle(skipBtn).opacity === '1') {
+                skipBtn.click();
+              }
+              const adVideo = getVideoElement();
+              if (adVideo && Number.isFinite(adVideo.duration) && adVideo.duration > 0) {
+                adVideo.currentTime = adVideo.duration;
+              }
             }
           }, INTERVAL_YOUTUBE_SKIP_AD_CHECK);
         }
