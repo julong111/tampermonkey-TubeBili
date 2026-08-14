@@ -10,6 +10,7 @@ import { initYouTubeElementRemover } from '../features/removal/remove-once.js';
 import {
   INTERVAL_YOUTUBE_LIVE_STREAM_CHECK,
   INTERVAL_YOUTUBE_AD_CHECK,
+  INTERVAL_YOUTUBE_SKIP_AD_CHECK,
   youtubeSelectors,
   youtubeRemovalItems
 } from './youtube-constants.js';
@@ -19,6 +20,7 @@ const youtubeState: {
   fallbackRate: number | null;
   adDetected: boolean;
   adCheckInterval: ReturnType<typeof setInterval> | null;
+  skipAdCheckInterval: ReturnType<typeof setInterval> | null;
   liveStreamCheck: ReturnType<typeof setInterval> | null;
   isPageProcessing: boolean;
 } = {
@@ -26,6 +28,7 @@ const youtubeState: {
   fallbackRate: null,
   adDetected: false,
   adCheckInterval: null,
+  skipAdCheckInterval: null,
   liveStreamCheck: null,
   isPageProcessing: false
 };
@@ -38,6 +41,13 @@ export const youtubeHandlers = {
   // },
   initListeners() {
     const settingPanelItems = getSettingPanelItems();
+    const skipAdEnableKey = settingPanelItems.Youtube_Action_SkipAd?.enableKey as string | undefined;
+    const stopSkipAdCheck = () => {
+      if (youtubeState.skipAdCheckInterval !== null) {
+        clearInterval(youtubeState.skipAdCheckInterval);
+        youtubeState.skipAdCheckInterval = null;
+      }
+    };
     if (youtubeState.fallbackRate === null) {
       const item = settingPanelItems.Youtube_Action_Rate;
       youtubeState.fallbackRate = parseFloat(
@@ -65,9 +75,26 @@ export const youtubeHandlers = {
       if (adOverlay && !youtubeState.adDetected && video) {
         setPlaybackRate(1);
         youtubeState.adDetected = true;
+        if (
+          skipAdEnableKey &&
+          gm.getValue(skipAdEnableKey, false) &&
+          youtubeState.skipAdCheckInterval === null
+        ) {
+          youtubeState.skipAdCheckInterval = setInterval(() => {
+            if (!gm.getValue(skipAdEnableKey, false)) {
+              stopSkipAdCheck();
+              return;
+            }
+            const skipBtn = document.querySelector(youtubeSelectors.skipAdButton);
+            if (skipBtn && typeof (skipBtn as HTMLElement).click === 'function') {
+              (skipBtn as HTMLElement).click();
+            }
+          }, INTERVAL_YOUTUBE_SKIP_AD_CHECK);
+        }
       } else if (!adOverlay && youtubeState.adDetected && video) {
         setPlaybackRate(youtubeState.fallbackRate as number);
         youtubeState.adDetected = false;
+        stopSkipAdCheck();
       }
     }, INTERVAL_YOUTUBE_AD_CHECK);
   }
@@ -81,6 +108,10 @@ export function cleanupYoutube() {
   if (youtubeState.adCheckInterval !== null) {
     clearInterval(youtubeState.adCheckInterval);
     youtubeState.adCheckInterval = null;
+  }
+  if (youtubeState.skipAdCheckInterval !== null) {
+    clearInterval(youtubeState.skipAdCheckInterval);
+    youtubeState.skipAdCheckInterval = null;
   }
   youtubeState.adDetected = false;
 }
