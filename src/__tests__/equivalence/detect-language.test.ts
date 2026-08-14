@@ -37,6 +37,7 @@ describe('t() i18n 查找', () => {
     'Menu_Save',
     'Menu_Close',
     'Youtube_Action_Rate',
+    'Youtube_Action_SkipAd',
     'Bilibili_Action_WebFullscreen'
   ]
 

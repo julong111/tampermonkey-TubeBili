@@ -58,6 +58,7 @@ describe('catalog — 平台相关配置', () => {
     const items = getSettingPanelItems()
     expect(items.Youtube_Action_Rate).toBeDefined()
     expect(items.Youtube_Action_TheaterMode).toBeDefined()
+    expect(items.Youtube_Action_SkipAd).toBeDefined()
     expect(items.Bilibili_Action_Rate).toBeUndefined()
   })
 

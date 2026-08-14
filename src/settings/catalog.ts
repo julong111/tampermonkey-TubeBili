@@ -28,6 +28,11 @@ export function buildCatalog(url: string, lang: string): Record<string, SettingI
         enableKey: "Youtube_Action_TheaterMode",
         recommended: true
       },
+      Youtube_Action_SkipAd: {
+        classId: "Youtube_Action_SkipAd",
+        text: getText("Youtube_Action_SkipAd", lang),
+        enableKey: "Youtube_Action_SkipAd_Enabled"
+      },
       Youtube_Remove_Autoplay: {
         classId: "Youtube_Remove_Autoplay",
         text: getText("Youtube_Remove_Autoplay", lang),
