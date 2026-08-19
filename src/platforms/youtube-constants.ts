@@ -3,6 +3,7 @@ import type { RemovalItem } from '../features/removal/config.js';
 export const INTERVAL_YOUTUBE_LIVE_STREAM_CHECK = 1000;
 export const INTERVAL_YOUTUBE_AD_CHECK = 500;
 export const INTERVAL_YOUTUBE_SKIP_AD_CHECK = 500;
+export const YOUTUBE_AD_PLAY_DURATION = 10000;
 
 export const youtubeSelectors = {
   videoPanel: "#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-right-controls",

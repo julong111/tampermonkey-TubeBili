@@ -109,13 +109,18 @@ describe('youtube skip-ad — 自动点击跳过广告按钮', () => {
     expect(skipBtn.click).not.toHaveBeenCalled()
   })
 
-  test('广告播放且按钮未出现时，快进视频跳过广告（fallback）', () => {
+  test('广告播放满 10 秒后才快进跳过广告（fallback 延迟）', () => {
     setupAdEnvironment(true)
     skipBtn.offsetParent = null
 
     vi.advanceTimersByTime(200)
-    vi.advanceTimersByTime(1000)
+    vi.advanceTimersByTime(2000)
+    expect(video.currentTime).toBe(0)
 
+    vi.advanceTimersByTime(8000)
+    expect(video.currentTime).toBe(0)
+
+    vi.advanceTimersByTime(500)
     expect(video.currentTime).toBe(video.duration)
   })
 

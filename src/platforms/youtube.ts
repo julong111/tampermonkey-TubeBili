@@ -12,6 +12,7 @@ import {
   INTERVAL_YOUTUBE_LIVE_STREAM_CHECK,
   INTERVAL_YOUTUBE_AD_CHECK,
   INTERVAL_YOUTUBE_SKIP_AD_CHECK,
+  YOUTUBE_AD_PLAY_DURATION,
   youtubeSelectors,
   youtubeRemovalItems
 } from './youtube-constants.js';
@@ -20,6 +21,7 @@ const youtubeState: {
   liveStreamStatus: boolean;
   fallbackRate: number | null;
   adDetected: boolean;
+  adStartTime: number | null;
   adCheckInterval: ReturnType<typeof setInterval> | null;
   skipAdCheckInterval: ReturnType<typeof setInterval> | null;
   liveStreamCheck: ReturnType<typeof setInterval> | null;
@@ -28,6 +30,7 @@ const youtubeState: {
   liveStreamStatus: false,
   fallbackRate: null,
   adDetected: false,
+  adStartTime: null,
   adCheckInterval: null,
   skipAdCheckInterval: null,
   liveStreamCheck: null,
@@ -87,6 +90,7 @@ export const youtubeHandlers = {
       if (adOverlay && !youtubeState.adDetected && video) {
         setRateInternal(1);
         youtubeState.adDetected = true;
+        youtubeState.adStartTime = Date.now();
         if (
           skipAdEnableKey &&
           gm.getValue(skipAdEnableKey, false) &&
@@ -104,7 +108,13 @@ export const youtubeHandlers = {
                 skipBtn.click();
               }
               const adVideo = getVideoElement();
-              if (adVideo && Number.isFinite(adVideo.duration) && adVideo.duration > 0) {
+              if (
+                adVideo &&
+                Number.isFinite(adVideo.duration) &&
+                adVideo.duration > 0 &&
+                youtubeState.adStartTime !== null &&
+                Date.now() - youtubeState.adStartTime >= YOUTUBE_AD_PLAY_DURATION
+              ) {
                 adVideo.currentTime = adVideo.duration;
               }
             }
@@ -113,6 +123,7 @@ export const youtubeHandlers = {
       } else if (!adOverlay && youtubeState.adDetected && video) {
         setRateInternal(youtubeState.fallbackRate as number);
         youtubeState.adDetected = false;
+        youtubeState.adStartTime = null;
         stopSkipAdCheck();
       }
     }, INTERVAL_YOUTUBE_AD_CHECK);
@@ -133,6 +144,7 @@ export function cleanupYoutube() {
     youtubeState.skipAdCheckInterval = null;
   }
   youtubeState.adDetected = false;
+  youtubeState.adStartTime = null;
   setUserRateChangeListener(null);
 }
 
