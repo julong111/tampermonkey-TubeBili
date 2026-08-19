@@ -373,6 +373,50 @@
 #minimalSettingsPanel .speed-list-section .error-message.show {
   display: block;
 }
+#minimalSettingsPanel .turbo-playback-section {
+  margin-top: 10px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  padding: 12px;
+}
+#minimalSettingsPanel .turbo-playback-section .setting-item {
+  padding: 2px 12px;
+  background-color: rgba(240, 240, 240, 0.8);
+  border-radius: 6px;
+}
+#minimalSettingsPanel .turbo-playback-section .setting-item .turbo-key-input {
+  flex: 0 0 auto;
+  min-width: 100px;
+  max-width: 140px;
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  text-align: center;
+  margin-left: 12px;
+}
+#minimalSettingsPanel .turbo-playback-section .setting-item .turbo-key-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+#minimalSettingsPanel .turbo-playback-section .setting-item .turbo-speed-select {
+  flex: 0 0 auto;
+  width: 80px;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+  cursor: pointer;
+  margin-left: 12px;
+}
+#minimalSettingsPanel .turbo-playback-section .setting-item .turbo-key-input.capturing {
+  background-color: #eff6ff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
 .speed-control-button.active {
   border: 2px solid #007bff !important;
 }
@@ -456,14 +500,19 @@
       Youtube_Action_Rate: "自动倍速播放",
       Youtube_Action_TheaterMode: "自动进入影院模式",
       Youtube_Action_SkipAd: "自动点击跳过广告按钮",
+      Youtube_Action_TurboPlayback: "一键极速播放",
       Youtube_Remove_Autoplay: "移除自动播放开关",
       Youtube_Remove_Subtitles: "移除字幕按钮",
       Youtube_Remove_Settings: "移除设置按钮",
       Youtube_Remove_TheaterMode: "移除影院模式按钮",
       Youtube_Remove_FullScreen: "移除全屏按钮",
+      Turbo_Playback_Key_Hint: "按住该键超过500ms触发极速播放，松开恢复原速",
+      Turbo_Playback_PressKey: "按下任意键...",
+      Turbo_Playback_Enable_Label: "启用极速播放",
       Bilibili_Action_Rate: "自动倍速播放",
       Bilibili_Action_WebFullscreen: "自动网页全屏",
       Bilibili_Action_AutoCloseLoginWindow: "自动关闭登录弹窗并恢复播放",
+      Bilibili_Action_TurboPlayback: "一键极速播放",
       Bilibili_Remove_Pip: "移除画中画按钮",
       Bilibili_Remove_Speed: "移除原始倍速按钮",
       Bilibili_Remove_Comments: "移除评论输入区"
@@ -489,14 +538,19 @@
       Youtube_Action_Rate: "Auto Playback Speed",
       Youtube_Action_TheaterMode: "Auto Theater Mode",
       Youtube_Action_SkipAd: "Auto Click Skip Ad Button",
+      Youtube_Action_TurboPlayback: "Turbo Playback",
       Youtube_Remove_Autoplay: "Remove Autoplay Toggle",
       Youtube_Remove_Subtitles: "Remove Subtitles Button",
       Youtube_Remove_Settings: "Remove Settings Button",
       Youtube_Remove_TheaterMode: "Remove Theater Mode Button",
       Youtube_Remove_FullScreen: "Remove FullScreen Button",
+      Turbo_Playback_Key_Hint: "Hold key >500ms to trigger turbo playback, release to restore speed",
+      Turbo_Playback_PressKey: "Press a key...",
+      Turbo_Playback_Enable_Label: "Enable Turbo Playback",
       Bilibili_Action_Rate: "Auto Playback Speed",
       Bilibili_Action_WebFullscreen: "Auto Web Fullscreen",
       Bilibili_Action_AutoCloseLoginWindow: "Auto Close Login Window and Resume Playback",
+      Bilibili_Action_TurboPlayback: "Turbo Playback",
       Bilibili_Remove_Pip: "Remove Picture-in-Picture Button",
       Bilibili_Remove_Speed: "Remove Original Speed Button",
       Bilibili_Remove_Comments: "Remove Comments Input Area"
@@ -610,9 +664,14 @@
   // src/settings/speed-list-constants.ts
   var shortcutSpeedListKey = "Shortcut_Speed_List";
   var buttonSpeedListKey = "Button_Speed_List";
+  var turboPlaybackEnabledKey = "Turbo_Playback_Enabled";
+  var turboPlaybackKeyKey = "Turbo_Playback_Key";
+  var turboPlaybackSpeedKey = "Turbo_Playback_Speed";
   var DEFAULT_SHORTCUT_SPEEDS = ["0.5", "1.0", "1.5", "2.0", "2.5", "3.0"];
   var DEFAULT_BUTTON_SPEEDS = ["0.5", "1.0", "1.5", "2.0"];
   var DEFAULT_SPEED = "1.0";
+  var DEFAULT_TURBO_PLAYBACK_KEY = "Shift";
+  var DEFAULT_TURBO_PLAYBACK_SPEED = "3.0";
 
   // src/settings/speed-list.ts
   function speedListError(lang) {
@@ -696,6 +755,15 @@
   }
   function createSpeedList(speeds, select) {
     speeds.forEach((speed) => {
+      const option = document.createElement("option");
+      option.value = speed;
+      option.textContent = speed;
+      select.appendChild(option);
+    });
+  }
+  function createTurboSpeedList(select) {
+    const turboSpeeds = getShortcutSpeeds().filter((s) => parseFloat(s) > 1);
+    turboSpeeds.forEach((speed) => {
       const option = document.createElement("option");
       option.value = speed;
       option.textContent = speed;
@@ -872,6 +940,57 @@
       document.getElementById("buttonSeparatorHint")?.classList.remove("hidden");
     });
     panel.appendChild(buttonSpeedListSection);
+    const turboPlaybackSection = document.createElement("div");
+    turboPlaybackSection.className = "turbo-playback-section";
+    const turboItem = document.createElement("div");
+    turboItem.className = "setting-item";
+    const turboEnableCheckbox = document.createElement("input");
+    turboEnableCheckbox.type = "checkbox";
+    turboEnableCheckbox.id = "turboPlaybackEnabledCheckbox";
+    turboEnableCheckbox.checked = Boolean(gm.getValue(turboPlaybackEnabledKey, false));
+    turboItem.appendChild(turboEnableCheckbox);
+    const turboEnableLabel = document.createElement("label");
+    turboEnableLabel.setAttribute("for", "turboPlaybackEnabledCheckbox");
+    const turboEnableStar = document.createElement("span");
+    turboEnableStar.className = "star";
+    turboEnableStar.textContent = "★";
+    turboEnableLabel.appendChild(turboEnableStar);
+    turboEnableLabel.appendChild(document.createTextNode(getText2("Turbo_Playback_Enable_Label")));
+    turboItem.appendChild(turboEnableLabel);
+    const turboKeyInput = document.createElement("input");
+    turboKeyInput.type = "text";
+    turboKeyInput.id = "turboPlaybackKeyInput";
+    turboKeyInput.placeholder = DEFAULT_TURBO_PLAYBACK_KEY;
+    turboKeyInput.value = String(gm.getValue(turboPlaybackKeyKey, DEFAULT_TURBO_PLAYBACK_KEY));
+    turboKeyInput.readOnly = true;
+    turboKeyInput.title = getText2("Turbo_Playback_Key_Hint");
+    turboKeyInput.className = "turbo-key-input";
+    turboItem.appendChild(turboKeyInput);
+    const turboSpeedSelect = document.createElement("select");
+    turboSpeedSelect.id = "turboPlaybackSpeedSelect";
+    createTurboSpeedList(turboSpeedSelect);
+    turboSpeedSelect.value = String(gm.getValue(turboPlaybackSpeedKey, DEFAULT_TURBO_PLAYBACK_SPEED));
+    turboSpeedSelect.className = "turbo-speed-select";
+    turboItem.appendChild(turboSpeedSelect);
+    turboPlaybackSection.appendChild(turboItem);
+    panel.appendChild(turboPlaybackSection);
+    let capturingKey = false;
+    turboKeyInput.addEventListener("click", () => {
+      capturingKey = true;
+      turboKeyInput.value = getText2("Turbo_Playback_PressKey");
+      turboKeyInput.classList.add("capturing");
+    });
+    document.addEventListener("keydown", (e) => {
+      if (!capturingKey)
+        return;
+      e.preventDefault();
+      const key = e.key === " " ? "Space" : e.key;
+      if (key.length === 1 || ["Shift", "Control", "Alt", "Meta", "Space", "Enter", "Escape", "Tab", "Backspace", "Delete"].includes(key)) {
+        turboKeyInput.value = key;
+        capturingKey = false;
+        turboKeyInput.classList.remove("capturing");
+      }
+    });
     const settingPanelItems = getSettingPanelItems();
     const actionItems = [];
     const removeItems = [];
@@ -981,6 +1100,12 @@
     buttonErrorMessage.classList.remove("show");
     gm.setValue(shortcutSpeedListKey, shortcutSpeedListInput.value);
     gm.setValue(buttonSpeedListKey, buttonSpeedListInput.value);
+    const turboKeyInput = document.getElementById("turboPlaybackKeyInput");
+    const turboSpeedSelect = document.getElementById("turboPlaybackSpeedSelect");
+    const turboEnableCheckbox = document.getElementById("turboPlaybackEnabledCheckbox");
+    gm.setValue(turboPlaybackKeyKey, turboKeyInput.value || DEFAULT_TURBO_PLAYBACK_KEY);
+    gm.setValue(turboPlaybackSpeedKey, turboSpeedSelect.value);
+    gm.setValue(turboPlaybackEnabledKey, turboEnableCheckbox.checked);
     setSpeedLists(shortcutResult.speeds, buttonResult.speeds);
     updateSpeedSelects(shortcutResult.speeds, buttonResult.speeds, shortcutSpeedListInput.value, buttonSpeedListInput.value);
     const settingPanelItems = getSettingPanelItems();
@@ -1004,6 +1129,18 @@
       const buttonResult = validateSpeedList(savedButtonSpeedList, getCurrentLang());
       if (shortcutResult.valid && buttonResult.valid) {
         updateSpeedSelects(shortcutResult.speeds, buttonResult.speeds, savedShortcutSpeedList, savedButtonSpeedList);
+      }
+      const turboKeyInput = document.getElementById("turboPlaybackKeyInput");
+      const turboSpeedSelect = document.getElementById("turboPlaybackSpeedSelect");
+      const turboEnableCheckbox = document.getElementById("turboPlaybackEnabledCheckbox");
+      if (turboKeyInput) {
+        turboKeyInput.value = String(gm.getValue(turboPlaybackKeyKey, DEFAULT_TURBO_PLAYBACK_KEY));
+      }
+      if (turboSpeedSelect) {
+        turboSpeedSelect.value = String(gm.getValue(turboPlaybackSpeedKey, DEFAULT_TURBO_PLAYBACK_SPEED));
+      }
+      if (turboEnableCheckbox) {
+        turboEnableCheckbox.checked = Boolean(gm.getValue(turboPlaybackEnabledKey, false));
       }
     }
     settingPanelElement?.classList.toggle("show");
@@ -1045,28 +1182,29 @@
   // src/ui/speed-indicator.ts
   var speedIndicatorElement = null;
   var speedIndicatorTimer = null;
+  var persistentIndicator = false;
   function showSpeedIndicator(rate) {
     if (speedIndicatorTimer) {
       clearTimeout(speedIndicatorTimer);
     }
     if (!speedIndicatorElement) {
-      const indicator2 = document.createElement("div");
-      indicator2.style.position = "fixed";
-      indicator2.style.top = "50%";
-      indicator2.style.left = "50%";
-      indicator2.style.transform = "translate(-50%, -50%)";
-      indicator2.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-      indicator2.style.color = "white";
-      indicator2.style.padding = "10px 20px";
-      indicator2.style.borderRadius = "8px";
-      indicator2.style.fontSize = "24px";
-      indicator2.style.fontWeight = "bold";
-      indicator2.style.zIndex = "2147483647";
-      indicator2.style.pointerEvents = "none";
-      indicator2.style.transition = "opacity 0.3s ease-out";
-      indicator2.style.opacity = "0";
-      document.body.appendChild(indicator2);
-      speedIndicatorElement = indicator2;
+      const indicator = document.createElement("div");
+      indicator.style.position = "fixed";
+      indicator.style.top = "50%";
+      indicator.style.left = "50%";
+      indicator.style.transform = "translate(-50%, -50%)";
+      indicator.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+      indicator.style.color = "white";
+      indicator.style.padding = "10px 20px";
+      indicator.style.borderRadius = "8px";
+      indicator.style.fontSize = "24px";
+      indicator.style.fontWeight = "bold";
+      indicator.style.zIndex = "2147483647";
+      indicator.style.pointerEvents = "none";
+      indicator.style.transition = "opacity 0.3s ease-out";
+      indicator.style.opacity = "0";
+      document.body.appendChild(indicator);
+      speedIndicatorElement = indicator;
     }
     const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
     if (fullscreenElement) {
@@ -1080,10 +1218,26 @@
     }
     speedIndicatorElement.textContent = `${rate}x`;
     speedIndicatorElement.style.opacity = "1";
-    const indicator = speedIndicatorElement;
-    speedIndicatorTimer = setTimeout(() => {
-      indicator.style.opacity = "0";
-    }, 500);
+    if (!persistentIndicator) {
+      const indicator = speedIndicatorElement;
+      speedIndicatorTimer = setTimeout(() => {
+        indicator.style.opacity = "0";
+      }, 500);
+    }
+  }
+  function showPersistentSpeedIndicator(rate) {
+    persistentIndicator = true;
+    showSpeedIndicator(rate);
+  }
+  function hideSpeedIndicator() {
+    persistentIndicator = false;
+    if (speedIndicatorTimer) {
+      clearTimeout(speedIndicatorTimer);
+      speedIndicatorTimer = null;
+    }
+    if (speedIndicatorElement) {
+      speedIndicatorElement.style.opacity = "0";
+    }
   }
 
   // src/ui/speed-buttons.ts
@@ -1179,6 +1333,80 @@
       return;
     shortcutHandler = handleKeydown;
     document.addEventListener("keydown", shortcutHandler);
+  }
+
+  // src/features/turbo-playback.ts
+  var TURBO_THRESHOLD_MS = 500;
+  var turboState = {
+    isActive: false,
+    keyPressedTime: 0,
+    triggerTimer: null,
+    previousRate: 1,
+    boundKeyDown: handleKeyDown,
+    boundKeyUp: handleKeyUp
+  };
+  function getTriggerKey() {
+    return String(gm.getValue(turboPlaybackKeyKey, DEFAULT_TURBO_PLAYBACK_KEY));
+  }
+  function getTurboSpeed() {
+    const speedValue = gm.getValue(turboPlaybackSpeedKey, DEFAULT_TURBO_PLAYBACK_SPEED);
+    return parseFloat(String(speedValue));
+  }
+  function isTargetKey(event) {
+    const triggerKey = getTriggerKey();
+    return event.key === triggerKey || event.code === triggerKey;
+  }
+  function handleKeyDown(event) {
+    if (!gm.getValue(turboPlaybackEnabledKey, false))
+      return;
+    const target = event.target;
+    if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) {
+      return;
+    }
+    const video = getVideoElement();
+    if (!video)
+      return;
+    if (!isTargetKey(event))
+      return;
+    if (turboState.isActive)
+      return;
+    turboState.keyPressedTime = Date.now();
+    turboState.triggerTimer = setTimeout(() => {
+      turboState.previousRate = video.playbackRate;
+      const turboSpeed = getTurboSpeed();
+      showPersistentSpeedIndicator(turboSpeed);
+      setPlaybackRate(turboSpeed);
+      turboState.isActive = true;
+    }, TURBO_THRESHOLD_MS);
+  }
+  function handleKeyUp(event) {
+    if (!turboState.triggerTimer)
+      return;
+    clearTimeout(turboState.triggerTimer);
+    turboState.triggerTimer = null;
+    if (!turboState.isActive)
+      return;
+    const video = getVideoElement();
+    if (!video)
+      return;
+    setPlaybackRate(turboState.previousRate);
+    hideSpeedIndicator();
+    turboState.isActive = false;
+    turboState.previousRate = 1;
+  }
+  function initTurboPlayback() {
+    document.addEventListener("keydown", turboState.boundKeyDown, true);
+    document.addEventListener("keyup", turboState.boundKeyUp, true);
+  }
+  function resetTurboPlayback() {
+    document.removeEventListener("keydown", turboState.boundKeyDown, true);
+    document.removeEventListener("keyup", turboState.boundKeyUp, true);
+    if (turboState.triggerTimer) {
+      clearTimeout(turboState.triggerTimer);
+      turboState.triggerTimer = null;
+    }
+    turboState.isActive = false;
+    turboState.previousRate = 1;
   }
 
   // src/platforms/router.ts
@@ -1755,6 +1983,7 @@
       injectStyles();
       gm.registerMenuCommand(t("Menu_Settings", sys.currentLang), togglePanel);
       initShortcuts();
+      initTurboPlayback();
       const adapter2 = getAdapter(url);
       if (adapter2) {
         adapter2.init(() => main());
@@ -1776,6 +2005,7 @@
   }
   var cleanup = () => {
     adapters.forEach((adapter) => adapter.cleanup());
+    resetTurboPlayback();
   };
 
   // src/entry.ts

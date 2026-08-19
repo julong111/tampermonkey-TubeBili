@@ -4,6 +4,7 @@ import { t, detectLanguage } from './core/i18n.js'
 import { initSettings } from './settings/store.js'
 import { togglePanel } from './ui/settings-panel.js'
 import { initShortcuts } from './features/shortcut.js'
+import { initTurboPlayback, resetTurboPlayback } from './features/turbo-playback.js'
 import { youtubeAdapter } from './platforms/youtube.js'
 import { bilibiliAdapter } from './platforms/bilibili.js'
 import type { PlatformAdapter } from './platforms/adapter.js'
@@ -38,6 +39,7 @@ export function main(): void {
     injectStyles()
     gm.registerMenuCommand(t('Menu_Settings', sys.currentLang), togglePanel)
     initShortcuts()
+    initTurboPlayback()
 
     const adapter = getAdapter(url)
     if (adapter) {
@@ -65,6 +67,7 @@ export function main(): void {
 
 export const cleanup = (): void => {
   adapters.forEach((adapter) => adapter.cleanup())
+  resetTurboPlayback()
 }
 
 export function resetTubeBili(): void {

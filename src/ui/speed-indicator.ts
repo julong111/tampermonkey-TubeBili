@@ -1,5 +1,6 @@
 let speedIndicatorElement: HTMLDivElement | null = null;
 let speedIndicatorTimer: ReturnType<typeof setTimeout> | null = null;
+let persistentIndicator = false;
 
 export function showSpeedIndicator(rate: string | number): void {
   if (speedIndicatorTimer) {
@@ -38,8 +39,26 @@ export function showSpeedIndicator(rate: string | number): void {
   }
   speedIndicatorElement.textContent = `${rate}x`;
   speedIndicatorElement.style.opacity = "1";
-  const indicator = speedIndicatorElement;
-  speedIndicatorTimer = setTimeout(() => {
-    indicator.style.opacity = "0";
-  }, 500);
+  if (!persistentIndicator) {
+    const indicator = speedIndicatorElement;
+    speedIndicatorTimer = setTimeout(() => {
+      indicator.style.opacity = "0";
+    }, 500);
+  }
+}
+
+export function showPersistentSpeedIndicator(rate: string | number): void {
+  persistentIndicator = true;
+  showSpeedIndicator(rate);
+}
+
+export function hideSpeedIndicator(): void {
+  persistentIndicator = false;
+  if (speedIndicatorTimer) {
+    clearTimeout(speedIndicatorTimer);
+    speedIndicatorTimer = null;
+  }
+  if (speedIndicatorElement) {
+    speedIndicatorElement.style.opacity = "0";
+  }
 }

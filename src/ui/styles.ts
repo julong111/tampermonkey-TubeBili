@@ -222,6 +222,50 @@ const STYLES = `
 #minimalSettingsPanel .speed-list-section .error-message.show {
   display: block;
 }
+#minimalSettingsPanel .turbo-playback-section {
+  margin-top: 10px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  padding: 12px;
+}
+#minimalSettingsPanel .turbo-playback-section .setting-item {
+  padding: 2px 12px;
+  background-color: rgba(240, 240, 240, 0.8);
+  border-radius: 6px;
+}
+#minimalSettingsPanel .turbo-playback-section .setting-item .turbo-key-input {
+  flex: 0 0 auto;
+  min-width: 100px;
+  max-width: 140px;
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  text-align: center;
+  margin-left: 12px;
+}
+#minimalSettingsPanel .turbo-playback-section .setting-item .turbo-key-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+#minimalSettingsPanel .turbo-playback-section .setting-item .turbo-speed-select {
+  flex: 0 0 auto;
+  width: 80px;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+  cursor: pointer;
+  margin-left: 12px;
+}
+#minimalSettingsPanel .turbo-playback-section .setting-item .turbo-key-input.capturing {
+  background-color: #eff6ff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
 .speed-control-button.active {
   border: 2px solid #007bff !important;
 }

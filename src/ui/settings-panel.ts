@@ -1,6 +1,6 @@
 import { gm, type GmApi } from '../core/gm-api.js';
 import { t } from '../core/i18n.js';
-import { shortcutSpeedListKey, buttonSpeedListKey } from '../settings/speed-list-constants.js';
+import { shortcutSpeedListKey, buttonSpeedListKey, turboPlaybackEnabledKey, turboPlaybackKeyKey, turboPlaybackSpeedKey, DEFAULT_TURBO_PLAYBACK_KEY, DEFAULT_TURBO_PLAYBACK_SPEED } from '../settings/speed-list-constants.js';
 import { validateSpeedList } from '../settings/speed-list.js';
 import type { SettingItem } from '../settings/catalog.js';
 import {
@@ -21,6 +21,16 @@ function getText(key: string): string {
 
 function createSpeedList(speeds: string[], select: HTMLSelectElement): void {
   speeds.forEach((speed) => {
+    const option = document.createElement("option");
+    option.value = speed;
+    option.textContent = speed;
+    select.appendChild(option);
+  });
+}
+
+function createTurboSpeedList(select: HTMLSelectElement): void {
+  const turboSpeeds = getShortcutSpeeds().filter((s) => parseFloat(s) > 1);
+  turboSpeeds.forEach((speed) => {
     const option = document.createElement("option");
     option.value = speed;
     option.textContent = speed;
@@ -206,6 +216,64 @@ function initializePanel() {
   });
   panel.appendChild(buttonSpeedListSection);
 
+  const turboPlaybackSection = document.createElement("div");
+  turboPlaybackSection.className = "turbo-playback-section";
+
+  const turboItem = document.createElement("div");
+  turboItem.className = "setting-item";
+
+  const turboEnableCheckbox = document.createElement("input");
+  turboEnableCheckbox.type = "checkbox";
+  turboEnableCheckbox.id = "turboPlaybackEnabledCheckbox";
+  turboEnableCheckbox.checked = Boolean(gm.getValue(turboPlaybackEnabledKey, false));
+  turboItem.appendChild(turboEnableCheckbox);
+
+  const turboEnableLabel = document.createElement("label");
+  turboEnableLabel.setAttribute("for", "turboPlaybackEnabledCheckbox");
+  const turboEnableStar = document.createElement("span");
+  turboEnableStar.className = "star";
+  turboEnableStar.textContent = "★";
+  turboEnableLabel.appendChild(turboEnableStar);
+  turboEnableLabel.appendChild(document.createTextNode(getText("Turbo_Playback_Enable_Label")));
+  turboItem.appendChild(turboEnableLabel);
+
+  const turboKeyInput = document.createElement("input");
+  turboKeyInput.type = "text";
+  turboKeyInput.id = "turboPlaybackKeyInput";
+  turboKeyInput.placeholder = DEFAULT_TURBO_PLAYBACK_KEY;
+  turboKeyInput.value = String(gm.getValue(turboPlaybackKeyKey, DEFAULT_TURBO_PLAYBACK_KEY));
+  turboKeyInput.readOnly = true;
+  turboKeyInput.title = getText("Turbo_Playback_Key_Hint");
+  turboKeyInput.className = "turbo-key-input";
+  turboItem.appendChild(turboKeyInput);
+
+  const turboSpeedSelect = document.createElement("select");
+  turboSpeedSelect.id = "turboPlaybackSpeedSelect";
+  createTurboSpeedList(turboSpeedSelect);
+  turboSpeedSelect.value = String(gm.getValue(turboPlaybackSpeedKey, DEFAULT_TURBO_PLAYBACK_SPEED));
+  turboSpeedSelect.className = "turbo-speed-select";
+  turboItem.appendChild(turboSpeedSelect);
+
+  turboPlaybackSection.appendChild(turboItem);
+  panel.appendChild(turboPlaybackSection);
+
+  let capturingKey = false
+  turboKeyInput.addEventListener("click", () => {
+    capturingKey = true
+    turboKeyInput.value = getText("Turbo_Playback_PressKey")
+    turboKeyInput.classList.add("capturing")
+  })
+  document.addEventListener("keydown", (e) => {
+    if (!capturingKey) return
+    e.preventDefault()
+    const key = e.key === " " ? "Space" : e.key
+    if (key.length === 1 || ["Shift", "Control", "Alt", "Meta", "Space", "Enter", "Escape", "Tab", "Backspace", "Delete"].includes(key)) {
+      turboKeyInput.value = key
+      capturingKey = false
+      turboKeyInput.classList.remove("capturing")
+    }
+  })
+
   const settingPanelItems = getSettingPanelItems();
   const actionItems: Array<[string, SettingItem]> = [];
   const removeItems: Array<[string, SettingItem]> = [];
@@ -325,6 +393,13 @@ function saveSettings(): void {
   gm.setValue(shortcutSpeedListKey, shortcutSpeedListInput.value);
   gm.setValue(buttonSpeedListKey, buttonSpeedListInput.value);
 
+  const turboKeyInput = document.getElementById("turboPlaybackKeyInput") as HTMLInputElement;
+  const turboSpeedSelect = document.getElementById("turboPlaybackSpeedSelect") as HTMLSelectElement;
+  const turboEnableCheckbox = document.getElementById("turboPlaybackEnabledCheckbox") as HTMLInputElement;
+  gm.setValue(turboPlaybackKeyKey, turboKeyInput.value || DEFAULT_TURBO_PLAYBACK_KEY);
+  gm.setValue(turboPlaybackSpeedKey, turboSpeedSelect.value);
+  gm.setValue(turboPlaybackEnabledKey, turboEnableCheckbox.checked);
+
   setSpeedLists(shortcutResult.speeds, buttonResult.speeds);
   updateSpeedSelects(shortcutResult.speeds, buttonResult.speeds, shortcutSpeedListInput.value, buttonSpeedListInput.value);
 
@@ -357,6 +432,19 @@ export function togglePanel(): void {
         savedShortcutSpeedList,
         savedButtonSpeedList
       );
+    }
+
+    const turboKeyInput = document.getElementById("turboPlaybackKeyInput") as HTMLInputElement;
+    const turboSpeedSelect = document.getElementById("turboPlaybackSpeedSelect") as HTMLSelectElement;
+    const turboEnableCheckbox = document.getElementById("turboPlaybackEnabledCheckbox") as HTMLInputElement;
+    if (turboKeyInput) {
+      turboKeyInput.value = String(gm.getValue(turboPlaybackKeyKey, DEFAULT_TURBO_PLAYBACK_KEY));
+    }
+    if (turboSpeedSelect) {
+      turboSpeedSelect.value = String(gm.getValue(turboPlaybackSpeedKey, DEFAULT_TURBO_PLAYBACK_SPEED));
+    }
+    if (turboEnableCheckbox) {
+      turboEnableCheckbox.checked = Boolean(gm.getValue(turboPlaybackEnabledKey, false));
     }
   }
   settingPanelElement?.classList.toggle("show");

@@ -6,6 +6,7 @@ TubeBili is a powerful userscript designed specifically for Tampermonkey users, 
 - 🚀 Auto playback speed setting
 - 🎯 Customizable speed list
 - ⌨️ Keyboard shortcut speed adjustment (comma to decrease, period to increase)
+- ⚡ **One-Key Turbo Playback** (hold custom key >500ms to trigger speed, release to restore.Ideal for quickly skipping ads, intros/outros, boring segments, etc.)
 - 🎨 Beautiful settings panel
 - 🔧 Optional removal of player buttons
 
@@ -42,8 +43,8 @@ bun test
 bun run typecheck
 
 # Output files:
-#   dist/v2.1.1/TubeBili.user.js        - Tampermonkey standard version (current)
-#   dist/v2.1.1/TubeBili.userscripts.js - Safari Userscripts universal version (current)
+#   dist/v2.2.2/TubeBili.user.js        - Tampermonkey standard version (current)
+#   dist/v2.2.2/TubeBili.userscripts.js - Safari Userscripts universal version (current)
 #   dist/latest/TubeBili.user.js        - Tampermonkey standard version (latest)
 #   dist/latest/TubeBili.userscripts.js - Safari Userscripts universal version (latest)
 ```
@@ -121,6 +122,13 @@ Download and install the script here: [TubeBili.userscripts.js](https://raw.gith
 
 All notable changes to this project will be documented in this file. We truly appreciate every user's support and suggestions!
 
+#### [2.2.2] (2026-08-19) [New Feature]
+* **New One-Key Turbo Playback**: Hold a custom key (default Shift) for >500ms to trigger turbo playback (default 3.0x, customizable), release to instantly restore original speed
+  - Settings panel adds "Enable Turbo Playback" toggle, trigger key (click input then press any key to capture), turbo speed selector
+  - Turbo speed list automatically filters out 1.0x and below
+  - Speed indicator stays visible during turbo playback, hides on release
+  - Works on both YouTube and Bilibili with shared global settings
+
 #### [2.2] (2026-08-14) [New Feature]
 * **New Auto Skip Ad on YouTube**: Automatically detects and clicks the "Skip Ad" button while an ad is playing; if the button is not visible, fast-forwards the video to skip the ad directly
 * **Auto Restore 1x Speed During Ads**: Playback speed is restored to 1.0x while an ad plays to avoid triggering Google's detector warning from over-speeding ads, and restores the user's configured speed automatically after the ad ends
@@ -191,6 +199,12 @@ All notable changes to this project will be documented in this file. We truly ap
   - **Shortcut Speed List**: Customize playback speed values used when adjusting speed with keyboard shortcuts (comma/period keys)
   - **Button Speed List**: Customize playback speed buttons displayed on the player interface
   - Two lists are configured independently, providing more flexible speed control experience
+* **One-Key Turbo Playback**: Hold a custom key (default Shift) for >500ms to trigger turbo playback, release to instantly restore original speed
+  - Customizable trigger key (click input field then press any key to capture, supports Shift/Ctrl/Alt/Meta/Space/Enter/Esc/Tab, etc.)
+  - Customizable turbo speed (default 3.0x, only shows >1.0x speed options)
+  - Speed indicator stays visible during turbo playback, auto-hides on release
+  - **Solves**: Videos often contain ads, intros/outros, or irrelevant segments. Manually seeking is tedious and imprecise. This feature lets you hold a key to fast-forward through unwanted parts, then release to instantly resume normal playback—no need to touch the progress bar or remember your original speed
+  - Ideal for quickly skipping ads, intros/outros, boring segments, etc.
 
 ### 2. Smart Live Stream Detection (YouTube Exclusive)
 * **Live Stream Recognition**: Automatically detects YouTube live streams
