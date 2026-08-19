@@ -67,7 +67,7 @@ describe('catalog — 平台相关配置', () => {
 
     const items = getSettingPanelItems()
     expect(items.Bilibili_Action_Rate).toBeDefined()
-    expect(items.Bilibili_Action_WebFullscreen).toBeDefined()
+    expect(items.Bilibili_DisplayMode_Enabled).toBeDefined()
     expect(items.Youtube_Action_Rate).toBeUndefined()
   })
 })

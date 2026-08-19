@@ -74,6 +74,12 @@ function updateSpeedSelects(shortcutSpeedsNew: string[], buttonSpeedsNew: string
 }
 
 function createSettingItem(item: SettingItem): HTMLDivElement {
+  if (item.type === "radio" && item.radioOptions && item.radioName) {
+    return createRadioGroup(item);
+  }
+  if (item.type === "display-mode") {
+    return createDisplayModeItem(item);
+  }
   let functionDiv = document.createElement("div");
   functionDiv.className = "setting-item";
   let functionValue = gm.getValue(item.enableKey, false);
@@ -100,6 +106,113 @@ function createSettingItem(item: SettingItem): HTMLDivElement {
     select.value = String(gm.getValue(item.valueKey, getDefaultSpeed()));
     functionDiv.appendChild(select);
   }
+  return functionDiv;
+}
+
+function createRadioGroup(item: SettingItem): HTMLDivElement {
+  const groupDiv = document.createElement("div");
+  groupDiv.className = "setting-item radio-group";
+  const currentValue = gm.getValue(item.enableKey, "web-fullscreen");
+
+  if (item.recommended) {
+    const star = document.createElement("span");
+    star.className = "star";
+    star.textContent = "★";
+    groupDiv.appendChild(star);
+  }
+  const label = document.createElement("label");
+  label.textContent = item.text;
+  groupDiv.appendChild(label);
+
+  const optionsContainer = document.createElement("div");
+  optionsContainer.className = "radio-options";
+  optionsContainer.style.display = "flex";
+  optionsContainer.style.gap = "16px";
+  optionsContainer.style.flexWrap = "wrap";
+  optionsContainer.style.alignItems = "center";
+  
+  for (const option of item.radioOptions) {
+    const optionDiv = document.createElement("div");
+    optionDiv.className = "radio-option";
+    optionDiv.style.display = "flex";
+    optionDiv.style.alignItems = "center";
+    optionDiv.style.gap = "6px";
+    
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.name = item.radioName;
+    radio.value = option.value;
+    radio.id = `${item.classId}_${option.value}`;
+    radio.checked = currentValue === option.value;
+    optionDiv.appendChild(radio);
+    
+    const optionLabel = document.createElement("label");
+    optionLabel.setAttribute("for", radio.id);
+    optionLabel.textContent = option.text;
+    optionDiv.appendChild(optionLabel);
+    
+    optionsContainer.appendChild(optionDiv);
+  }
+  
+  groupDiv.appendChild(optionsContainer);
+  return groupDiv;
+}
+
+function createDisplayModeItem(item: SettingItem): HTMLDivElement {
+  const functionDiv = document.createElement("div");
+  functionDiv.className = "setting-item";
+
+  const enabledKey = item.enableKey;
+  const typeKey = "Bilibili_DisplayMode_Type";
+  const radioName = item.radioName || "bilibiliDisplayMode";
+  const radioOptions = item.radioOptions || [];
+
+  const enabled = gm.getValue(enabledKey, false);
+  const currentType = gm.getValue(typeKey, "web-fullscreen");
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.checked = Boolean(enabled);
+  checkbox.id = item.classId;
+  functionDiv.appendChild(checkbox);
+
+  const label = document.createElement("label");
+  label.setAttribute("for", item.classId);
+  if (item.recommended) {
+    const star = document.createElement("span");
+    star.className = "star";
+    star.textContent = "★";
+    label.appendChild(star);
+  }
+  label.appendChild(document.createTextNode(item.text));
+  functionDiv.appendChild(label);
+
+  const radioContainer = document.createElement("div");
+  radioContainer.style.display = "flex";
+  radioContainer.style.gap = "16px";
+  radioContainer.style.marginLeft = "auto";
+  radioContainer.style.alignItems = "center";
+
+  for (const option of radioOptions) {
+    const optionLabel = document.createElement("label");
+    optionLabel.style.display = "flex";
+    optionLabel.style.alignItems = "center";
+    optionLabel.style.gap = "6px";
+    optionLabel.style.cursor = "pointer";
+    optionLabel.style.fontSize = "15px";
+    optionLabel.style.color = "#374151";
+
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.name = radioName;
+    radio.value = option.value;
+    radio.checked = currentType === option.value;
+    optionLabel.appendChild(radio);
+    optionLabel.appendChild(document.createTextNode(option.text));
+    radioContainer.appendChild(optionLabel);
+  }
+
+  functionDiv.appendChild(radioContainer);
   return functionDiv;
 }
 
@@ -278,7 +391,7 @@ function initializePanel() {
   const actionItems: Array<[string, SettingItem]> = [];
   const removeItems: Array<[string, SettingItem]> = [];
   for (const [key, item] of Object.entries(settingPanelItems)) {
-    if (key.startsWith("_Action") || key.includes("Action")) {
+    if (key.startsWith("_Action") || key.includes("Action") || key.includes("DisplayMode")) {
       actionItems.push([key, item]);
     } else {
       removeItems.push([key, item]);
@@ -405,11 +518,25 @@ function saveSettings(): void {
 
   const settingPanelItems = getSettingPanelItems();
   for (const [key, item] of Object.entries(settingPanelItems)) {
-    const isChecked = (document.getElementById(item.classId) as HTMLInputElement).checked;
-    gm.setValue(item.enableKey, isChecked);
-    if (item.valueKey) {
-      const value = (document.getElementById(item.valueKey) as HTMLSelectElement).value;
-      gm.setValue(item.valueKey, value);
+    if (item.type === "display-mode" && item.radioName) {
+      const selectedRadio = document.querySelector(`input[name="${item.radioName}"]:checked`) as HTMLInputElement;
+      if (selectedRadio) {
+        gm.setValue("Bilibili_DisplayMode_Type", selectedRadio.value);
+      }
+      const isChecked = (document.getElementById(item.classId) as HTMLInputElement).checked;
+      gm.setValue(item.enableKey, isChecked);
+    } else if ((item.type === "radio" || item.type === "radio-inline") && item.radioName) {
+      const selectedRadio = document.querySelector(`input[name="${item.radioName}"]:checked`) as HTMLInputElement;
+      if (selectedRadio) {
+        gm.setValue(item.enableKey, selectedRadio.value);
+      }
+    } else {
+      const isChecked = (document.getElementById(item.classId) as HTMLInputElement).checked;
+      gm.setValue(item.enableKey, isChecked);
+      if (item.valueKey) {
+        const value = (document.getElementById(item.valueKey) as HTMLSelectElement).value;
+        gm.setValue(item.valueKey, value);
+      }
     }
   }
   settingPanelElement?.classList.toggle("show");
@@ -445,6 +572,23 @@ export function togglePanel(): void {
     }
     if (turboEnableCheckbox) {
       turboEnableCheckbox.checked = Boolean(gm.getValue(turboPlaybackEnabledKey, false));
+    }
+
+    const settingPanelItems = getSettingPanelItems();
+    for (const [key, item] of Object.entries(settingPanelItems)) {
+      if (item.type === "display-mode" && item.radioName) {
+        const savedValue = gm.getValue("Bilibili_DisplayMode_Type", "web-fullscreen");
+        const selectedRadio = document.querySelector(`input[name="${item.radioName}"][value="${savedValue}"]`) as HTMLInputElement;
+        if (selectedRadio) {
+          selectedRadio.checked = true;
+        }
+      } else if ((item.type === "radio" || item.type === "radio-inline") && item.radioName) {
+        const savedValue = gm.getValue(item.enableKey, "web-fullscreen");
+        const selectedRadio = document.querySelector(`input[name="${item.radioName}"][value="${savedValue}"]`) as HTMLInputElement;
+        if (selectedRadio) {
+          selectedRadio.checked = true;
+        }
+      }
     }
   }
   settingPanelElement?.classList.toggle("show");

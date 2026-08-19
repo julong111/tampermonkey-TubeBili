@@ -16,7 +16,8 @@ export const bilibiliSelectors = {
   speedsListBtn: ".bpx-player-ctrl-playbackrate",
   trialConfirmBtn: ".bpx-player-toast-confirm-login",
   LoginWindowCloseBtn: ".bili-mini-close-icon",
-  speedBtnPostionTarget: ".bpx-player-control-bottom-right"
+  speedBtnPostionTarget: ".bpx-player-control-bottom-right",
+  wideBtn: ".bpx-player-ctrl-wide"
 };
 
 export const bilibiliRemovalItems: Record<string, RemovalItem> = {

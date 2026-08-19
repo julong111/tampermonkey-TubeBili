@@ -38,7 +38,9 @@ describe('t() i18n 查找', () => {
     'Menu_Close',
     'Youtube_Action_Rate',
     'Youtube_Action_SkipAd',
-    'Bilibili_Action_WebFullscreen'
+    'Bilibili_DisplayMode_Enabled',
+    'Bilibili_DisplayMode_WebFullscreen',
+    'Bilibili_DisplayMode_Wide'
   ]
 
   for (const lang of ['zh', 'en'] as const) {

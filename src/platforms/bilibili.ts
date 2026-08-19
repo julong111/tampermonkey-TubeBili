@@ -15,7 +15,7 @@ import {
   bilibiliRemovalItems
 } from './bilibili-constants.js';
 
-type DisplayMode = 'normal' | 'fullscreen' | 'web-fullscreen';
+type DisplayMode = 'normal' | 'fullscreen' | 'web-fullscreen' | 'wide';
 
 const bilibiliState: {
   removalInterval: ReturnType<typeof setInterval> | null;
@@ -26,6 +26,7 @@ const bilibiliState: {
   desiredMode: DisplayMode;
   lastUserGesture: number;
   webFullscreenObserver: MutationObserver | null;
+  wideObserver: MutationObserver | null;
   gestureListenersRegistered: boolean;
   removeGestureListeners: (() => void) | null;
 } = {
@@ -37,6 +38,7 @@ const bilibiliState: {
   desiredMode: 'normal',
   lastUserGesture: 0,
   webFullscreenObserver: null,
+  wideObserver: null,
   gestureListenersRegistered: false,
   removeGestureListeners: null
 };
@@ -45,12 +47,18 @@ function markUserGesture() {
   bilibiliState.lastUserGesture = Date.now();
 }
 
+function getWideMode(): boolean {
+  const btn = document.querySelector(bilibiliSelectors.wideBtn);
+  return btn?.classList.contains('bpx-state-entered') ?? false;
+}
+
 function getDisplayMode(): DisplayMode {
   if (document.fullscreenElement) return 'fullscreen';
   const container = document.querySelector(bilibiliSelectors.videoPanel);
   const screen = container ? container.getAttribute('data-screen') : null;
   if (screen === 'web') return 'web-fullscreen';
   if (screen === 'full') return 'fullscreen';
+  if (getWideMode()) return 'wide';
   return 'normal';
 }
 
@@ -70,7 +78,7 @@ function updateDisplayMode(): void {
 
 function markUserExitMode(): void {
   const mode = getDisplayMode();
-  if (mode === 'web-fullscreen' || mode === 'fullscreen') {
+  if (mode === 'web-fullscreen' || mode === 'fullscreen' || mode === 'wide') {
     bilibiliState.desiredMode = 'normal';
   }
 }
@@ -86,7 +94,8 @@ function onFullscreenControlClick(e: MouseEvent): void {
   const mode = getDisplayMode();
   if (
     (mode === 'fullscreen' && (e.target as Element | null)?.closest?.(bilibiliSelectors.fullScreenBtn)) ||
-    (mode === 'web-fullscreen' && (e.target as Element | null)?.closest?.(bilibiliSelectors.webFullBtn))
+    (mode === 'web-fullscreen' && (e.target as Element | null)?.closest?.(bilibiliSelectors.webFullBtn)) ||
+    (mode === 'wide' && (e.target as Element | null)?.closest?.(bilibiliSelectors.wideBtn))
   ) {
     markUserExitMode();
   }
@@ -131,11 +140,32 @@ function setupDisplayModeTracking(): void {
   }).catch(() => {});
 }
 
+function setupWideModeTracking(): void {
+  if (bilibiliState.wideObserver) {
+    bilibiliState.wideObserver.disconnect();
+    bilibiliState.wideObserver = null;
+  }
+  waitElement(bilibiliSelectors.wideBtn).then((btn) => {
+    if (bilibiliState.wideObserver) return;
+    const observer = new MutationObserver(updateDisplayMode);
+    observer.observe(btn, { attributes: true, attributeFilter: ['class'] });
+    bilibiliState.wideObserver = observer;
+  }).catch(() => {});
+}
+
 export const bilibiliHandlers = {
   webFullscreen() {
     waitElement(bilibiliSelectors.videoPanel).then(() => {
       if (getDisplayMode() === 'web-fullscreen') return;
       waitElement(bilibiliSelectors.webFullBtn).then((item) => {
+        (item as HTMLElement).click();
+      });
+    });
+  },
+  wideMode() {
+    waitElement(bilibiliSelectors.videoPanel).then(() => {
+      if (getDisplayMode() === 'wide') return;
+      waitElement(bilibiliSelectors.wideBtn).then((item) => {
         (item as HTMLElement).click();
       });
     });
@@ -182,6 +212,8 @@ export const bilibiliHandlers = {
             bilibiliHandlers.webFullscreen();
           } else if (bilibiliState.desiredMode === 'fullscreen') {
             bilibiliHandlers.enterFullscreen();
+          } else if (bilibiliState.desiredMode === 'wide') {
+            bilibiliHandlers.wideMode();
           }
         }
       );
@@ -205,6 +237,10 @@ export function cleanupBilibili(): void {
   if (bilibiliState.webFullscreenObserver !== null) {
     bilibiliState.webFullscreenObserver.disconnect();
     bilibiliState.webFullscreenObserver = null;
+  }
+  if (bilibiliState.wideObserver !== null) {
+    bilibiliState.wideObserver.disconnect();
+    bilibiliState.wideObserver = null;
   }
   removeDisplayModeListeners();
   bilibiliState.displayMode = 'normal';
@@ -258,13 +294,20 @@ export const bilibiliAdapter: PlatformAdapter = definePlatformAdapter({
   onPage: () => {
     handleBilibiliPage();
     const settingPanelItems = getSettingPanelItems();
-    if (gm.getValue(settingPanelItems.Bilibili_Action_WebFullscreen?.enableKey as string, false)) {
-      bilibiliHandlers.webFullscreen();
+    const enabled = gm.getValue(settingPanelItems.Bilibili_DisplayMode_Enabled?.enableKey as string, false);
+    const type = gm.getValue("Bilibili_DisplayMode_Type", "web-fullscreen");
+    if (enabled) {
+      if (type === 'web-fullscreen') {
+        bilibiliHandlers.webFullscreen();
+      } else if (type === 'wide') {
+        bilibiliHandlers.wideMode();
+      }
     }
     bilibiliHandlers.startRemoval();
     bilibiliHandlers.startAutoCloseLoginWindowGuard();
     ensureDisplayModeListeners();
     setupDisplayModeTracking();
+    setupWideModeTracking();
   },
   cleanup: cleanupBilibili,
 });

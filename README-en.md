@@ -6,7 +6,8 @@ TubeBili is a powerful userscript designed specifically for Tampermonkey users, 
 - 🚀 Auto playback speed setting
 - 🎯 Customizable speed list
 - ⌨️ Keyboard shortcut speed adjustment (comma to decrease, period to increase)
-- ⚡ **One-Key Turbo Playback** (hold custom key >500ms to trigger speed, release to restore.Ideal for quickly skipping ads, intros/outros, boring segments, etc.)
+- ⚡ **One-Key Turbo Playback** (hold custom key >500ms to trigger speed, release to restore. Ideal for quickly skipping ads, intros/outros, boring segments, etc.)
+- 🖥️ **Auto Display Mode** (Bilibili: Web Fullscreen / Wide Mode - choose one)
 - 🎨 Beautiful settings panel
 - 🔧 Optional removal of player buttons
 
@@ -43,8 +44,6 @@ bun test
 bun run typecheck
 
 # Output files:
-#   dist/v2.2.2/TubeBili.user.js        - Tampermonkey standard version (current)
-#   dist/v2.2.2/TubeBili.userscripts.js - Safari Userscripts universal version (current)
 #   dist/latest/TubeBili.user.js        - Tampermonkey standard version (latest)
 #   dist/latest/TubeBili.userscripts.js - Safari Userscripts universal version (latest)
 ```
@@ -121,6 +120,12 @@ Download and install the script here: [TubeBili.userscripts.js](https://raw.gith
 ## 📝 Changelog
 
 All notable changes to this project will be documented in this file. We truly appreciate every user's support and suggestions!
+
+#### [2.3] (2026-08-20) [New Feature]
+* **New Bilibili Auto Wide Mode**: Automatically enters wide mode on video load, mutually exclusive with "Auto Web Fullscreen"
+  - Settings panel adds "Auto Display Mode" with radio options: ✅ Enable, then choose "Web Fullscreen" or "Wide Mode"
+  - Disabled by default, requires user to enable
+  - Wide mode and web fullscreen are mutually exclusive; radio ensures only one active at a time
 
 #### [2.2.2] (2026-08-19) [New Feature]
 * **New One-Key Turbo Playback**: Hold a custom key (default Shift) for >500ms to trigger turbo playback (default 3.0x, customizable), release to instantly restore original speed
@@ -230,8 +235,8 @@ All notable changes to this project will be documented in this file. We truly ap
 * **Customizable Controls**: Added settings for autoplay toggle, subtitle button, settings button, theater mode, and fullscreen button
 
 #### Bilibili
+* **Auto Display Mode**: Automatically enters selected mode after video loads — **Web Fullscreen** or **Wide Mode** (choose one, disabled by default)
 * **Auto Close Login Window**: Periodically detects the login prompt dialog shown when not logged in, automatically closes it and resumes playback, blocking annoying login pop-ups when not logged in
-* **Auto Web Fullscreen**: Automatically enters web fullscreen mode after video loads
 * **Enhanced Button Management**: Options to remove Picture-in-Picture, Original Speed, and Comments Input Area buttons
 * **Speed Settings Button Position Optimization**: Speed settings buttons are now added to the center bottom of the player control bar
 
@@ -254,7 +259,7 @@ All notable changes to this project will be documented in this file. We truly ap
 | Auto Playback Speed | ✅ | ✅ |
 | Live Stream Detection | ✅ | ❌ |
 | Auto Skip Ad | ✅ | ❌ |
-| Auto Web Fullscreen | ❌ | ✅ |
+| Auto Display Mode | ✅ | ✅ |
 | Remove Redundant Buttons | ✅ | ✅ |
 | Hide Comments Section | ❌ | ✅ |
 | Auto Close Login Window and Resume Playback | ❌ | ✅ |
@@ -272,22 +277,23 @@ The script automatically switches interface language based on browser language:
 ## ⚙️ Detailed Configuration Options
 
 ### YouTube Settings:
-- [ ] Auto Playback Speed (customizable default speed)
-- [ ] Auto Skip Ad
-- [ ] Auto Theater Mode
-- [ ] Auto Remove Autoplay Toggle
-- [ ] Auto Remove Subtitles Button
-- [ ] Auto Remove Settings Button
-- [ ] Auto Remove Theater Mode Button
-- [ ] Auto Remove FullScreen Button
+- Auto Display Mode (Web Fullscreen)
+- Auto Playback Speed (customizable default speed)
+- Auto Skip Ad
+- Auto Theater Mode
+- Auto Remove Autoplay Toggle
+- Auto Remove Subtitles Button
+- Auto Remove Settings Button
+- Auto Remove Theater Mode Button
+- Auto Remove FullScreen Button
 
 ### Bilibili Settings:
-- [ ] Auto Web Fullscreen
-- [ ] Auto Playback Speed (customizable default speed)
-- [ ] Auto Remove Picture-in-Picture Button
-- [ ] Auto Remove Original Speed Button
-- [ ] Auto Remove Comments Input Area
-- [x] Auto close login dialog and resume playback when not logged in
+- Auto Display Mode (radio: Web Fullscreen / Wide Mode)
+- Auto Playback Speed (customizable default speed)
+- Auto Remove Picture-in-Picture Button
+- Auto Remove Original Speed Button
+- Auto Remove Comments Input Area
+- Auto close login dialog and resume playback when not logged in
 
 ---
 
