@@ -20,7 +20,7 @@ export function validateSpeedList(input: unknown, lang: string = 'en'): SpeedLis
   }
   const speeds: string[] = [];
   for (const part of parts) {
-    const regex = /^(\d+\.?\d{0,1}|\.\d{1})$/;
+    const regex = /^(\d+(\.\d{1,2})?|\.\d{1,2})$/;
     if (!regex.test(part)) {
       return { valid: false, speeds: [], error: speedListError(lang) };
     }
@@ -28,7 +28,7 @@ export function validateSpeedList(input: unknown, lang: string = 'en'): SpeedLis
     if (num < 0.1 || num > 10) {
       return { valid: false, speeds: [], error: speedListError(lang) };
     }
-    speeds.push(parseFloat(num.toFixed(1)).toString());
+    speeds.push(num.toString());
   }
   return { valid: true, speeds, error: "" };
 }
